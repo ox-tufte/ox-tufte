@@ -1,0 +1,14 @@
+#+TITLE: Ox-tufte
+#+AUTHOR: Lee Hinman
+#+EMAIL: lee@elastic.co
+
+* Introduction
+
+This is an export backend for Org-mode that exports buffers to HTML that is
+compatible with [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] out of the box (meaning no CSS modifications needed).
+
+It's still a work-in-progress, but it works pretty well right now.
+
+* References
+- https://edwardtufte.github.io/tufte-css/
+- https://gitlab.com/snippets/22309
