@@ -1,4 +1,4 @@
-;;; ox-tufte.el --- Tufte
+;;; ox-tufte.el --- Tufte HTML org-mode export backend
 
 ;; Copyright (C) 2016 Matthew Lee Hinman
 
@@ -204,4 +204,4 @@ Return output file's name."
 
 (provide 'ox-tufte)
 
-;;; ox-gfm.el ends here
+;;; ox-tufte.el ends here
