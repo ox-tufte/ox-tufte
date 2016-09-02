@@ -1,6 +1,6 @@
 #+TITLE: Ox-tufte
 #+AUTHOR: Lee Hinman
-#+EMAIL: lee@elastic.co
+#+EMAIL: lee@writequit.org
 
 * Introduction
 
@@ -18,7 +18,7 @@ Currently you need to manually install, do something like:
 (require 'ox-tufte)
 #+END_SRC
 
-For usage, when exporting simple select "Tufte HTML" instead of regular HTML
+For usage, when exporting simply select "Tufte HTML" instead of regular HTML
 export from the export menu (=C-c C-e=).
 
 It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] and place it on your server (with the
