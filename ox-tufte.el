@@ -33,7 +33,6 @@
 
 (require 'ox)
 
-
 
 ;;; User-Configurable Variables
 
@@ -43,6 +42,14 @@
   :group 'org-export
   :version "24.4"
   :package-version '(Org . "8.0"))
+
+(defcustom org-tufte-include-footnotes-at-bottom nil
+  "Non-nil means to include footnotes at the bottom of the page
+  in addition to being included as sidenotes. Sidenotes are not
+  shown on very narrow screens (phones), so it may be useful to
+  additionally include them at the bottom."
+  :group 'org-export-tufte
+  :type 'boolean)
 
 
 ;;; Define Back-End
@@ -83,16 +90,16 @@ contextual information."
   ;; Replace each newline character with line break.  Also replace
   ;; each blank line with a line break.
   (setq contents (replace-regexp-in-string
-      "^ *\\\\\\\\$" (format "%s\n" (org-html-close-tag "br" nil info))
-      (replace-regexp-in-string
-       "\\(\\\\\\\\\\)?[ \t]*\n"
-       (format "%s\n" (org-html-close-tag "br" nil info)) contents)))
+                  "^ *\\\\\\\\$" (format "%s\n" (org-html-close-tag "br" nil info))
+                  (replace-regexp-in-string
+                   "\\(\\\\\\\\\\)?[ \t]*\n"
+                   (format "%s\n" (org-html-close-tag "br" nil info)) contents)))
   ;; Replace each white space at beginning of a line with a
   ;; non-breaking space.
   (while (string-match "^[ \t]+" contents)
     (let* ((num-ws (length (match-string 0 contents)))
-     (ws (let (out) (dotimes (i num-ws out)
-          (setq out (concat out "&#xa0;"))))))
+           (ws (let (out) (dotimes (i num-ws out)
+                            (setq out (concat out "&#xa0;"))))))
       (setq contents (replace-match ws nil t contents))))
   (format "<div class=\"epigraph\"><blockquote>\n%s\n%s</blockquote></div>"
           contents
@@ -109,12 +116,12 @@ plist holding contextual information."
    (concat "<label for=\"%s\" class=\"margin-toggle sidenote-number\"></label>"
            "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
            "<span class=\"sidenote\">%s</span>")
-          (org-export-get-footnote-number footnote-reference info)
-          (org-export-get-footnote-number footnote-reference info)
-          (org-trim
-           (org-export-data
-            (org-export-get-footnote-definition footnote-reference info)
-            info))))
+   (org-export-get-footnote-number footnote-reference info)
+   (org-export-get-footnote-number footnote-reference info)
+   (org-trim
+    (org-export-data
+     (org-export-get-footnote-definition footnote-reference info)
+     info))))
 
 (defun org-tufte-maybe-margin-note-link (link desc info)
   "Render LINK as a margin note if it starts with `mn:', for
@@ -131,8 +138,8 @@ link. INFO is a plist holding contextual information."
          (concat "<label for=\"%s\" class=\"margin-toggle\">&#8853;</label>"
                  "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
                  "<span class=\"marginnote\">%s</span>")
-                (cadr path) (cadr path)
-                desc)
+         (cadr path) (cadr path)
+         desc)
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block contents info)
@@ -170,7 +177,9 @@ non-nil."
   (interactive)
   (let (;; need to bind this because tufte treats footnotes specially, so we
         ;; don't want to display them at the bottom
-        (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
+        (org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
+                                        org-html-footnotes-section
+                                      "<!-- %s --><!-- %s -->")))
     (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
       async subtreep visible-only nil nil (lambda () (text-mode)))))
 
@@ -199,7 +208,9 @@ Return output file's name."
   (let ((outfile (org-export-output-file-name ".html" subtreep))
         ;; need to bind this because tufte treats footnotes specially, so we
         ;; don't want to display them at the bottom
-        (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
+        (org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
+                                        org-html-footnotes-section
+                                      "<!-- %s --><!-- %s -->")))
     (org-export-to-file 'tufte-html outfile async subtreep visible-only)))
 
 (provide 'ox-tufte)
