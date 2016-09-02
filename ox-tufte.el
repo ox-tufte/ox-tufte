@@ -4,6 +4,7 @@
 
 ;; Author: M. Lee Hinman
 ;; Keywords: org, tufte, html
+;; Package-Requires: ((org "8.2") (emacs "24"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -22,12 +23,9 @@
 
 ;;; Commentary:
 
-;; TODO: commentary
-
-;; TODO:
-;; - fullwidth class on some figures
-;; - support #+CAPTION on inline images
-;; - image quilts?
+;; This is an export backend for Org-mode that exports buffers to HTML that
+;; is compatible with Tufte CSS - https://edwardtufte.github.io/tufte-css/ out of
+;; the box (meaning no CSS modifications needed).
 
 ;;; Code:
 
