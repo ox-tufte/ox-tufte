@@ -3,8 +3,11 @@
 ;; Copyright (C) 2016 Matthew Lee Hinman
 
 ;; Author: M. Lee Hinman
+;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html
+;; Version: 1.0.0
 ;; Package-Requires: ((org "8.2") (emacs "24"))
+;; URL: https://github.com/dakrone/ox-tufte
 
 ;; This file is not part of GNU Emacs.
 
