@@ -21,6 +21,14 @@ Currently you need to manually install, do something like:
 For usage, when exporting simple select "Tufte HTML" instead of regular HTML
 export from the export menu (=C-c C-e=).
 
+It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] and place it on your server (with the
+fonts) and then reference it from your org-mode document by adding a header such
+as:
+
+#+BEGIN_SRC org
+,#+HTML_HEAD: <link rel="stylesheet" href="/css/tufte.css" type="text/css" />
+#+END_SRC
+
 * Features
 
 ox-tufte supports *most* of the features from tufte-css, some in different ways
