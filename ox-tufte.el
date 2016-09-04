@@ -33,7 +33,7 @@
 ;;; Code:
 
 (require 'ox)
-
+(require 'ox-md)
 
 ;;; User-Configurable Variables
 
