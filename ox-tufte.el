@@ -214,6 +214,24 @@ Return output file's name."
                                       "<!-- %s --><!-- %s -->")))
     (org-export-to-file 'tufte-html outfile async subtreep visible-only)))
 
+
+;;; publishing function
+
+;;;###autoload
+(defun org-html-publish-to-tufte-html (plist filename pub-dir)
+  "Publish an org file to Tufte-styled HTML.
+
+PLIST is the property list for the given project.  FILENAME is
+the filename of the Org file to be published.  PUB-DIR is the
+publishing directory.
+
+Return output file name."
+  (org-publish-org-to 'tufte-html filename
+		      (concat "." (or (plist-get plist :html-extension)
+				      org-html-extension
+				      "html"))
+		      plist pub-dir))
+
 (provide 'ox-tufte)
 
 ;;; ox-tufte.el ends here
