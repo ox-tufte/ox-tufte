@@ -56,7 +56,6 @@
 ;;; Define Back-End
 
 (org-export-define-derived-backend 'tufte-html 'html
-  :filters-alist '((:filter-parse-tree . org-md-separate-elements))
   :menu-entry
   '(?T "Export to Tufte-HTML"
        ((?T "To temporary buffer"
