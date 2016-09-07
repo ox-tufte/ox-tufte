@@ -11,10 +11,19 @@ It's still a work-in-progress, but it works pretty well right now.
 
 * Installation and Usage
 
-Currently you need to manually install, do something like:
+You can install ox-tufte using [[https://melpa.org][MELPA]]:
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "/path/to/ox-tufte")
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+
+(package-refresh-contents)
+(package-install 'ox-tufte)
+#+END_SRC
+
+And then in your ~init.el~:
+
+#+BEGIN_SRC emacs-lisp
 (require 'ox-tufte)
 #+END_SRC
 
