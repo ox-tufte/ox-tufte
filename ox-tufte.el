@@ -33,6 +33,7 @@
 ;;; Code:
 
 (require 'ox)
+(require 'ox-html)
 
 
 ;;; User-Configurable Variables
@@ -118,10 +119,12 @@ plist holding contextual information."
            "<span class=\"sidenote\">%s</span>")
    (org-export-get-footnote-number footnote-reference info)
    (org-export-get-footnote-number footnote-reference info)
-   (org-trim
-    (org-export-data
-     (org-export-get-footnote-definition footnote-reference info)
-     info))))
+   (let ((fn-data (org-trim
+                   (org-export-data
+                    (org-export-get-footnote-definition footnote-reference info)
+                    info))))
+     ;; footnotes must have spurious <p> tags removed or they will not work
+     (replace-regexp-in-string "</?p.*>" "" fn-data))))
 
 (defun org-tufte-maybe-margin-note-link (link desc info)
   "Render LINK as a margin note if it starts with `mn:', for
@@ -139,7 +142,7 @@ link. INFO is a plist holding contextual information."
                  "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
                  "<span class=\"marginnote\">%s</span>")
          (cadr path) (cadr path)
-         desc)
+         (replace-regexp-in-string "</?p.*>" "" desc))
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block contents info)
@@ -226,10 +229,10 @@ publishing directory.
 
 Return output file name."
   (org-publish-org-to 'tufte-html filename
-		      (concat "." (or (plist-get plist :html-extension)
-				      org-html-extension
-				      "html"))
-		      plist pub-dir))
+                      (concat "." (or (plist-get plist :html-extension)
+                                      org-html-extension
+                                      "html"))
+                      plist pub-dir))
 
 (provide 'ox-tufte)
 
