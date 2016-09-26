@@ -148,7 +148,7 @@ link. INFO is a plist holding contextual information."
 (defun org-tufte-src-block (src-block contents info)
   "Transcode SRC-BLOCK element into Tufte HTML format. CONTENTS
 is nil. INFO is a plist used as a communication channel."
-  (format "<pre class=\"code\">%s</pre>"
+  (format "<pre class=\"code\"><code>%s</code></pre>"
           (org-html-format-code src-block info)))
 
 
