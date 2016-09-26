@@ -7,7 +7,7 @@
 This is an export backend for Org-mode that exports buffers to HTML that is
 compatible with [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] out of the box (meaning no CSS modifications needed).
 
-It's still a work-in-progress, but it works pretty well right now.
+It's still a work-in-progress, but it works well right now.
 
 * Installation and Usage
 
@@ -55,6 +55,10 @@ This is some regular text [[mn:1][this will be a margin note]]
   the quote becomes a reference in the ~<footer>~ inside of the epigraph.
 - Verses (=#+BEGIN_VERSE=) are treated the same as quotes, however they preserve
   leading spaces in the text
+
+* Compatibility
+Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases][v1.1]], though it may work with
+later versions. Please open issues if you discover any incompatibility!
 
 * Customization
 
