@@ -35,6 +35,7 @@
 (require 'ox)
 (require 'ox-html)
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
+(require 'shr)
 
 
 ;;; User-Configurable Variables
