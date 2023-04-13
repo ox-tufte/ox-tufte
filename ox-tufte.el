@@ -102,7 +102,7 @@ contextual information."
            (ws (let (out) (dotimes (i num-ws out)
                             (setq out (concat out "&#xa0;"))))))
       (setq contents (replace-match ws nil t contents))))
-  (format "<div class=\"epigraph\"><blockquote>\n%s\n%s</blockquote></div>"
+  (format "<div class=\"epigraph verse\"><blockquote>\n%s\n%s</blockquote></div>"
           contents
           (if (org-element-property :name verse-block)
               (format "<footer>%s</footer>"
