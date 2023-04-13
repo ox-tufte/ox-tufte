@@ -34,6 +34,7 @@
 
 (require 'ox)
 (require 'ox-html)
+(eval-when-compile (require 'cl-lib)) ;; for cl-assert
 
 
 ;;; User-Configurable Variables
@@ -75,14 +76,41 @@
 
 ;;; Transcode Functions
 
+(defun ox-tufte/utils/string-fragment-to-xml (str)
+  "Parse string fragment via `libxml'.
+STR is the xml fragment.
+
+For the inverse, use `shr-dom-to-xml'."
+  (cl-assert (libxml-available-p))
+  (with-temp-buffer
+    (insert str)
+    ;; we really want to use `libxml-parse-xml-region', but that's too
+    ;; strict. `libxml-parse-html-region' is more lax (and that's good for us),
+    ;; but it creates <html> and <body> tags when missing. since we'll only be
+    ;; using this function on html fragments, we can assume these elements are
+    ;; always added and thus are safe to strip away
+    (caddr  ;; strip <html> tag
+     (caddr ;; strip <body> tag
+      (libxml-parse-html-region (point-min) (point-max))))))
+
 (defun org-tufte-quote-block (quote-block contents info)
   "Transform a quote block into an epigraph in Tufte HTML style"
-  (format "<div class=\"epigraph\"><blockquote>\n%s\n%s</blockquote></div>"
-          contents
-          (if (org-element-property :name quote-block)
-              (format "<footer>%s</footer>"
-                      (org-element-property :name quote-block))
-            "")))
+  (let* ((ox-tufte/ox-html-qb-str (org-html-quote-block quote-block contents info))
+         (ox-tufte/ox-html-qb-dom
+          (ox-tufte/utils/string-fragment-to-xml ox-tufte/ox-html-qb-str))
+         (ox-tufte/qb-name (org-element-property :name quote-block))
+         (ox-tufte/footer-content-maybe
+          (if ox-tufte/qb-name
+              (format "<footer>%s</footer>" ox-tufte/qb-name)
+            nil)))
+    (when ox-tufte/footer-content-maybe
+      (push (ox-tufte/utils/string-fragment-to-xml ox-tufte/footer-content-maybe)
+            (cdr (last ox-tufte/ox-html-qb-dom))))
+    (format "<div class=\"epigraph\">%s</div>"
+            (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
+                (shr-dom-to-xml ox-tufte/ox-html-qb-dom)
+              ox-tufte/ox-html-qb-str))
+    ))
 
 (defun org-tufte-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to HTML.
