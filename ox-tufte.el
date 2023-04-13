@@ -67,7 +67,7 @@
               (if a (org-tufte-export-to-file t s v)
                 (org-open-file (org-tufte-export-to-file nil s v)))))))
   :translate-alist '((footnote-reference . org-tufte-footnote-reference)
-                     (src-block . org-tufte-src-block)
+                     ;; (src-block . org-tufte-src-block)
                      (link . org-tufte-maybe-margin-note-link)
                      (quote-block . org-tufte-quote-block)
                      (verse-block . org-tufte-verse-block)))
