@@ -117,26 +117,16 @@ For the inverse, use `shr-dom-to-xml'."
   "Transcode a VERSE-BLOCK element from Org to HTML.
 CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
-  ;; Replace each newline character with line break.  Also replace
-  ;; each blank line with a line break.
-  (setq contents (replace-regexp-in-string
-                  "^ *\\\\\\\\$" (format "%s\n" (org-html-close-tag "br" nil info))
-                  (replace-regexp-in-string
-                   "\\(\\\\\\\\\\)?[ \t]*\n"
-                   (format "%s\n" (org-html-close-tag "br" nil info)) contents)))
-  ;; Replace each white space at beginning of a line with a
-  ;; non-breaking space.
-  (while (string-match "^[ \t]+" contents)
-    (let* ((num-ws (length (match-string 0 contents)))
-           (ws (let (out) (dotimes (i num-ws out)
-                            (setq out (concat out "&#xa0;"))))))
-      (setq contents (replace-match ws nil t contents))))
-  (format "<div class=\"epigraph verse\"><blockquote>\n%s\n%s</blockquote></div>"
-          contents
-          (if (org-element-property :name verse-block)
-              (format "<footer>%s</footer>"
-                      (org-element-property :name verse-block))
+  (let* ((ox-tufte/ox-html-vb-str (org-html-verse-block verse-block contents info))
+         (ox-tufte/vb-name (org-element-property :name verse-block))
+         (ox-tufte/footer-content
+          (if ox-tufte/vb-name
+              (format "<footer>%s</footer>" ox-tufte/vb-name)
             "")))
+    (format "<div class=\"verse\"><blockquote>\n%s\n%s</blockquote></div>"
+          ox-tufte/ox-html-vb-str
+          ox-tufte/footer-content)
+    ))
 
 (defun org-tufte-footnote-reference (footnote-reference contents info)
   "Create a footnote according to the tufte css format.
