@@ -22,6 +22,9 @@ body pre { /* monospace content: .src .example */
 /****************************/
 /* unset/alter org defaults */
 /****************************/
+#content { /* ID corresponding to main article (excluding pre/postamble) */
+    max-width: 100%;
+}
 /* verse */
 p.verse { /* this verse element will always be within a <blockquote> */
     /* tufte.css already provides margin-left/right for enclosing blockquote */
