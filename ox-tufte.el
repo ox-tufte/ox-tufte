@@ -55,6 +55,17 @@
   :group 'org-export-tufte
   :type 'boolean)
 
+;;;###autoload
+(defun ox-tufte/init ()
+  "Initialize some `org-html' related settings."
+  (setq org-html-divs '((preamble "header" "preamble") ;; `header' i/o  `div'
+                        (content "article" "content") ;; `article' for `tufte.css'
+                        (postamble "footer" "postamble")) ;; `footer' i/o `div'
+        org-html-container-element "section" ;; consistent with `tufte.css'
+        org-html-checkbox-type 'html
+        org-html-doctype "html5"
+        org-html-html5-fancy t))
+
 
 ;;; Define Back-End
 
