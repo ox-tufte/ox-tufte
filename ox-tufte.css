@@ -1,0 +1,64 @@
+/**************************************************************************/
+/* re-specify tufte.css values, for compatibility with org-generated html */
+/**************************************************************************/
+article > p, section > div { /* set value consistent with "section > p" */
+    width: 55%;
+}
+/* code blocks. tufte.css also allows for code within headers and
+ * sidenotes/marginnotes. these are currently not supported by us. */
+body pre { /* monospace content: .src .example */
+    /* FROM: "code, pre > code" in tufte.css */
+    font-size: 1rem;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    line-height: 1.42;
+    -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
+    /* FROM: pre.fullwidth > code in tufte.css; but adjusted */
+    width: 163%; /* 90% of body, when ancestor is at 55% */
+}
+.sans pre {
+    font-size: 1.2rem; /* from ".sans > code" */
+}
+
+/****************************/
+/* unset/alter org defaults */
+/****************************/
+/* verse */
+p.verse { /* this verse element will always be within a <blockquote> */
+    /* tufte.css already provides margin-left/right for enclosing blockquote */
+    margin-left: 0;
+}
+
+/***************************/
+/* undo tufte.css defaults */
+/***************************/
+body pre.example { /* in org, this is within blockquote */
+    font-style: normal;
+}
+/* verse: undoing "blockquote p, blockquote footer" from tufte.css */
+div.verse blockquote p, div.verse blockquote footer {
+    width: 100%
+}
+
+/********************************************************/
+/* verse blocks: support and distinguish from epigraphs */
+/********************************************************/
+div.verse > blockquote {
+    /* gray bar on the left */
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+}
+
+/****************/
+/* small screen */
+/****************/
+@media (max-width: 760px) {
+    /*******************************/
+    /* re-specify tufte.css values */
+    /*******************************/
+    article > p, section > div {
+        width: 100%;
+    }
+    body pre {
+        width: 97%;
+    }
+}
