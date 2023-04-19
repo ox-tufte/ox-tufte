@@ -19,6 +19,13 @@ body pre { /* monospace content: .src .example */
     font-size: 1.2rem; /* from ".sans > code" */
 }
 
+/**********************************************************/
+/* tufte.css fixes; should probably be submitted upstream */
+/**********************************************************/
+.sans .numeral { /* don't use et-book-roman-old-style when using .sans */
+    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+}
+
 /****************************/
 /* unset/alter org defaults */
 /****************************/
@@ -54,16 +61,12 @@ div.verse > blockquote {
 /**********************/
 /* footnote reference */
 /**********************/
-label.sidenote-number > sup {
-    font-size: 1rem; /* same as .sidenote-number:after */
+.sidenote-number > sup, .sidenote > sup {
+    /* same as ".sidenote-number:after", ".sidenote:before" */
+    font-size: 1rem;
 }
-.sidenote-number:after {
-    content: none;
-}
-.sidenote > sup {
-    font-size: 1rem; /* same as .sidenote:before */
-}
-.sidenote:before {
+/* we don't rely on CSS numbering */
+.sidenote-number:after, .sidenote:before {
     content: none;
 }
 /****************/
