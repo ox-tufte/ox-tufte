@@ -139,22 +139,37 @@ contextual information."
           ox-tufte/footer-content)
     ))
 
+;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
 (defun org-tufte-footnote-reference (footnote-reference contents info)
   "Create a footnote according to the tufte css format.
 FOOTNOTE-REFERENCE is the org element, CONTENTS is nil. INFO is a
 plist holding contextual information."
-  (format
-   (concat "<label for=\"%s\" class=\"margin-toggle sidenote-number\"></label>"
-           "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
-           "<span class=\"sidenote\">%s</span>")
-   (org-export-get-footnote-number footnote-reference info)
-   (org-export-get-footnote-number footnote-reference info)
-   (let ((fn-data (org-trim
-                   (org-export-data
-                    (org-export-get-footnote-definition footnote-reference info)
-                    info))))
-     ;; footnotes must have spurious <p> tags removed or they will not work
-     (replace-regexp-in-string "</?p.*>" "" fn-data))))
+  (let* ((ox-tufte/fn-num
+          (org-export-get-footnote-number footnote-reference info))
+         ;; chance of collision is ~0.2% with 200 references
+         (ox-tufte/uid (random 10000000))
+         (ox-tufte/fn-inputid (format "fnr-in.%d.%s" ox-tufte/fn-num ox-tufte/uid))
+         (ox-tufte/fn-labelid ;; first reference acts as back-reference
+          (if (org-export-footnote-first-reference-p footnote-reference info)
+              (format "fnr.%d" ox-tufte/fn-num) ;; this conforms to `ox-html.el'
+            (format "fnr.%d.%s" ox-tufte/fn-num ox-tufte/uid)))
+         (ox-tufte/fn-def
+          (org-export-get-footnote-definition footnote-reference info))
+         (ox-tufte/fn-data
+          (org-trim (org-export-data ox-tufte/fn-def info)))
+         (ox-tufte/fn-data-unpar
+          ;; footnotes must have spurious <p> tags removed or they will not work
+          (replace-regexp-in-string "</?p.*>" "" ox-tufte/fn-data))
+         )
+    (format
+     (concat
+      "<label id=\"%s\" for=\"%s\" class=\"margin-toggle sidenote-number\"><sup class=\"numeral\">%s</sup></label>"
+      "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
+      "<span class=\"sidenote\"><sup class=\"numeral\">%s</sup>%s</span>")
+     ox-tufte/fn-labelid ox-tufte/fn-inputid ox-tufte/fn-num
+     ox-tufte/fn-inputid
+     ox-tufte/fn-num ox-tufte/fn-data-unpar)
+    ))
 
 (defun org-tufte-maybe-margin-note-link (link desc info)
   "Render LINK as a margin note if it starts with `mn:', for

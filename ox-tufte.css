@@ -51,6 +51,21 @@ div.verse > blockquote {
     padding-left: 10px;
 }
 
+/**********************/
+/* footnote reference */
+/**********************/
+label.sidenote-number > sup {
+    font-size: 1rem; /* same as .sidenote-number:after */
+}
+.sidenote-number:after {
+    content: none;
+}
+.sidenote > sup {
+    font-size: 1rem; /* same as .sidenote:before */
+}
+.sidenote:before {
+    content: none;
+}
 /****************/
 /* small screen */
 /****************/
