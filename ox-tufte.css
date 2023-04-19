@@ -18,6 +18,11 @@ body pre { /* monospace content: .src .example */
 .sans pre {
     font-size: 1.2rem; /* from ".sans > code" */
 }
+article div figure {
+    /* tufte.css doesn't intend figure to be within div, but org generates it as
+     * such. reset width to full width of article as tufte.css intends */
+    max-width: 100%
+}
 
 /**********************************************************/
 /* tufte.css fixes; should probably be submitted upstream */
