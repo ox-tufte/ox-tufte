@@ -23,6 +23,9 @@ article div figure {
      * such. reset width to full width of article as tufte.css intends */
     max-width: 100%
 }
+div.epigraph blockquote p, div.epigraph blockquote footer {
+    width: 100%
+}
 
 /**********************************************************/
 /* tufte.css fixes; should probably be submitted upstream */
