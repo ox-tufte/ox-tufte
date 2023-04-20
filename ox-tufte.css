@@ -33,6 +33,11 @@ div.epigraph blockquote p, div.epigraph blockquote footer {
 .sans .numeral { /* don't use et-book-roman-old-style when using .sans */
     font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
 }
+article { /* needed, if sidenotes have large content */
+    /* we don't apply this on "section", because we do want the sections to be
+     * overlappable with the sidenotes of previous section */
+    overflow-y: auto;
+}
 
 /****************************/
 /* unset/alter org defaults */
@@ -44,6 +49,11 @@ div.epigraph blockquote p, div.epigraph blockquote footer {
 p.verse { /* this verse element will always be within a <blockquote> */
     /* tufte.css already provides margin-left/right for enclosing blockquote */
     margin-left: 0;
+}
+#footnotes { /* needed, if sidenotes have large content */
+     /* we want to make sure that the footnotes section starts after all the content
+      * for "sections" and "sidenotes" is done */
+    clear: both;
 }
 
 /***************************/
