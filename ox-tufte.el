@@ -164,7 +164,7 @@ plist holding contextual information."
     (format
      (concat
       "<label id='%s' for='%s' class='margin-toggle sidenote-number'><sup class='numeral'>%s</sup></label>"
-      "<input type='checkbox' id='%s' class='margin-toggle'/>"
+      "<input type='checkbox' id='%s' class='margin-toggle'>"
       "<span class='sidenote'><sup class='numeral'>%s</sup>%s</span>")
      ox-tufte/fn-labelid ox-tufte/fn-inputid ox-tufte/fn-num
      ox-tufte/fn-inputid
@@ -184,7 +184,7 @@ link. INFO is a plist holding contextual information."
              (string= (car path) "mn"))
         (format
          (concat "<label for='%s' class='margin-toggle'>&#8853;</label>"
-                 "<input type='checkbox' id='%s' class='margin-toggle'/>"
+                 "<input type='checkbox' id='%s' class='margin-toggle'>"
                  "<span class='marginnote'>%s</span>")
          (cadr path) (cadr path)
          (replace-regexp-in-string "</?p.*>" "" desc))
