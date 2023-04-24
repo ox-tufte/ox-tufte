@@ -118,7 +118,7 @@ For the inverse, use `shr-dom-to-xml'."
     (when ox-tufte/footer-content-maybe
       (push (ox-tufte/utils/string-fragment-to-xml ox-tufte/footer-content-maybe)
             (cdr (last ox-tufte/ox-html-qb-dom))))
-    (format "<div class=\"epigraph\">%s</div>"
+    (format "<div class='epigraph'>%s</div>"
             (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
                 (shr-dom-to-xml ox-tufte/ox-html-qb-dom)
               ox-tufte/ox-html-qb-str))
@@ -134,7 +134,7 @@ contextual information."
           (if ox-tufte/vb-name
               (format "<footer>%s</footer>" ox-tufte/vb-name)
             "")))
-    (format "<div class=\"verse\"><blockquote>\n%s\n%s</blockquote></div>"
+    (format "<div class='verse'><blockquote>\n%s\n%s</blockquote></div>"
           ox-tufte/ox-html-vb-str
           ox-tufte/footer-content)
     ))
@@ -163,9 +163,9 @@ plist holding contextual information."
          )
     (format
      (concat
-      "<label id=\"%s\" for=\"%s\" class=\"margin-toggle sidenote-number\"><sup class=\"numeral\">%s</sup></label>"
-      "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
-      "<span class=\"sidenote\"><sup class=\"numeral\">%s</sup>%s</span>")
+      "<label id='%s' for='%s' class='margin-toggle sidenote-number'><sup class='numeral'>%s</sup></label>"
+      "<input type='checkbox' id='%s' class='margin-toggle'/>"
+      "<span class='sidenote'><sup class='numeral'>%s</sup>%s</span>")
      ox-tufte/fn-labelid ox-tufte/fn-inputid ox-tufte/fn-num
      ox-tufte/fn-inputid
      ox-tufte/fn-num ox-tufte/fn-data-unpar)
@@ -183,9 +183,9 @@ link. INFO is a plist holding contextual information."
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
         (format
-         (concat "<label for=\"%s\" class=\"margin-toggle\">&#8853;</label>"
-                 "<input type=\"checkbox\" id=\"%s\" class=\"margin-toggle\"/>"
-                 "<span class=\"marginnote\">%s</span>")
+         (concat "<label for='%s' class='margin-toggle'>&#8853;</label>"
+                 "<input type='checkbox' id='%s' class='margin-toggle'/>"
+                 "<span class='marginnote'>%s</span>")
          (cadr path) (cadr path)
          (replace-regexp-in-string "</?p.*>" "" desc))
       (org-html-link link desc info))))
