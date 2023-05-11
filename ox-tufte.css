@@ -1,7 +1,9 @@
 /**************************************************************************/
 /* re-specify tufte.css values, for compatibility with org-generated html */
 /**************************************************************************/
-article > p, section > div { /* set value consistent with "section > p" */
+article > p,
+section > div,
+section > h2 { /* set value consistent with "section > p" */
     width: 55%;
 }
 /* code blocks. tufte.css also allows for code within headers and
