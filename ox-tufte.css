@@ -1,3 +1,9 @@
+:root {
+    --ox-tufte-content-width: 55%; /* set value consistent with "section > p" */
+    --ox-tufte-fullwidth: 163.636%; /* 90% of body, when ancestor is at 55% */
+    --ox-tufte-src-code-width: 97%;
+}
+
 /**************************************************************************/
 /* re-specify tufte.css values, for compatibility with org-generated html */
 /**************************************************************************/
@@ -5,10 +11,14 @@ article > p,
 article > div.epigraph, /* FIXME: provide a way to support fullwidth epigraphs */
 section > div,
 section > h2 { /* set value consistent with "section > p" */
-    width: 55%;
+    width: var(--ox-tufte-content-width);
 }
 /* code blocks. tufte.css also allows for code within headers and
  * sidenotes/marginnotes. these are currently not supported by us. */
+.org-src-container {
+    max-width: var(--ox-tufte-fullwidth);
+    width: var(--ox-tufte-fullwidth);
+}
 body pre { /* monospace content: .src .example */
     /* FROM: "code, pre > code" in tufte.css */
     font-size: 1rem;
@@ -16,7 +26,13 @@ body pre { /* monospace content: .src .example */
     line-height: 1.42;
     -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
     /* FROM: pre.fullwidth > code in tufte.css; but adjusted */
-    width: 163%; /* 90% of body, when ancestor is at 55% */
+    width: var(--ox-tufte-src-code-width);
+    clear: both; /* ensure that it doesn't overlap sidenotes */
+    /* unset some unnecessary 'org' defaults, which interfere with tufte */
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: 0;
 }
 .sans pre {
     font-size: 1.2rem; /* from ".sans > code" */
@@ -94,13 +110,8 @@ div.verse > blockquote {
 /* small screen */
 /****************/
 @media (max-width: 760px) {
-    /*******************************/
-    /* re-specify tufte.css values */
-    /*******************************/
-    article > p, section > div {
-        width: 100%;
-    }
-    body pre {
-        width: 97%;
+    :root {
+        --ox-tufte-fullwidth: 100%;
+        --ox-tufte-content-width: 100%;
     }
 }
