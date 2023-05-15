@@ -2,6 +2,9 @@
     --ox-tufte-content-width: 55%; /* set value consistent with "section > p" */
     --ox-tufte-fullwidth: 163.636%; /* 90% of body, when ancestor is at 55% */
     --ox-tufte-src-code-width: 97%;
+    /* 50+5=55% this is what is used by section > {dl, ol, ul} */
+    --ox-tufte-list-width: 50%;
+    --ox-tufte-list-padding-left: 5%;
 }
 
 /**************************************************************************/
@@ -12,6 +15,12 @@ article > div.epigraph, /* FIXME: provide a way to support fullwidth epigraphs *
 section > div,
 section > h2 { /* set value consistent with "section > p" */
     width: var(--ox-tufte-content-width);
+}
+section > dl, section > ol, section > ul,
+article > dl, article > ol, article > ul {
+    width: var(--ox-tufte-list-width);
+    /* instead of tufte.css's -webkit-padding-start, which doesn't work */
+    padding-inline-start: var(--ox-tufte-list-padding-left);
 }
 /* code blocks. tufte.css also allows for code within headers and
  * sidenotes/marginnotes. these are currently not supported by us. */
@@ -111,7 +120,9 @@ div.verse > blockquote {
 /****************/
 @media (max-width: 760px) {
     :root {
-        --ox-tufte-fullwidth: 100%;
         --ox-tufte-content-width: 100%;
+        --ox-tufte-fullwidth: 100%;
+        --ox-tufte-list-width: 90;
+        --ox-tufte-list-padding-left: 10%;
     }
 }
