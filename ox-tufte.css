@@ -125,4 +125,16 @@ div.verse > blockquote {
         --ox-tufte-list-width: 90;
         --ox-tufte-list-padding-left: 10%;
     }
+    /**********************************************************/
+    /* tufte.css fixes; should probably be submitted upstream */
+    /**********************************************************/
+    .margin-toggle:checked + .sidenote,
+    .margin-toggle:checked + .marginnote {
+        /* what tufte.css does results in minute horizontal scrolling on*/
+        /* sufficiently small screens; below fixes that */
+        margin-left: auto;
+        margin-right: 0;
+        left: 0;
+        float: right;
+    }
 }
