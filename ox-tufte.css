@@ -5,6 +5,13 @@
     /* 50+5=55% this is what is used by section > {dl, ol, ul} */
     --ox-tufte-list-width: 50%;
     --ox-tufte-list-padding-left: 5%;
+    /* values tufte.css reuses for h1,h3,h3 */
+    --ox-tufte-heading-font-style: italic;
+    --ox-tufte-heading-font-weight: 400;
+    --ox-tufte-heading-line-height: 1;
+    --ox-tufte-heading-code-font-size: 0.80em;
+    --ox-tufte-heading-min-margin-bottom: 1.4rem; /* h3=1.4rem; p=1.4rem; */
+    --ox-tufte-heading-min-font-size: 1.4rem; /* p=1.4rem; */
 }
 
 /**************************************************************************/
@@ -54,6 +61,23 @@ article div figure {
 }
 div.epigraph blockquote p, div.epigraph blockquote footer {
     width: 100%
+}
+
+/***********************************/
+/* tufte.css consistent extensions */
+/***********************************/
+h4 > code {
+    font-size: var(--ox-tufte-heading-code-font-size);
+}
+h4 {
+    font-style: var(--ox-tufte-heading-font-style);
+    font-weight: var(--ox-tufte-heading-font-weight);
+    margin-bottom: var(--ox-tufte-heading-min-margin-bottom);
+    line-height: var(--ox-tufte-heading-line-height);
+}
+h4 {
+    font-size: 1.5rem; /* h3=1.7rem; */
+    margin-top: 1.8rem; /* h3=2rem; */
 }
 
 /**********************************************************/
