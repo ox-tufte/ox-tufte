@@ -12,6 +12,7 @@
 /**************************************************************************/
 article > p,
 article > div.epigraph, /* FIXME: provide a way to support fullwidth epigraphs */
+article > table,
 section > div,
 section > h2 { /* set value consistent with "section > p" */
     width: var(--ox-tufte-content-width);
