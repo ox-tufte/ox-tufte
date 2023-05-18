@@ -18,11 +18,22 @@
 /* re-specify tufte.css values, for compatibility with org-generated html */
 /**************************************************************************/
 article > p,
-article > div.epigraph, /* FIXME: provide a way to support fullwidth epigraphs */
+article > div,
 article > table,
 section > div,
 section > h2 { /* set value consistent with "section > p" */
     width: var(--ox-tufte-content-width);
+}
+article > p .fullwidth,
+article > div .fullwidth,
+section > div .fullwidth {
+    max-width: var(--ox-tufte-fullwidth);
+    width: max-content;
+}
+@media (max-width: 760px) {
+    div.epigraph > blockquote.fullwidth {
+        width: unset;
+    }
 }
 section > dl, section > ol, section > ul,
 article > dl, article > ol, article > ul {
@@ -107,6 +118,7 @@ p.verse { /* this verse element will always be within a <blockquote> */
      /* we want to make sure that the footnotes section starts after all the content
       * for "sections" and "sidenotes" is done */
     clear: both;
+    width: unset;
 }
 
 /***************************/
