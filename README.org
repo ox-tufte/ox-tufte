@@ -56,6 +56,10 @@ This is some regular text [[mn:1][this will be a margin note]]
 - Verses (=#+BEGIN_VERSE=) are treated the same as quotes, however they preserve
   leading spaces in the text
 
+** Experimental
+There are some experimental extensions in [[file:ox-tufte-experimental.css][ox-tufte-experimental.css]]. This css
+file should be included /after/ [[file:ox-tufte.css][ox-tufte.css]].
+
 * Compatibility
 Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases][v1.1]], though it may work with
 later versions. Please open issues if you discover any incompatibility!
@@ -68,10 +72,13 @@ sidenotes they are currently hidden on very narrow screens (like phones), if you
 want to include footnodes *also* at the bottom of the page, this may be set to
 =t=.
 
-* TODOs
-- Add the ability to use the ~fullwidth~ class on figures
-- Support =#+CAPTION= better on images
-- Tufte image quilts?
+* TODOs [0/4]
+- [ ] Better markup support in =marginnotes=
+  Since =marginnotes= are currently implemented as hyperlinks, they presently
+  lack the ability to embed images or have links within.
+- [ ] Add the ability to use the ~fullwidth~ class on figures
+- [ ] Support =#+CAPTION= better on images
+- [ ] Tufte image quilts?
 
 * References
 - https://edwardtufte.github.io/tufte-css/
