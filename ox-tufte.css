@@ -5,6 +5,9 @@
     /* 50+5=55% this is what is used by section > {dl, ol, ul} */
     --ox-tufte-list-width: 50%;
     --ox-tufte-list-padding-left: 5%;
+    /* marginnote and sidenote settings from tufte.css */
+    --ox-tufte-note-line-height: 1.3;
+    --ox-tufte-note-font-size: 1.1rem;
 }
 
 /**************************************************************************/
@@ -33,6 +36,12 @@ article > dl, article > ol, article > ul {
     width: var(--ox-tufte-list-width);
     /* instead of tufte.css's -webkit-padding-start, which doesn't work */
     padding-inline-start: var(--ox-tufte-list-padding-left);
+}
+.marginnote dl, .sidenote dl,
+.marginnote ol, .sidenote ol,
+.marginnote ul, .sidenote ul {
+    font-size: var(--ox-tufte-note-font-size);
+    line-height: var(--ox-tufte-note-line-height);
 }
 /* code blocks. tufte.css also allows for code within headers and
  * sidenotes/marginnotes. these are currently not supported by us. */
