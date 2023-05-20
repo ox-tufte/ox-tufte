@@ -43,6 +43,9 @@ article > dl, article > ol, article > ul {
     font-size: var(--ox-tufte-note-font-size);
     line-height: var(--ox-tufte-note-line-height);
 }
+blockquote .marginnote, blockquote .sidenote {
+    font-style: normal;
+}
 /* code blocks. tufte.css also allows for code within headers and
  * sidenotes/marginnotes. these are currently not supported by us. */
 .org-src-container {
