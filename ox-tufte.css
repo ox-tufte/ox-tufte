@@ -37,12 +37,6 @@ article > dl, article > ol, article > ul {
     /* instead of tufte.css's -webkit-padding-start, which doesn't work */
     padding-inline-start: var(--ox-tufte-list-padding-left);
 }
-.marginnote dl, .sidenote dl,
-.marginnote ol, .sidenote ol,
-.marginnote ul, .sidenote ul {
-    font-size: var(--ox-tufte-note-font-size);
-    line-height: var(--ox-tufte-note-line-height);
-}
 blockquote .marginnote, blockquote .sidenote {
     font-style: normal;
 }

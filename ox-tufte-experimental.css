@@ -40,3 +40,13 @@ h4 .sidenote, h4 .marginnote {
     font-style: normal;
     font-weight: normal;
 }
+
+/**********************************************************************************/
+/* lists in sidenotes - breaks html standard and works only in special situations */
+/**********************************************************************************/
+.marginnote dl, .sidenote dl,
+.marginnote ol, .sidenote ol,
+.marginnote ul, .sidenote ul {
+    font-size: var(--ox-tufte-note-font-size);
+    line-height: var(--ox-tufte-note-line-height);
+}
