@@ -157,3 +157,110 @@ div.verse > blockquote {
         float: right;
     }
 }
+
+/*****************************************************************************/
+/* assorted bugfixes and additional tweaks                                   */
+/* NOTE: code below likely needs to be refactored and assimilated into above */
+/*****************************************************************************/
+
+
+
+/* BEGIN: width and placement of sidenotes + lists, epigraphs */
+:root {
+    --ox-tufte-sidenote-width-max: 385px;
+    --ox-tufte-sidenote-width-standard: 50%;
+    --ox-tufte-sidenote-margin-right-min: -462px;
+    --ox-tufte-sidenote-margin-right-standard: -60%;
+}
+blockquote {
+    margin-left: calc(100% / 11);
+    margin-right: 0;
+}
+blockquote .sidenote, blockquote .marginnote {
+    min-width: unset;
+    width:calc(var(--ox-tufte-sidenote-width-standard) / (10 / 11));
+    margin-right:calc(var(--ox-tufte-sidenote-margin-right-standard) / (10 / 11));
+}
+@media (max-width: 760px) {
+    div.epigraph blockquote p { overflow-y: auto; }
+}
+article ul, article ol, article dl {
+    width: var(--ox-tufte-list-width); /* 50% */
+    padding-inline-start: var(--ox-tufte-list-padding-left); /* 5% */
+}
+article ul ul, article ol ol, article ul ol, article ol ul {
+    padding-inline-start: calc(100% / 10); /* 5% wrt body, when 100% is 50% */
+    width: calc(100% * 9 / 10); /* 45% wrt body, when 100% is 50% */
+}
+section ul, section ol, section dl {
+    padding-inline-start: calc(100% / 11);
+    width: calc(100% * 10 / 11);
+}
+article ul .sidenote, article ol .sidenote,
+article ul .marginnote, article ol .marginnote {
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (10 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (10 / 11)));
+}
+article ul ul .sidenote, article ul ul .marginnote,
+article ul ol .sidenote, article ul ol .marginnote,
+article ol ol .sidenote, article ol ol .marginnote,
+article ol ul .sidenote, article ol ul .marginnote { /* 11/9 = 11/10 X(10/9) */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (9 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (9 / 11)));
+}
+@media (max-width: 760px) {
+    ul li, ol li {
+        overflow-y: auto;
+        /* however, this causes issues: https://stackoverflow.com/a/40912185 */
+        list-style-position: inside;
+        margin-left: -1em;
+    }
+}
+/* fix padding issues first and make them percentages */
+article dl > dd {
+    margin-left: calc(100% / 10);
+}
+/* fix sidenote width and margin-right */
+article dl dt .sidenote, article dl dt .marginnote {
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (10 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (10 / 11)));
+    font-weight: normal;
+}
+article dl dd .sidenote, article dl dd .marginnote { /* 11/9 = 11/10 X(10/9) */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (9 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (9 / 11)));
+}
+/* also check on smaller screens */
+@media (max-width: 760px) {
+    dl dt, dl dd {
+        overflow-y: auto;
+    }
+}
+article dl dl {
+    padding-inline-start: calc(100% / 9); /* 5% wrt body, when 100% is 45% wrt body */
+    width: calc(100% * 8 / 9); /* 40% wrt body */
+}
+article dl dl > dd {
+    margin-left: calc(100% / 8) /* 5% wrt body, when 100% is 40% wrt body */
+}
+article dl dl dt .sidenote, article dl dl dt .marginnote { /* 11/8 = 11/10 x 10/9 x 9/8 */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (8 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (8 / 11)));
+    font-weight: normal;
+}
+article dl dl dd .sidenote, article dl dl dd .marginnote { /* 11/7 */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (7 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (7 / 11)));
+}
+
+/* BEGIN BONUS: fix top-level code blocks */
+article>section .org-src-container { /* make .org-src-container in ox-tufte.css more specific */
+    max-width: var(--ox-tufte-fullwidth);
+    width: var(--ox-tufte-fullwidth);
+}
+article > div.org-src-container { /* override .org-src-container in ox-tufte.css for toplevel */
+    max-width: 90%;
+    width: 90%;
+}
+/* END BONUS: fix top-level code blocks */
+/* END: width and placement of sidenotes + lists, epigraphs */
