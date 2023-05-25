@@ -3,43 +3,9 @@
 /**********************************************************/
 /* tufte.css consistent (somewhat opinionated) extensions */
 /**********************************************************/
-
 :root {
-    /* values tufte.css reuses for h1,h3,h3 */
-    --ox-tufte-heading-font-style: italic;
-    --ox-tufte-heading-font-weight: 400;
-    --ox-tufte-heading-line-height: 1;
-    --ox-tufte-heading-code-font-size: 0.80em;
-    --ox-tufte-heading-min-margin-bottom: 1.4rem; /* h3=1.4rem; p=1.4rem; */
-    --ox-tufte-heading-min-font-size: 1.4rem; /* p=1.4rem; */
 }
 
-/***************************/
-/* support for h4 headings */
-/***************************/
-h4 > code {
-    font-size: var(--ox-tufte-heading-code-font-size);
-}
-h4 {
-    font-style: var(--ox-tufte-heading-font-style);
-    font-weight: var(--ox-tufte-heading-font-weight);
-    margin-bottom: var(--ox-tufte-heading-min-margin-bottom);
-    line-height: var(--ox-tufte-heading-line-height);
-}
-h4 {
-    font-size: 1.5rem; /* h3=1.7rem; */
-    margin-top: 1.8rem; /* h3=2rem; */
-}
-
-/************************************/
-/* sidenotes in headings h2, h3, h4 */
-/************************************/
-h2 .sidenote, h2 .marginnote,
-h3 .sidenote, h3 .marginnote,
-h4 .sidenote, h4 .marginnote {
-    font-style: normal;
-    font-weight: normal;
-}
 
 /**********************************************************************************/
 /* lists in sidenotes - breaks html standard and works only in special situations */

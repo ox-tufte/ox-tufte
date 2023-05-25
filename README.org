@@ -55,7 +55,8 @@ This is some regular text [[mn:1][this will be a margin note]]
   the quote becomes a reference in the ~<footer>~ inside of the epigraph.
 - Verses (=#+BEGIN_VERSE=) are treated the same as quotes, however they preserve
   leading spaces in the text
-
+** Extensions
+- h4 heading level is supported in a consistent manner similar to h3
 ** Experimental
 There are some experimental extensions in [[file:ox-tufte-experimental.css][ox-tufte-experimental.css]]. This css
 file should be included /after/ [[file:ox-tufte.css][ox-tufte.css]].
