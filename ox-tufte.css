@@ -302,3 +302,19 @@ article > div.org-src-container { /* override .org-src-container in ox-tufte.css
 }
 /* END BONUS: fix top-level code blocks */
 /* END: width and placement of sidenotes + lists, epigraphs */
+
+/* BEGIN: width of result blocks */
+article > pre.example {
+    width: calc(97% * 0.9);
+    margin-right: 10%;
+}
+section pre.example {
+    width: calc(var(--ox-tufte-fullwidth) * 0.97);
+    margin-left: calc(var(--ox-tufte-fullwidth) * 0.03);
+}
+@media (max-width: 760px) {
+    section pre.example {
+        margin-left: auto;
+    }
+}
+/* END: width of result blocks */
