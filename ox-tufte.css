@@ -318,3 +318,11 @@ section pre.example {
     }
 }
 /* END: width of result blocks */
+
+/* BEGIN: fix horizontal scroll on small screens */
+.org-src-name {
+    display: inline-block;
+    max-width: 100%;
+    overflow-x: scroll;
+}
+/* END: fix horizontal */
