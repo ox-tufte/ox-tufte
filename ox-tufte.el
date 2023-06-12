@@ -1,13 +1,15 @@
 ;;; ox-tufte.el --- Tufte HTML org-mode export backend
 
-;; Copyright (C) 2016 Matthew Lee Hinman
+;; Copyright (C) 2023      The Bayesians Inc.
+;; Copyright (C) 2016-2023 Matthew Lee Hinman
 
 ;; Author: M. Lee Hinman
+;; Maintainer: The Bayesians Inc.
 ;; Description: An org exporter for Tufte HTML
-;; Keywords: org, tufte, html
-;; Version: 1.0.0
-;; Package-Requires: ((org "8.2") (emacs "24"))
-;; URL: https://github.com/dakrone/ox-tufte
+;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
+;; Version: 1.0.1
+;; Package-Requires: ((org "8.2") (emacs "24.4"))
+;; URL: https://github.com/ox-tufte/ox-tufte
 
 ;; This file is not part of GNU Emacs.
 
@@ -46,10 +48,10 @@
   :package-version '(Org . "8.0"))
 
 (defcustom org-tufte-include-footnotes-at-bottom nil
-  "Non-nil means to include footnotes at the bottom of the page
-  in addition to being included as sidenotes. Sidenotes are not
-  shown on very narrow screens (phones), so it may be useful to
-  additionally include them at the bottom."
+  "Non-nil means to include footnotes at the bottom of the page.
+This is in addition to being included as sidenotes.  Sidenotes are not shown on
+very narrow screens (phones), so it may be useful to additionally include them
+at the bottom."
   :group 'org-export-tufte
   :type 'boolean)
 
@@ -76,7 +78,8 @@
 ;;; Transcode Functions
 
 (defun org-tufte-quote-block (quote-block contents info)
-  "Transform a quote block into an epigraph in Tufte HTML style"
+  "Transform a quote block into an epigraph in Tufte HTML style.
+QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
   (format "<div class=\"epigraph\"><blockquote>\n%s\n%s</blockquote></div>"
           contents
           (if (org-element-property :name quote-block)
@@ -111,7 +114,7 @@ contextual information."
 
 (defun org-tufte-footnote-reference (footnote-reference contents info)
   "Create a footnote according to the tufte css format.
-FOOTNOTE-REFERENCE is the org element, CONTENTS is nil. INFO is a
+FOOTNOTE-REFERENCE is the org element, CONTENTS is nil.  INFO is a
 plist holding contextual information."
   (format
    (concat "<label for=\"%s\" class=\"margin-toggle sidenote-number\"></label>"
@@ -127,9 +130,9 @@ plist holding contextual information."
      (replace-regexp-in-string "</?p.*>" "" fn-data))))
 
 (defun org-tufte-maybe-margin-note-link (link desc info)
-  "Render LINK as a margin note if it starts with `mn:', for
-  example, `[[mn:1][this is some text]]' is margin note 1 that
-  will show \"this is some text\" in the margin.
+  "Render LINK as a margin note if it begins with `mn:'.
+For example, `[[mn:1][this is some text]]' is margin note 1 that
+will show \"this is some text\" in the margin.
 
 If it does not, it will be passed onto the original function in
 order to be handled properly. DESC is the description part of the
@@ -146,8 +149,8 @@ link. INFO is a plist holding contextual information."
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block contents info)
-  "Transcode SRC-BLOCK element into Tufte HTML format. CONTENTS
-is nil. INFO is a plist used as a communication channel."
+  "Transcode SRC-BLOCK element into Tufte HTML format.
+CONTENTS is nil.  INFO is a plist used as a communication channel."
   (format "<pre class=\"code\"><code>%s</code></pre>"
           (org-html-format-code src-block info)))
 
