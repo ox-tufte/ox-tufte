@@ -8,7 +8,7 @@
 ;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
 ;; Version: 1.0.1
-;; Package-Requires: ((org "8.2") (emacs "24.4"))
+;; Package-Requires: ((org "9.5.2") (emacs "24.4") (esxml "0.3.7"))
 ;; URL: https://github.com/ox-tufte/ox-tufte
 
 ;; This file is not part of GNU Emacs.
@@ -37,7 +37,7 @@
 (require 'ox)
 (require 'ox-html)
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
-(require 'shr)
+(require 'esxml)
 
 
 ;;; User-Configurable Variables
@@ -94,7 +94,7 @@ at the bottom."
   "Parse string fragment via `libxml'.
 STR is the xml fragment.
 
-For the inverse, use `shr-dom-to-xml'."
+For the inverse, use `esxml-to-xml'."
   (cl-assert (libxml-available-p))
   (with-temp-buffer
     (insert str)
@@ -123,7 +123,7 @@ QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
             (cdr (last ox-tufte/ox-html-qb-dom))))
     (format "<div class='epigraph'>%s</div>"
             (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
-                (shr-dom-to-xml ox-tufte/ox-html-qb-dom)
+                (esxml-to-xml ox-tufte/ox-html-qb-dom)
               ox-tufte/ox-html-qb-str))
     ))
 
