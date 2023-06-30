@@ -8,7 +8,7 @@
 ;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
 ;; Version: 2.0.0
-;; Package-Requires: ((org "9.5.2") (emacs "24.4") (esxml "0.3.7"))
+;; Package-Requires: ((org "9.5") (emacs "26.1") (esxml "0.3.7"))
 ;; URL: https://github.com/ox-tufte/ox-tufte
 
 ;; This file is not part of GNU Emacs.
@@ -46,8 +46,8 @@
   "Options specific to Tufte export back-end."
   :tag "Org Tufte"
   :group 'org-export
-  :version "24.4"
-  :package-version '(Org . "8.0"))
+  :version "26.1"
+  :package-version '(Org . "9.5"))
 
 (defcustom org-tufte-include-footnotes-at-bottom nil
   "Non-nil means to include footnotes at the bottom of the page.
@@ -56,6 +56,11 @@ very narrow screens (phones), so it may be useful to additionally include them
 at the bottom."
   :group 'org-export-tufte
   :type 'boolean)
+
+(defcustom org-tufte-margin-note-symbol "&#8853;"
+  "The symbol that is used as a viewability-toggle on small screens."
+  :group 'org-export-tufte
+  :type 'string)
 
 ;;;###autoload
 (defun ox-tufte/init ()
@@ -66,7 +71,16 @@ at the bottom."
         org-html-container-element "section" ;; consistent with `tufte.css'
         org-html-checkbox-type 'html
         org-html-doctype "html5"
-        org-html-html5-fancy t))
+        org-html-html5-fancy t)
+  (add-to-list 'org-export-global-macros
+               `("marginnote" .
+                 ,(concat "@@html:"
+                          "<label for='$1' class='margin-toggle'>"
+                          org-tufte-margin-note-symbol
+                          "</label>"
+                          "<input type='checkbox' id='$1' class='margin-toggle'>"
+                          "<span class='marginnote'>$2</span>"
+                          "@@"))))
 
 
 ;;; Define Back-End
@@ -193,7 +207,9 @@ link. INFO is a plist holding contextual information."
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
         (format
-         (concat "<label for='%s' class='margin-toggle'>&#8853;</label>"
+         (concat "<label for='%s' class='margin-toggle'>"
+                 org-tufte-margin-note-symbol
+                 "</label>"
                  "<input type='checkbox' id='%s' class='margin-toggle'>"
                  "<span class='marginnote'>%s</span>")
          (cadr path) (cadr path)

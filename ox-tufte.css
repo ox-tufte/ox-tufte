@@ -194,6 +194,10 @@ h4 .sidenote, h4 .marginnote {
         left: 0;
         float: right;
     }
+    .marginnote img, .sidenote img {
+        height: auto;
+        width: auto;
+    }
 }
 
 /*****************************************************************************/
