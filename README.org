@@ -24,7 +24,8 @@ You can install ox-tufte using [[https://melpa.org][MELPA]]:
 And then in your ~init.el~:
 
 #+BEGIN_SRC emacs-lisp
-(require 'ox-tufte)
+  (require 'ox-tufte)
+  (ox-tufte/init)
 #+END_SRC
 
 For usage, when exporting simply select "Tufte HTML" instead of regular HTML
@@ -39,17 +40,37 @@ as:
 #+END_SRC
 
 * Features
-
 ox-tufte supports *most* of the features from tufte-css, some in different ways
 than expected.
+| [[https://edwardtufte.github.io/tufte-css/][Tufte-css concept]]     | [[https://orgmode.org/worg/org-syntax.html][Org-mode syntax]]                         |
+|-----------------------+-----------------------------------------|
+| Sidenotes             | Footnotes                               |
+| Margin-notes          | inline babel call to "marginnote" block |
+| Block margin-notes    | ???                                     |
+| Epigraph              | Quote block                             |
+| Sections and Headings | Sections and Headings                   |
+| iframe wrapper        | ???                                     |
+| Code                  | Source block                            |
+| ImageQuilts           | ???                                     |
 
 - Footnotes become numbered Sidenotes from the tufte spec
-- Margin notes can be created by having a link to ~mn:<n>~ where the link text
-  gets transformed to the margin note, for example:
+- +Margin notes can be created by having a link to ~mn:<n>~ where the link text
+  gets transformed to the margin note, for example:+
 
 #+BEGIN_SRC fundamental
-This is some regular text [[mn:1][this will be a margin note]]
+  This is some regular text [[mn:1][this will be a margin note]] and some more
+  text [[mn:][another margin note]].
 #+END_SRC
+
+The above syntax is limiting since in org, link descriptions cannot contain
+regular links. The more feature-ful embedding of margin-notes is as an inline
+babel call, specifically, to [[marginnote][the marginnote block below]].
+#+name: marginnote
+#+header: :var input=""
+#+begin_src elisp :exports results :results html replace value
+  (require 'ox-tufte)
+  (ox-tufte/utils/margin-note input)
+#+end_src
 
 - Anything in =#+BEGIN_QUOTE= blocks becomes an epigraph, where the =#+NAME= of
   the quote becomes a reference in the ~<footer>~ inside of the epigraph.
@@ -61,26 +82,65 @@ This is some regular text [[mn:1][this will be a margin note]]
 There are some experimental extensions in [[file:ox-tufte-experimental.css][ox-tufte-experimental.css]]. This css
 file should be included /after/ [[file:ox-tufte.css][ox-tufte.css]].
 
+* Limitations
+ox-tufte presently inherits the following limitations from [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
+- Sidenotes cannot contain paragraphs, tables etc. (since they are HTML =span=
+  elements).
+
+In addition there are [[todos][some pending TODOs]].
+* Customization
+** Footnotes section at bottom
+The behaviour depends on the value of
+~org-tufte-include-footnotes-at-bottom~. Because footnotes are transformed to
+sidenotes they are currently hidden on very narrow screens (like phones), unless
+the use manually toggles visibility for each reference. if you want to include
+footnodes *also* at the bottom of the page, this may be set to =t= using either
+=setq= (src_elisp{(setq org-tufte-include-footnotes-at-bottom t)}), or, more
+conveniently, during initial setup by passing =t= to =ox-tufte/init=:
+#+begin_src elisp
+  (ox-tufte/init t)
+#+end_src
+
+This behaviour can also be configured on a per-file basis
+(assuming =org-export-allow-bind-keywords= is =t=) using below:
+#+begin_src org
+  ,#+BIND: org-tufte-include-footnotes-at-bottom nil
+#+end_src
+** Margin-note symbol and visibility on small screens
+From [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
+#+begin_quote
+However, on small screens, a margin note is like a sidenote except its
+viewability-toggle is a symbol rather than a reference number. This document
+currently uses the symbol ⊕ (&#8853;), but it’s up to you.
+#+end_quote
+This symbol can be tweaked, by modifying the value of
+=org-tufte-margin-note-symbol=. Specifically, if this value is set to the empty
+string (=""=), then margin-notes are always hidden on small screens.
+** Color of margin-note visibility-toggle and footnote-references
+Margin-note visibility color toggle can be tweaked using something like
+#+begin_src css
+  label.margin-toggle {
+      color: #a00000;
+  }
+#+end_src
+
+For footnote references, something like below would work
+#+begin_src css
+  label.sidenote-number,
+  .sidenote > sup.numeral {
+      color: #a00000;
+  }
+#+end_src
 * Compatibility
 Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases][v1.1]], though it may work with
 later versions. Please open issues if you discover any incompatibility!
-
-* Customization
-
-There is only a single customization right now,
-~org-tufte-include-footnotes-at-bottom~. Because footnotes are transformed to
-sidenotes they are currently hidden on very narrow screens (like phones), if you
-want to include footnodes *also* at the bottom of the page, this may be set to
-=t=.
-
-* TODOs [0/4]
-- [ ] Better markup support in =marginnotes=
+* <<todos>>TODOs [1/4]
+- [X] Better markup support in =marginnotes=
   Since =marginnotes= are currently implemented as hyperlinks, they presently
   lack the ability to embed images or have links within.
 - [ ] Add the ability to use the ~fullwidth~ class on figures
 - [ ] Support =#+CAPTION= better on images
 - [ ] Tufte image quilts?
-
 * References
 - https://edwardtufte.github.io/tufte-css/
 - https://gitlab.com/snippets/22309

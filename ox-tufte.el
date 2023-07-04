@@ -62,25 +62,30 @@ at the bottom."
   :group 'org-export-tufte
   :type 'string)
 
+(defcustom org-tufte-randid-limit 10000000
+  "Upper limit when generating random IDs.
+
+With default value of 10000000, there is ~0.2% chance of collision with 200
+references."
+  :group 'org-export-tufte
+  :type 'integer)
+
 ;;;###autoload
-(defun ox-tufte/init ()
-  "Initialize some `org-html' related settings."
+(defun ox-tufte/init (&optional footnotes-at-bottom-p)
+  "Initialize some `org-html' related settings.
+
+FOOTNOTES-AT-BOTTOM-P initializes the value of
+`org-tufte-include-footnotes-at-bottom'."
   (setq org-html-divs '((preamble "header" "preamble") ;; `header' i/o  `div'
                         (content "article" "content") ;; `article' for `tufte.css'
                         (postamble "footer" "postamble")) ;; `footer' i/o `div'
         org-html-container-element "section" ;; consistent with `tufte.css'
         org-html-checkbox-type 'html
         org-html-doctype "html5"
-        org-html-html5-fancy t)
-  (add-to-list 'org-export-global-macros
-               `("marginnote" .
-                 ,(concat "@@html:"
-                          "<label for='$1' class='margin-toggle'>"
-                          org-tufte-margin-note-symbol
-                          "</label>"
-                          "<input type='checkbox' id='$1' class='margin-toggle'>"
-                          "<span class='marginnote'>$2</span>"
-                          "@@"))))
+        org-html-html5-fancy t
+        org-tufte-include-footnotes-at-bottom footnotes-at-bottom-p)
+  (org-babel-lob-ingest
+   (concat (file-name-directory (locate-library "ox-tufte")) "README.org")))
 
 
 ;;; Define Back-End
@@ -102,7 +107,67 @@ at the bottom."
                      (verse-block . org-tufte-verse-block)))
 
 
-;;; Transcode Functions
+;;; Utility Functions
+
+(defun ox-tufte/utils/filter-ptags (str)
+  "Remove <p> tags from STR.
+
+Sidenotes and margin notes must have <p> and </p> tags removed to conform with
+the html structure that tufte.css expects."
+  (replace-regexp-in-string "</?p.*?>" "" str))
+
+;;;###autoload
+(defun ox-tufte/utils/margin-note (desc)
+  "Return HTML snippet after interpreting DESC as a margin note.
+
+This intended to be called via the `marginnote' library-of-babel function."
+  (let* ((exported-str
+          (progn
+            ;; (save-excursion
+            ;;   (message "HMM: desc = '%s'" desc)
+            ;;   (message "HMM: buffer-string = '%s'" (buffer-string))
+            ;;   (goto-char (point-min))
+            ;;   (let ((end (search-forward desc))
+            ;;         (beg (match-beginning 0)))
+            ;;     (narrow-to-region beg end)
+            ;;     (let ((output-buf (org-html-export-as-html nil nil
+            ;;                                                nil t)))
+            ;;       (widen)
+            ;;       (with-current-buffer output-buf
+            ;;         (buffer-string)))))
+            (with-temp-buffer
+              ;; FIXME: use narrowing instead to obviate having to add functions
+              ;; to library-of-babel in `org-html-publish-to-tufte-html' etc.
+              (insert desc)
+              (let ((output-buf
+                     (org-html-export-as-html nil nil nil t)))
+                (with-current-buffer output-buf
+                  (buffer-string))))
+            ))
+         (exported-newline-fix (replace-regexp-in-string
+                                "\n" " "
+                                (replace-regexp-in-string
+                                 "\\\\\n" "<br>"
+                                 exported-str)))
+         (exported-para-fix (ox-tufte/utils/filter-ptags exported-newline-fix)))
+    (ox-tufte/utils/margin-note/snippet exported-para-fix)))
+
+(defun ox-tufte/utils/margin-note/snippet (content &optional idtag)
+  "Generate html snippet for margin-note with CONTENT.
+
+CONTENT shouldn't have any '<p>' tags (or behaviour is undefined).  IDTAG is
+  used in the construction of the 'id' that connects a margin-notes
+  visibility-toggle with the margin-note."
+  (let ((mnid (format "mn-%s.%s" (or idtag "auto") (ox-tufte/utils/randid))))
+    (format
+     (concat
+      "<label for='%s' class='margin-toggle'>"
+      org-tufte-margin-note-symbol
+      "</label>"
+      "<input type='checkbox' id='%s' class='margin-toggle'>"
+      "<span class='marginnote'>%s</span>")
+     mnid mnid
+     content)))
 
 (defun ox-tufte/utils/string-fragment-to-xml (str)
   "Parse string fragment via `libxml'.
@@ -117,9 +182,16 @@ For the inverse, use `esxml-to-xml'."
     ;; but it creates <html> and <body> tags when missing. since we'll only be
     ;; using this function on html fragments, we can assume these elements are
     ;; always added and thus are safe to strip away
-    (caddr  ;; strip <html> tag
-     (caddr ;; strip <body> tag
+    (caddr  ;; strip <body> tag
+     (caddr ;; strip <html> tag
       (libxml-parse-html-region (point-min) (point-max))))))
+
+(defun ox-tufte/utils/randid ()
+  "Give a random number below the `org-tufte-randid-limit'."
+  (random org-tufte-randid-limit))
+
+
+;;; Transcode Functions
 
 (defun org-tufte-quote-block (quote-block contents info)
   "Transform a quote block into an epigraph in Tufte HTML style.
@@ -170,8 +242,7 @@ Modified from `org-html-footnote-reference' in 'org-html'."
        (plist-get info :html-footnote-separator)))
    (let* ((ox-tufte/fn-num
            (org-export-get-footnote-number footnote-reference info))
-          ;; chance of collision is ~0.2% with 200 references
-          (ox-tufte/uid (random 10000000))
+          (ox-tufte/uid (ox-tufte/utils/randid))
           (ox-tufte/fn-inputid (format "fnr-in.%d.%s" ox-tufte/fn-num ox-tufte/uid))
           (ox-tufte/fn-labelid ;; first reference acts as back-reference
            (if (org-export-footnote-first-reference-p footnote-reference info)
@@ -183,7 +254,7 @@ Modified from `org-html-footnote-reference' in 'org-html'."
            (org-trim (org-export-data ox-tufte/fn-def info)))
           (ox-tufte/fn-data-unpar
            ;; footnotes must have spurious <p> tags removed or they will not work
-           (replace-regexp-in-string "</?p.*>" "" ox-tufte/fn-data))
+           (ox-tufte/utils/filter-ptags ox-tufte/fn-data))
           )
      (format
       (concat
@@ -202,23 +273,23 @@ will show \"this is some text\" in the margin.
 
 If it does not, it will be passed onto the original function in
 order to be handled properly. DESC is the description part of the
-link. INFO is a plist holding contextual information."
+link. INFO is a plist holding contextual information.
+
+NOTE: this style of margin-notes are DEPRECATED and may be deleted in a future
+  version."
   (let ((path (split-string (org-element-property :path link) ":")))
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
-        (format
-         (concat "<label for='%s' class='margin-toggle'>"
-                 org-tufte-margin-note-symbol
-                 "</label>"
-                 "<input type='checkbox' id='%s' class='margin-toggle'>"
-                 "<span class='marginnote'>%s</span>")
-         (cadr path) (cadr path)
-         (replace-regexp-in-string "</?p.*>" "" desc))
+        (ox-tufte/utils/margin-note/snippet
+         (ox-tufte/utils/filter-ptags desc) (if (string= (cadr path) "") nil
+                                              (cadr path)))
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block contents info)
   "Transcode SRC-BLOCK element into Tufte HTML format.
-CONTENTS is nil.  INFO is a plist used as a communication channel."
+CONTENTS is nil.  INFO is a plist used as a communication channel.
+
+NOTE: this is dead code and currently unused."
   (format "<pre class=\"code\"><code>%s</code></pre>"
           (org-html-format-code src-block info)))
 
@@ -253,9 +324,14 @@ non-nil."
         ;; don't want to display them at the bottom
         (org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
                                         org-html-footnotes-section
-                                      "<!-- %s --><!-- %s -->")))
-    (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
-      async subtreep visible-only nil nil (lambda () (text-mode)))))
+                                      "<!-- %s --><!-- %s -->"))
+        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte/utils/margin-note'
+    (let ((output (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
+                    async subtreep visible-only nil nil (lambda ()
+                                                          (text-mode)))))
+      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+      output)))
 
 ;;;###autoload
 (defun org-tufte-export-to-file (&optional async subtreep visible-only)
@@ -284,8 +360,13 @@ Return output file's name."
         ;; don't want to display them at the bottom
         (org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
                                         org-html-footnotes-section
-                                      "<!-- %s --><!-- %s -->")))
-    (org-export-to-file 'tufte-html outfile async subtreep visible-only)))
+                                      "<!-- %s --><!-- %s -->"))
+        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte/utils/margin-note'
+    (let ((output (org-export-to-file 'tufte-html outfile async subtreep
+                                      visible-only)))
+      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+      output)))
 
 
 ;;; publishing function
@@ -299,11 +380,19 @@ the filename of the Org file to be published.  PUB-DIR is the
 publishing directory.
 
 Return output file name."
-  (org-publish-org-to 'tufte-html filename
-                      (concat "." (or (plist-get plist :html-extension)
-                                      org-html-extension
-                                      "html"))
-                      plist pub-dir))
+
+  (let ((org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
+                                        org-html-footnotes-section
+                                      "<!-- %s --><!-- %s -->"))
+        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+    (org-babel-lob-ingest filename) ;; needed by `ox-tufte/utils/margin-note'
+    (let ((output (org-publish-org-to 'tufte-html filename
+                                      (concat "." (or (plist-get plist :html-extension)
+                                                      org-html-extension
+                                                      "html"))
+                                      plist pub-dir)))
+      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+      output)))
 
 (provide 'ox-tufte)
 
