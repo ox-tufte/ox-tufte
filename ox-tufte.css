@@ -6,7 +6,7 @@
     --ox-tufte-list-width: 50%;
     --ox-tufte-list-padding-left: 5%;
     /* marginnote and sidenote settings from tufte.css */
-    --ox-tufte-note-line-height: 1.3;
+    --ox-tufte-note-line-height: 1.3rem;
     --ox-tufte-note-font-size: 1.1rem;
     /* values tufte.css reuses for h1,h3,h3 */
     --ox-tufte-heading-font-style: italic;
@@ -15,6 +15,8 @@
     --ox-tufte-heading-code-font-size: 0.80em;
     --ox-tufte-heading-min-margin-bottom: 1.4rem; /* h3=1.4rem; p=1.4rem; */
     --ox-tufte-heading-min-font-size: 1.4rem; /* p=1.4rem; */
+    --ox-tufte-font-size: 1.4rem;
+    --ox-tufte-line-height: 2rem;
 }
 
 /**************************************************************************/
@@ -331,3 +333,30 @@ section pre.example {
     overflow-x: scroll;
 }
 /* END: fix horizontal */
+
+/* BEGIN: block margin notes */
+/***************************************************************************/
+/* block marginnotes - allows us to include lists, paragraphs, tables etc. */
+/***************************************************************************/
+article div { /* add missing default from tufte.css */
+    font-size: var(--ox-tufte-font-size);
+    line-height: var(--ox-tufte-line-height);
+}
+div.marginnote dl,
+div.marginnote ol,
+div.marginnote p,
+div.marginnote ul {
+    font-size: var(--ox-tufte-note-font-size);
+    line-height: var(--ox-tufte-note-line-height);
+}
+div.marginnote p {
+    margin-top: var(--ox-tufte-note-font-size);
+    margin-bottom: var(--ox-tufte-note-font-size);
+}
+@media (max-width: 760px) {
+    div.marginnote + *, /* needed for block marginnotes */
+    h2, h3, h4, p { /* these are needed for margin/sidenotes in general */
+        clear: both;
+    }
+}
+/* END: block margin notes */

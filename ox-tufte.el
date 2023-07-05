@@ -1,7 +1,7 @@
 ;;; ox-tufte.el --- Tufte HTML org-mode export backend
 
 ;; Copyright (C) 2023      The Bayesians Inc.
-;; Copyright (C) 2016-2023 Matthew Lee Hinman
+;; Copyright (C) 2016-2022 Matthew Lee Hinman
 
 ;; Author: M. Lee Hinman
 ;; Maintainer: The Bayesians Inc.
@@ -104,6 +104,7 @@ FOOTNOTES-AT-BOTTOM-P initializes the value of
                      ;; (src-block . org-tufte-src-block)
                      (link . org-tufte-maybe-margin-note-link)
                      (quote-block . org-tufte-quote-block)
+                     (special-block . org-tufte-special-block)
                      (verse-block . org-tufte-verse-block)))
 
 
@@ -152,20 +153,26 @@ This intended to be called via the `marginnote' library-of-babel function."
          (exported-para-fix (ox-tufte/utils/filter-ptags exported-newline-fix)))
     (ox-tufte/utils/margin-note/snippet exported-para-fix)))
 
-(defun ox-tufte/utils/margin-note/snippet (content &optional idtag)
-  "Generate html snippet for margin-note with CONTENT.
+(defun ox-tufte/utils/margin-note/snippet (text &optional idtag blob)
+  "Generate html snippet for margin-note with TEXT.
 
-CONTENT shouldn't have any '<p>' tags (or behaviour is undefined).  IDTAG is
-  used in the construction of the 'id' that connects a margin-notes
+TEXT shouldn't have any '<p>' tags (or behaviour is undefined).  If '<p>' tags
+  are needed, use BLOB which must be an HTML snippet of a containing element
+  with 'marginnote' class.  BLOB is ignored unless TEXT is nil.
+
+IDTAG is used in the construction of the 'id' that connects a margin-notes
   visibility-toggle with the margin-note."
-  (let ((mnid (format "mn-%s.%s" (or idtag "auto") (ox-tufte/utils/randid))))
+  (let ((mnid (format "mn-%s.%s" (or idtag "auto") (ox-tufte/utils/randid)))
+        (content (if text
+                     (format "<span class='marginnote'>%s</span>" text)
+                   blob)))
     (format
      (concat
       "<label for='%s' class='margin-toggle'>"
       org-tufte-margin-note-symbol
       "</label>"
       "<input type='checkbox' id='%s' class='margin-toggle'>"
-      "<span class='marginnote'>%s</span>")
+      "%s")
      mnid mnid
      content)))
 
@@ -265,6 +272,15 @@ Modified from `org-html-footnote-reference' in 'org-html'."
       ox-tufte/fn-inputid
       ox-tufte/fn-num ox-tufte/fn-data-unpar)
      )))
+
+(defun org-tufte-special-block (special-block contents info)
+  "Add support for block margin-note special blocks.
+Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
+  (let ((block-type (org-element-property :type special-block)))
+    (if (string= block-type "marginnote")
+        (ox-tufte/utils/margin-note/snippet
+         nil nil (org-html-special-block special-block contents info))
+      (org-html-special-block special-block contents info))))
 
 (defun org-tufte-maybe-margin-note-link (link desc info)
   "Render LINK as a margin note if it begins with `mn:'.

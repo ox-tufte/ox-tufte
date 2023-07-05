@@ -10,9 +10,9 @@
 /**********************************************************************************/
 /* lists in sidenotes - breaks html standard and works only in special situations */
 /**********************************************************************************/
-.marginnote dl, .sidenote dl,
-.marginnote ol, .sidenote ol,
-.marginnote ul, .sidenote ul {
+.sidenote dl,
+.sidenote ol,
+.sidenote ul {
     font-size: var(--ox-tufte-note-font-size);
     line-height: var(--ox-tufte-note-line-height);
 }
