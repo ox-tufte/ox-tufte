@@ -42,15 +42,15 @@ as:
 * Features
 ox-tufte supports *most* of the features from tufte-css, some in different ways
 than expected, and some extensions.
-| [[https://edwardtufte.github.io/tufte-css/][Tufte-css concept]]     | [[https://orgmode.org/worg/org-syntax.html][Org-mode syntax]] for tufte-css concept   | ox-tufte extension                                |
-|-----------------------+-----------------------------------------+---------------------------------------------------|
-| [[https://edwardtufte.github.io/tufte-css/#fundamentals--sections-and-headers][Sections and Headings]] | Sections and Headings                   |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes]]             | [[footnotes][Footnotes]]                               |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Margin-notes]]          | [[marginnotes-inline][inline babel call]] to [[marginnote]["marginnote" block]] | block margin-notes via "marginnote" special-block |
-| [[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]             | [[epigraphs][Quote block]]                             |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#figures][iframe wrapper]]        | [[figures]["figure"]] org-mode [[https://orgmode.org/org.html#HTML-doctypes][special-block]]         |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#code][Code]]                  | [[code][Source block]]                            |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#imagequilts][ImageQuilts]]           | ???                                     |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/][Tufte-css concept]]     | [[https://orgmode.org/worg/org-syntax.html][Org-mode syntax]] for tufte-css concept      | ox-tufte extension                                |
+|-----------------------+--------------------------------------------+---------------------------------------------------|
+| [[https://edwardtufte.github.io/tufte-css/#fundamentals--sections-and-headers][Sections and Headings]] | Sections and Headings                      |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes]]             | [[footnotes][Footnotes]]                                  |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Margin-notes]]          | [[marginnotes-inline][inline babel call]] to [[marginnote]["marginnote" block]]    | block margin-notes via "marginnote" special-block |
+| [[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]             | [[epigraphs][Quote block]]                                |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#figures][iframe wrapper]]        | [[figures]["figure"]] org-mode [[https://orgmode.org/org.html#HTML-doctypes][special-block]]            |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#code][Code]]                  | [[code][Source block]]                               |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#imagequilts][ImageQuilts]]           | [[https://orgmode.org/manual/Images.html][Images]] (optionally with =fullwidth= class) |                                                   |
 
 ** [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes and margin-notes]]
 - <<footnotes>>Org-mode footnotes become numbered Sidenotes from the tufte spec
@@ -113,12 +113,16 @@ To use =tufte-css='s =iframe-wrapper= class, one can do something like below:
 
 To have fullwidth figures:
 #+ATTR_HTML: :class fullwidth
-#+begin_figure
+#+CAPTION: Edward Tufte’s English translation of the Napoleon’s March data visualization. From Beautiful Evidence, page 122-124.
 [[https://edwardtufte.github.io/tufte-css/img/napoleons-march.png]]
 #+end_figure
-** Extensions
-- h4 heading level is supported in a consistent manner similar to h3
-- block level margin notes
+** Deviations and Extensions
+- captions on images are placed below the image (as opposed to in the margin
+  area) regardless of whether the image is =fullwidth= or not.
+- h4 heading level is supported in a consistent manner similar to h3.
+- block level margin notes are supported via src_org{#+begin_marginnote} and
+  src_org{#+end_marginnote}.
+  
 ** Experimental
 There are some experimental extensions in [[file:ox-tufte-experimental.css][ox-tufte-experimental.css]]. This css
 file should be included /after/ [[file:ox-tufte.css][ox-tufte.css]].
@@ -174,20 +178,14 @@ For footnote references, something like below would work
 * Compatibility
 Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases][v1.1]], though it may work with
 later versions. Please open issues if you discover any incompatibility!
-* <<todos>>TODOs [1/4]
+* <<todos>>TODOs [1/3]
 - [X] Better markup support in =marginnotes=
   Since =marginnotes= are currently implemented as hyperlinks, they presently
   lack the ability to embed images or have links within.
-- [ ] Support =#+CAPTION= better on figures
-  - [ ] caption on "figure" special blocks (the only ones that currently work in
-    fullwidth mode well) are ignored
-  - [ ] captions float to the right and take less space, but still are in "main
-    section" not in sidenotes. in =tufte-css= they are implemented as
-    margin-notes within the figure container (doing so naively with =ox-tufte=
-    results in losing image name such as "Figure 1:" which is automatically
-    prepended for captions in =ox-html=).
 - [ ] Don't require users to explicitly download [[https://github.com/edwardtufte/tufte-css][tufte-css]]
-- [ ] Tufte image quilts?
+- [ ] Support =#+CAPTION= on "figure" special blocks (say, when embedding an
+  iframe). These are presently ignored. Note, for =iframe-wrapper= blocks even
+  =tufte.css= doesn't support displaying =figcaption= blocks appropriately.
 * References
 - https://edwardtufte.github.io/tufte-css/
 - https://gitlab.com/snippets/22309

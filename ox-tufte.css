@@ -360,3 +360,31 @@ div.marginnote p {
     }
 }
 /* END: block margin notes */
+
+/* BEGIN: captions on figures */
+figure > figcaption { /* undo tufte-css tweaks, till they're better supported */
+    max-width: unset;
+    float: left;
+}
+/* undo tufte-css tweaks, till they're better supported */
+figure.fullwidth figcaption {
+    margin-right: unset;
+}
+img.fullwidth + figcaption {
+    width: var(--ox-tufte-fullwidth);
+}
+/* END: captions on figures */
+
+/* BEGIN: fullwidth images */
+img.fullwidth {
+    display: block;
+}
+/* END: fullwidth images */
+
+/* BEGIN: prevent side-scroll when result of inline call is long */
+article code {
+    overflow-x: scroll;
+    max-width: 100%;
+    display: inline-block;
+}
+/* END: prevent side-scroll when result of inline call is long */
