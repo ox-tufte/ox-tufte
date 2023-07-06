@@ -277,10 +277,45 @@ Modified from `org-html-footnote-reference' in 'org-html'."
   "Add support for block margin-note special blocks.
 Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
   (let ((block-type (org-element-property :type special-block)))
-    (if (string= block-type "marginnote")
-        (ox-tufte/utils/margin-note/snippet
-         nil nil (org-html-special-block special-block contents info))
-      (org-html-special-block special-block contents info))))
+    (cond
+     ((string= block-type "marginnote")
+      (ox-tufte/utils/margin-note/snippet
+       nil nil (org-html-special-block special-block contents info)))
+     ((and (string= block-type "figure")
+           (org-html--has-caption-p special-block info)
+           (not (member "iframe-wrapper" ;; FIXME: fix tufte-css before enabling
+                        (split-string
+                         (plist-get (org-export-read-attribute :attr_html special-block) :class)
+                         " "))))
+      ;; add support for captions on figures that `ox-html' lacks
+      (let* ((caption (let ((raw (org-export-data
+	    	                      (org-export-get-caption special-block) info))
+	                        (org-html-standalone-image-predicate
+	                         #'org-html--has-caption-p))
+	                    (if (not (org-string-nw-p raw)) raw
+                          ;; FIXME: it would be nice to be able to count figure
+                          ;; as an image and number accordingly
+                          raw
+                          ;; (concat "<span class=\"figure-number\">"
+	    	              ;;         (format (org-html--translate "Figure %d:" info)
+	    		          ;;                 (org-export-get-ordinal
+	    		          ;;                  (org-element-map special-block 'link
+	    		          ;;                    #'identity info t)
+	    		          ;;                  info '(link) #'org-html-standalone-image-p))
+	    	              ;;         " </span>"
+	    	              ;;         raw)
+                          )))
+             (figcaption (format "<figcaption>%s</figcaption>" caption))
+             ;; using regex because `esxml-to-xml' doesn't put closing iframe
+             ;; tag (and also loses some attributes), which results in broken
+             ;; html (so cannot do what we do in `org-tufte-quote-block'.
+             ;; FIXME: remove reliance on `esxml' entirely?
+             (o-h-sb-str (org-html-special-block special-block contents info))
+             (o-t-sb-str (replace-regexp-in-string "</figure>$" figcaption o-h-sb-str t t)))
+        (replace-regexp-in-string
+         "</figure>\\'"
+         (concat figcaption "</figure>") o-h-sb-str t t)))
+     (t (org-html-special-block special-block contents info)))))
 
 (defun org-tufte-maybe-margin-note-link (link desc info)
   "Render LINK as a margin note if it begins with `mn:'.

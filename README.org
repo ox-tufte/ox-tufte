@@ -136,7 +136,7 @@ file should be included /after/ [[file:ox-tufte.css][ox-tufte.css]].
 ox-tufte presently inherits the following limitations from [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
 - Sidenotes cannot contain paragraphs, tables etc. (since they are HTML =span=
   elements).
-
+- Captions for =iframe-wrapper= blocks aren't supported.
 In addition there are [[todos][some pending TODOs]].
 * Customization
 ** Footnotes section at bottom
@@ -184,14 +184,13 @@ For footnote references, something like below would work
 * Compatibility
 Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases][v1.1]], though it may work with
 later versions. Please open issues if you discover any incompatibility!
-* <<todos>>TODOs [1/3]
+* <<todos>>TODOs [2/3]
 - [X] Better markup support in =marginnotes=
   Since =marginnotes= are currently implemented as hyperlinks, they presently
   lack the ability to embed images or have links within.
+- [X] Support =#+CAPTION= on "figure" special blocks. These are unsupported in
+  =ox-html=.
 - [ ] Don't require users to explicitly download [[https://github.com/edwardtufte/tufte-css][tufte-css]]
-- [ ] Support =#+CAPTION= on "figure" special blocks (say, when embedding an
-  iframe). These are presently ignored. Note, for =iframe-wrapper= blocks even
-  =tufte.css= doesn't support displaying =figcaption= blocks appropriately.
 * References
 - https://edwardtufte.github.io/tufte-css/
 - https://gitlab.com/snippets/22309

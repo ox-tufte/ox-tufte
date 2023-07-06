@@ -365,6 +365,7 @@ div.marginnote p {
 figure > figcaption { /* undo tufte-css tweaks, till they're better supported */
     max-width: unset;
     float: left;
+    width: 100%;
 }
 /* undo tufte-css tweaks, till they're better supported */
 figure.fullwidth figcaption {
