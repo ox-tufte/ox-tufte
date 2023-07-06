@@ -328,12 +328,18 @@ link. INFO is a plist holding contextual information.
 
 NOTE: this style of margin-notes are DEPRECATED and may be deleted in a future
   version."
-  (let ((path (split-string (org-element-property :path link) ":")))
+  (let ((path (split-string (org-element-property :path link) ":"))
+        (str (format (concat "DEPRECATION: ox-tufte: %s\n"
+                             "DEPRECATION: ox-tufte: %s")
+                     "margin-notes as links are deprecated."
+                     "Please use the `call_marginnote' syntax instead.")))
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
-        (ox-tufte/utils/margin-note/snippet
-         (ox-tufte/utils/filter-ptags desc) (if (string= (cadr path) "") nil
-                                              (cadr path)))
+        (progn
+          (display-warning 'deprecation-warning str :warning)
+          (ox-tufte/utils/margin-note/snippet
+           (ox-tufte/utils/filter-ptags desc) (if (string= (cadr path) "") nil
+                                                (cadr path))))
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block contents info)

@@ -54,25 +54,23 @@ than expected, and some extensions.
 
 ** [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes and margin-notes]]
 - <<footnotes>>Org-mode footnotes become numbered Sidenotes from the tufte spec
-- +Margin notes can be created by having a link to ~mn:<n>~ where the link text
-  gets transformed to the margin note, for example:+
 
-#+BEGIN_SRC org
-  This is some regular text [[mn:1][this will be a margin note]] and some more
-  text [[mn:][another margin note]].
-#+END_SRC
-
-<<marginnotes-inline>>The above syntax is limiting since in org, link
-descriptions cannot contain regular links. The more feature-ful embedding of
-"inline" margin-notes (i.e., margin-notes that can include [[https://html.spec.whatwg.org/#phrasing-content-2][HTML phrasing
-content]]) is as an inline babel call, specifically, to [[marginnote][the marginnote block
-below]].
+<<marginnotes-inline>>"Inline" margin-notes (i.e., margin-notes that can include
+[[https://html.spec.whatwg.org/#phrasing-content-2][HTML phrasing content]]) are implemented as an inline babel call, specifically, to
+[[marginnote][the "marginnote" block defined below]].
 #+name: marginnote
 #+header: :var input=""
 #+begin_src elisp :exports results :results html replace value
   (require 'ox-tufte)
   (ox-tufte/utils/margin-note input)
 #+end_src
+The usage is as follows:
+#+begin_src org
+  This is some regular text call_marginnote("this will be a margin note") and some
+  more text call_marginnote("another margin note").
+#+end_src
+See [[deprecated-margin-notes][deprecation sub-section below]] regarding the alternate syntax for inline
+margin-notes (which is now deprecated).
 
 There is also support for "block" margin-notes, which are margin-notes that can
 contain "block" elements ([[https://html.spec.whatwg.org/#flow-content-2][HTML spec flow content]]) such as paragraphs, lists,
@@ -86,6 +84,19 @@ tables etc. These are defined using an org-mode "marginnote" special-block
   - item 2
   ,#+end_marginnote
 #+end_src
+
+*** <<deprecated-margin-notes>>Deprecated: Margin-notes as links
+Previously, =ox-tufte= encoded margin-notes as links. Said syntax is now
+deprecated and support for it will be dropped in future versions. This syntax is
+limiting since, in org, link descriptions cannot contain regular links.
+
+- +Margin notes can be created by having a link to ~mn:<n>~ where the link text
+  gets transformed to the margin note, for example:+
+#+BEGIN_SRC org
+  This is some regular text [[mn:1][this will be a margin note]] and some more
+  text [[mn:][another margin note]].
+#+END_SRC
+
 ** <<epigraphs>>[[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]
 - Anything in =#+BEGIN_QUOTE= blocks becomes an epigraph, where the =#+NAME= of
   the quote becomes a reference in the ~<footer>~ inside of the epigraph.
