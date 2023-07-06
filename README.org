@@ -57,7 +57,7 @@ than expected, and some extensions.
 - +Margin notes can be created by having a link to ~mn:<n>~ where the link text
   gets transformed to the margin note, for example:+
 
-#+BEGIN_SRC fundamental
+#+BEGIN_SRC org
   This is some regular text [[mn:1][this will be a margin note]] and some more
   text [[mn:][another margin note]].
 #+END_SRC
@@ -79,11 +79,13 @@ contain "block" elements ([[https://html.spec.whatwg.org/#flow-content-2][HTML s
 tables etc. These are defined using an org-mode "marginnote" special-block
 (i.e., within =#+begin_marginnote= and =#+end_marginnote=, or within
 =#+BEGIN_marginnote= and =#+END_marginnote=).
-#+begin_marginnote
-This is a block level margin-note.
-- item 1
-- item 2
-#+end_marginnote
+#+begin_src org
+  ,#+begin_marginnote
+  This is a block level margin-note.
+  - item 1
+  - item 2
+  ,#+end_marginnote
+#+end_src
 ** <<epigraphs>>[[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]
 - Anything in =#+BEGIN_QUOTE= blocks becomes an epigraph, where the =#+NAME= of
   the quote becomes a reference in the ~<footer>~ inside of the epigraph.
@@ -106,16 +108,20 @@ And then in your =init.el= or equivalent, load it using:
 src_elisp{(load-theme 'plan9 t)}.
 ** <<figures>>Figures and iframes
 To use =tufte-css='s =iframe-wrapper= class, one can do something like below:
-#+ATTR_HTML: :class iframe-wrapper
-#+begin_figure
-@@html:<iframe width="853" height="480" src="https://www.youtube.com/embed/YslQ2625TR4" frameborder="0" allowfullscreen></iframe>@@
-#+end_figure
+#+begin_src org
+  ,#+ATTR_HTML: :class iframe-wrapper
+  ,#+begin_figure
+  @@html:<iframe width="853" height="480" src="https://www.youtube.com/embed/YslQ2625TR4" frameborder="0" allowfullscreen></iframe>@@
+  ,#+end_figure
+#+end_src
 
 To have fullwidth figures:
-#+ATTR_HTML: :class fullwidth
-#+CAPTION: Edward Tufte’s English translation of the Napoleon’s March data visualization. From Beautiful Evidence, page 122-124.
-[[https://edwardtufte.github.io/tufte-css/img/napoleons-march.png]]
-#+end_figure
+#+begin_src org
+  ,#+ATTR_HTML: :class fullwidth
+  ,#+CAPTION: Edward Tufte’s English translation of the Napoleon’s March data visualization. From Beautiful Evidence, page 122-124.
+  [[https://edwardtufte.github.io/tufte-css/img/napoleons-march.png]]
+  ,#+end_figure
+#+end_src
 ** Deviations and Extensions
 - captions on images are placed below the image (as opposed to in the margin
   area) regardless of whether the image is =fullwidth= or not.
