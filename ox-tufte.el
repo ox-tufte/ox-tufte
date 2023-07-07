@@ -45,11 +45,9 @@
 ;;; User-Configurable Variables
 
 (defgroup org-export-tufte nil
-  "Options specific to Tufte export back-end."
-  :tag "Org Tufte"
-  :group 'org-export
-  :version "26.1"
-  :package-version '(Org . "9.5"))
+  "Options for exporting Org mode files to Tufte-CSS themed HTML."
+  :tag "Org Export Tufte HTML"
+  :group 'org-export)
 
 (defcustom org-tufte-include-footnotes-at-bottom nil
   "Non-nil means to include footnotes at the bottom of the page.
@@ -95,13 +93,12 @@ FOOTNOTES-AT-BOTTOM-P initializes the value of
 (org-export-define-derived-backend 'tufte-html 'html
   :menu-entry
   '(?T "Export to Tufte-HTML"
-       ((?T "To temporary buffer"
-            (lambda (a s v b) (org-tufte-export-to-buffer a s v)))
-        (?t "To file" (lambda (a s v b) (org-tufte-export-to-file a s v)))
-        (?o "To file and open"
+       ((?H "As HTML buffer" org-tufte-export-as-html)
+        (?h "As HTML file" org-tufte-export-to-html)
+        (?o "As HTML file and open"
             (lambda (a s v b)
-              (if a (org-tufte-export-to-file t s v)
-                (org-open-file (org-tufte-export-to-file nil s v)))))))
+              (if a (org-tufte-export-to-html t s v b)
+                (org-open-file (org-tufte-export-to-html nil s v b)))))))
   :translate-alist '((footnote-reference . org-tufte-footnote-reference)
                      ;; (src-block . org-tufte-src-block)
                      (link . org-tufte-maybe-margin-note-link)
@@ -139,7 +136,7 @@ This intended to be called via the `marginnote' library-of-babel function."
             ;;         (buffer-string)))))
             (with-temp-buffer
               ;; FIXME: use narrowing instead to obviate having to add functions
-              ;; to library-of-babel in `org-html-publish-to-tufte-html' etc.
+              ;; to library-of-babel in `org-tufte-publish-to-html' etc.
               (insert desc)
               (let ((output-buf
                      (org-html-export-as-html nil nil nil t)))
@@ -350,7 +347,8 @@ NOTE: this is dead code and currently unused."
 ;;; Export functions
 
 ;;;###autoload
-(defun org-tufte-export-to-buffer (&optional async subtreep visible-only)
+(defun org-tufte-export-as-html
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a Tufte HTML buffer.
 
 If narrowing is active in the current buffer, only export its
@@ -369,6 +367,13 @@ first.
 When optional argument VISIBLE-ONLY is non-nil, don't export
 contents of hidden elements.
 
+When optional argument BODY-ONLY is non-nil, only write code
+between \"<body>\" and \"</body>\" tags.
+
+EXT-PLIST, when provided, is a property list with external
+parameters overriding Org default settings, but still inferior to
+file-local settings.
+
 Export is done in a buffer named \"*Org Tufte Export*\", which will
 be displayed when `org-export-show-temporary-export-buffer' is
 non-nil."
@@ -381,13 +386,15 @@ non-nil."
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
-                    async subtreep visible-only nil nil (lambda ()
-                                                          (text-mode)))))
+                    async subtreep visible-only body-only ext-plist
+                    (lambda () (set-auto-mode t));; (lambda () (text-mode))
+                    )))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
       output)))
 
 ;;;###autoload
-(defun org-tufte-export-to-file (&optional async subtreep visible-only)
+(defun org-tufte-export-to-html
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a Tufte HTML file.
 
 If narrowing is active in the current buffer, only export its
@@ -406,6 +413,13 @@ first.
 When optional argument VISIBLE-ONLY is non-nil, don't export
 contents of hidden elements.
 
+When optional argument BODY-ONLY is non-nil, only write code
+between \"<body>\" and \"</body>\" tags.
+
+EXT-PLIST, when provided, is a property list with external
+parameters overriding Org default settings, but still inferior to
+file-local settings.
+
 Return output file's name."
   (interactive)
   (let ((outfile (org-export-output-file-name ".html" subtreep))
@@ -416,8 +430,8 @@ Return output file's name."
                                       "<!-- %s --><!-- %s -->"))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
-    (let ((output (org-export-to-file 'tufte-html outfile async subtreep
-                                      visible-only)))
+    (let ((output (org-export-to-file 'tufte-html outfile
+                    async subtreep visible-only body-only ext-plist)))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
       output)))
 
@@ -425,7 +439,7 @@ Return output file's name."
 ;;; publishing function
 
 ;;;###autoload
-(defun org-html-publish-to-tufte-html (plist filename pub-dir)
+(defun org-tufte-publish-to-html (plist filename pub-dir)
   "Publish an org file to Tufte-styled HTML.
 
 PLIST is the property list for the given project.  FILENAME is
