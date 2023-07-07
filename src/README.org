@@ -158,13 +158,15 @@ conveniences =tufte-css= provides for image quilts (over and above other
 features, since [[figures][single images can already be included as desired]]).
 
 However, in =ox-tufte= one can create a figure with multiple images.
-#+HTML_HEAD_EXTRA: <style> .quiltish img { max-height: 200px; min-height: 100px; } </style>
-#+attr_html: :class quiltish
-#+CAPTION: caption for multiple images
-#+begin_figure
-[[./path/to/img1.png]]
-[[./path/to/img2.png]]
-#+end_figure
+#+begin_src org
+  ,#+HTML_HEAD_EXTRA: <style> .quiltish img { max-height: 200px; min-height: 100px; } </style>
+  ,#+attr_html: :class quiltish
+  ,#+CAPTION: caption for multiple images
+  ,#+begin_figure
+  [[./path/to/img1.png]]
+  [[./path/to/img2.png]]
+  ,#+end_figure
+#+end_src
 ** Deviations and Extensions
 - =tufte-css= numbers sidenotes via CSS and as such referring to the same
   sidenote more than once results in erroneous numbering. =ox-tufte= fixes
