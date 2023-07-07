@@ -26,7 +26,7 @@ You can install ox-tufte using [[https://melpa.org][MELPA]]:
 And then in your ~init.el~ (or equivalent):
 #+BEGIN_SRC emacs-lisp
   (require 'ox-tufte)
-  (ox-tufte/init)
+  (ox-tufte-init)
 #+END_SRC
 
 It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] and place it on your server (with the
@@ -68,7 +68,7 @@ than expected, and some extensions.
 #+header: :var input=""
 #+begin_src elisp :exports results :results html replace value
   (require 'ox-tufte)
-  (ox-tufte/utils/margin-note input)
+  (ox-tufte--utils-margin-note input)
 #+end_src
 The usage is as follows:
 #+begin_src org
@@ -162,9 +162,9 @@ sidenotes they are currently hidden on very narrow screens (like phones), unless
 the use manually toggles visibility for each reference. if you want to include
 footnodes *also* at the bottom of the page, this may be set to =t= using either
 =setq= (src_elisp{(setq org-tufte-include-footnotes-at-bottom t)}), or, more
-conveniently, during initial setup by passing =t= to =ox-tufte/init=:
+conveniently, during initial setup by passing =t= to =ox-tufte-init=:
 #+begin_src elisp
-  (ox-tufte/init t)
+  (ox-tufte-init t)
 #+end_src
 
 This behaviour can also be configured on a per-file basis

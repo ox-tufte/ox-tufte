@@ -8,7 +8,7 @@
 ;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
 ;; Version: 2.0.0
-;; Package-Requires: ((org "9.5") (emacs "26.1") (esxml "0.3.7"))
+;; Package-Requires: ((org "9.5") (emacs "27.1") (esxml "0.3.7"))
 ;; URL: https://github.com/ox-tufte/ox-tufte
 
 ;; This file is not part of GNU Emacs.
@@ -73,7 +73,7 @@ references."
   :type 'integer)
 
 ;;;###autoload
-(defun ox-tufte/init (&optional footnotes-at-bottom-p)
+(defun ox-tufte-init (&optional footnotes-at-bottom-p)
   "Initialize some `org-html' related settings.
 
 FOOTNOTES-AT-BOTTOM-P initializes the value of
@@ -112,15 +112,14 @@ FOOTNOTES-AT-BOTTOM-P initializes the value of
 
 ;;; Utility Functions
 
-(defun ox-tufte/utils/filter-ptags (str)
+(defun ox-tufte--utils-filter-ptags (str)
   "Remove <p> tags from STR.
 
 Sidenotes and margin notes must have <p> and </p> tags removed to conform with
 the html structure that tufte.css expects."
   (replace-regexp-in-string "</?p.*?>" "" str))
 
-;;;###autoload
-(defun ox-tufte/utils/margin-note (desc)
+(defun ox-tufte--utils-margin-note (desc)
   "Return HTML snippet after interpreting DESC as a margin note.
 
 This intended to be called via the `marginnote' library-of-babel function."
@@ -145,17 +144,16 @@ This intended to be called via the `marginnote' library-of-babel function."
               (let ((output-buf
                      (org-html-export-as-html nil nil nil t)))
                 (with-current-buffer output-buf
-                  (buffer-string))))
-            ))
+                  (buffer-string))))))
          (exported-newline-fix (replace-regexp-in-string
                                 "\n" " "
                                 (replace-regexp-in-string
                                  "\\\\\n" "<br>"
                                  exported-str)))
-         (exported-para-fix (ox-tufte/utils/filter-ptags exported-newline-fix)))
-    (ox-tufte/utils/margin-note/snippet exported-para-fix)))
+         (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
+    (ox-tufte--utils-margin-note-snippet exported-para-fix)))
 
-(defun ox-tufte/utils/margin-note/snippet (text &optional idtag blob)
+(defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
   "Generate html snippet for margin-note with TEXT.
 
 TEXT shouldn't have any '<p>' tags (or behaviour is undefined).  If '<p>' tags
@@ -164,7 +162,7 @@ TEXT shouldn't have any '<p>' tags (or behaviour is undefined).  If '<p>' tags
 
 IDTAG is used in the construction of the 'id' that connects a margin-notes
   visibility-toggle with the margin-note."
-  (let ((mnid (format "mn-%s.%s" (or idtag "auto") (ox-tufte/utils/randid)))
+  (let ((mnid (format "mn-%s.%s" (or idtag "auto") (ox-tufte--utils-randid)))
         (content (if text
                      (format "<span class='marginnote'>%s</span>" text)
                    blob)))
@@ -178,7 +176,7 @@ IDTAG is used in the construction of the 'id' that connects a margin-notes
      mnid mnid
      content)))
 
-(defun ox-tufte/utils/string-fragment-to-xml (str)
+(defun ox-tufte--utils-string-fragment-to-xml (str)
   "Parse string fragment via `libxml'.
 STR is the xml fragment.
 
@@ -195,7 +193,7 @@ For the inverse, use `esxml-to-xml'."
      (caddr ;; strip <html> tag
       (libxml-parse-html-region (point-min) (point-max))))))
 
-(defun ox-tufte/utils/randid ()
+(defun ox-tufte--utils-randid ()
   "Give a random number below the `org-tufte-randid-limit'."
   (random org-tufte-randid-limit))
 
@@ -207,20 +205,19 @@ For the inverse, use `esxml-to-xml'."
 QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
   (let* ((ox-tufte/ox-html-qb-str (org-html-quote-block quote-block contents info))
          (ox-tufte/ox-html-qb-dom
-          (ox-tufte/utils/string-fragment-to-xml ox-tufte/ox-html-qb-str))
+          (ox-tufte--utils-string-fragment-to-xml ox-tufte/ox-html-qb-str))
          (ox-tufte/qb-name (org-element-property :name quote-block))
          (ox-tufte/footer-content-maybe
           (if ox-tufte/qb-name
               (format "<footer>%s</footer>" ox-tufte/qb-name)
             nil)))
     (when ox-tufte/footer-content-maybe
-      (push (ox-tufte/utils/string-fragment-to-xml ox-tufte/footer-content-maybe)
+      (push (ox-tufte--utils-string-fragment-to-xml ox-tufte/footer-content-maybe)
             (cdr (last ox-tufte/ox-html-qb-dom))))
     (format "<div class='epigraph'>%s</div>"
             (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
                 (esxml-to-xml ox-tufte/ox-html-qb-dom)
-              ox-tufte/ox-html-qb-str))
-    ))
+              ox-tufte/ox-html-qb-str))))
 
 (defun org-tufte-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to HTML.
@@ -234,8 +231,7 @@ contextual information."
             "")))
     (format "<div class='verse'><blockquote>\n%s\n%s</blockquote></div>"
           ox-tufte/ox-html-vb-str
-          ox-tufte/footer-content)
-    ))
+          ox-tufte/footer-content)))
 
 ;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
 (defun org-tufte-footnote-reference (footnote-reference contents info)
@@ -251,7 +247,7 @@ Modified from `org-html-footnote-reference' in 'org-html'."
        (plist-get info :html-footnote-separator)))
    (let* ((ox-tufte/fn-num
            (org-export-get-footnote-number footnote-reference info))
-          (ox-tufte/uid (ox-tufte/utils/randid))
+          (ox-tufte/uid (ox-tufte--utils-randid))
           (ox-tufte/fn-inputid (format "fnr-in.%d.%s" ox-tufte/fn-num ox-tufte/uid))
           (ox-tufte/fn-labelid ;; first reference acts as back-reference
            (if (org-export-footnote-first-reference-p footnote-reference info)
@@ -263,8 +259,7 @@ Modified from `org-html-footnote-reference' in 'org-html'."
            (org-trim (org-export-data ox-tufte/fn-def info)))
           (ox-tufte/fn-data-unpar
            ;; footnotes must have spurious <p> tags removed or they will not work
-           (ox-tufte/utils/filter-ptags ox-tufte/fn-data))
-          )
+           (ox-tufte--utils-filter-ptags ox-tufte/fn-data)))
      (format
       (concat
        "<label id='%s' for='%s' class='margin-toggle sidenote-number'><sup class='numeral'>%s</sup></label>"
@@ -272,8 +267,7 @@ Modified from `org-html-footnote-reference' in 'org-html'."
        "<span class='sidenote'><sup class='numeral'>%s</sup>%s</span>")
       ox-tufte/fn-labelid ox-tufte/fn-inputid ox-tufte/fn-num
       ox-tufte/fn-inputid
-      ox-tufte/fn-num ox-tufte/fn-data-unpar)
-     )))
+      ox-tufte/fn-num ox-tufte/fn-data-unpar))))
 
 (defun org-tufte-special-block (special-block contents info)
   "Add support for block margin-note special blocks.
@@ -281,7 +275,7 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
   (let ((block-type (org-element-property :type special-block)))
     (cond
      ((string= block-type "marginnote")
-      (ox-tufte/utils/margin-note/snippet
+      (ox-tufte--utils-margin-note-snippet
        nil nil (org-html-special-block special-block contents info)))
      ((and (string= block-type "figure")
            (org-html--has-caption-p special-block info)
@@ -339,8 +333,8 @@ NOTE: this style of margin-notes are DEPRECATED and may be deleted in a future
              (string= (car path) "mn"))
         (progn
           (display-warning 'deprecation-warning str :warning)
-          (ox-tufte/utils/margin-note/snippet
-           (ox-tufte/utils/filter-ptags desc) (if (string= (cadr path) "") nil
+          (ox-tufte--utils-margin-note-snippet
+           (ox-tufte--utils-filter-ptags desc) (if (string= (cadr path) "") nil
                                                 (cadr path))))
       (org-html-link link desc info))))
 
@@ -385,7 +379,7 @@ non-nil."
                                         org-html-footnotes-section
                                       "<!-- %s --><!-- %s -->"))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte/utils/margin-note'
+    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
                     async subtreep visible-only nil nil (lambda ()
                                                           (text-mode)))))
@@ -421,7 +415,7 @@ Return output file's name."
                                         org-html-footnotes-section
                                       "<!-- %s --><!-- %s -->"))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte/utils/margin-note'
+    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-export-to-file 'tufte-html outfile async subtreep
                                       visible-only)))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
@@ -444,7 +438,7 @@ Return output file name."
                                         org-html-footnotes-section
                                       "<!-- %s --><!-- %s -->"))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest filename) ;; needed by `ox-tufte/utils/margin-note'
+    (org-babel-lob-ingest filename) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-publish-org-to 'tufte-html filename
                                       (concat "." (or (plist-get plist :html-extension)
                                                       org-html-extension
