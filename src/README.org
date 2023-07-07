@@ -29,8 +29,8 @@ And then in your ~init.el~ (or equivalent):
   (ox-tufte-init)
 #+END_SRC
 
-It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] and place it on your server (with the
-fonts).
+It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] ([[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]) and place it on your server
+(with the fonts).
 
 ** Usage
 The recommended way to use =ox-tufte= is *with* [[https://orgmode.org/manual/CSS-support.html][the default style provided by
@@ -198,8 +198,8 @@ For footnote references, something like below would work
   }
 #+end_src
 * Compatibility
-Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases][v1.1]], though it may work with
-later versions. Please open issues if you discover any incompatibility!
+Ox-tufte is compatible and tested with tufte-css [[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]. Please open issues if
+you discover any incompatibility!
 * References
 - https://edwardtufte.github.io/tufte-css/
 - https://gitlab.com/snippets/22309
