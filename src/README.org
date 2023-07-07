@@ -48,15 +48,15 @@ export from the export menu (=C-c C-e=).
 * Features
 ox-tufte supports *most* of the features from tufte-css, some in different ways
 than expected, and some extensions.
-| [[https://edwardtufte.github.io/tufte-css/][Tufte-css concept]]     | [[https://orgmode.org/worg/org-syntax.html][Org-mode syntax]] for tufte-css concept      | ox-tufte extension                                |
-|-----------------------+--------------------------------------------+---------------------------------------------------|
-| [[https://edwardtufte.github.io/tufte-css/#fundamentals--sections-and-headers][Sections and Headings]] | Sections and Headings                      |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes]]             | [[footnotes][Footnotes]]                                  |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Margin-notes]]          | [[marginnotes-inline][inline babel call]] to [[marginnote]["marginnote" block]]    | block margin-notes via "marginnote" special-block |
-| [[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]             | [[epigraphs][Quote block]]                                |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#figures][iframe wrapper]]        | [[figures]["figure"]] org-mode [[https://orgmode.org/org.html#HTML-doctypes][special-block]]            |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#code][Code]]                  | [[code][Source block]]                               |                                                   |
-| [[https://edwardtufte.github.io/tufte-css/#imagequilts][ImageQuilts]]           | [[https://orgmode.org/manual/Images.html][Images]] (optionally with =fullwidth= class) |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/][Tufte-css concept]]     | [[https://orgmode.org/worg/org-syntax.html][Org-mode syntax]] for tufte-css concept           | ox-tufte extension                                |
+|-----------------------+-------------------------------------------------+---------------------------------------------------|
+| [[https://edwardtufte.github.io/tufte-css/#fundamentals--sections-and-headers][Sections and Headings]] | Sections and Headings                           |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes]]             | [[footnotes][Footnotes]]                                       |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#sidenotes][Margin-notes]]          | [[marginnotes-inline][inline babel call]] to [[marginnote]["marginnote" block]]         | block margin-notes via "marginnote" special-block |
+| [[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]             | [[epigraphs][Quote block]]                                     |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#figures][iframe wrapper]]        | [[figures]["figure"]] org-mode [[https://orgmode.org/org.html#HTML-doctypes][special-block]]                 |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#code][Code]]                  | [[code][Source block]]                                    |                                                   |
+| [[https://edwardtufte.github.io/tufte-css/#imagequilts][ImageQuilts]]           | [[quilts][single image or images in"figure" special-block]] |                                                   |
 
 ** [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes and margin-notes]]
 - <<footnotes>>Org-mode footnotes become numbered Sidenotes from the tufte spec
@@ -139,13 +139,30 @@ To have fullwidth figures:
   [[https://edwardtufte.github.io/tufte-css/img/napoleons-march.png]]
   ,#+end_figure
 #+end_src
+** <<quilts>>ImageQuilts
+=tufte-css= has a notion of image quilts. [[https://edwardtufte.github.io/tufte-css/#imagequilts][the examples on tufte-css website]] are
+single images that were created by combining multiple images. However, that
+processing was done before linking via html. It's unclear what, if any,
+conveniences =tufte-css= provides for image quilts (over and above other
+features, since [[figures][single images can already be included as desired]]).
+
+However, in =ox-tufte= one can create a figure with multiple images.
+#+HTML_HEAD_EXTRA: <style> .quiltish img { max-height: 200px; min-height: 100px; } </style>
+#+attr_html: :class quiltish
+#+CAPTION: caption for multiple images
+#+begin_figure
+[[./path/to/img1.png]]
+[[./path/to/img2.png]]
+#+end_figure
 ** Deviations and Extensions
 - captions on images are placed below the image (as opposed to in the margin
   area) regardless of whether the image is =fullwidth= or not.
 - h4 heading level is supported in a consistent manner similar to h3.
 - block level margin notes are supported via src_org{#+begin_marginnote} and
   src_org{#+end_marginnote}.
-  
+- unlike =ox-html=, in =ox-tufte= captions on figure special-blocks are included
+  as figcaptions. *Limitation:* presently the included caption doesn't include
+  automated numbering.
 ** Experimental
 There are some experimental extensions in =src/ox-tufte-experimental.css=. This
 css file should be included /after/ =src/ox-tufte.css=.
