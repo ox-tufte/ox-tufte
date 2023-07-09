@@ -70,8 +70,16 @@ body pre { /* monospace content: .src .example */
     margin-left: auto;
     margin-right: 0;
 }
-.sans pre {
+.sans pre, pre.src, code.src, .sans code {
     font-size: 1.2rem; /* from ".sans > code" */
+}
+.marginnote code.src, .sidenote code.src {
+    font-size: var(--ox-tufte-note-font-size);
+    line-height: var(--ox-tufte-note-line-height);
+    margin-bottom: -0.3rem;
+}   
+code.src, .sans code {
+    margin-bottom: -0.42rem; /* FIXME: is this also true for non-sans? */
 }
 article div figure {
     /* tufte.css doesn't intend figure to be within div, but org generates it as
