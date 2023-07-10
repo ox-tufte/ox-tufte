@@ -5,9 +5,18 @@
     /* 50+5=55% this is what is used by section > {dl, ol, ul} */
     --ox-tufte-list-width: 50%;
     --ox-tufte-list-padding-left: 5%;
-    /* marginnote and sidenote settings from tufte.css */
-    --ox-tufte-note-line-height: 1.3rem;
+    /* font-size and line-height settings from tufte.css */
+    --ox-tufte-content-font-size: 1.4rem;
+    --ox-tufte-content-line-height: 2rem;
+    --ox-tufte-content-epigraph-margin-vertical: calc(5em / 1.4);
+    /* ^ equivalent of 5em when element has 1rem font-size */
+    --ox-tufte-note-line-height: 1.3;
     --ox-tufte-note-font-size: 1.1rem;
+    --ox-tufte-note-code-font-size: 1rem;
+    --ox-tufte-code-font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    --ox-tufte-code-font-size: 1.0rem;
+    --ox-tufte-code-font-size-sans: 1.2rem; /* from ".sans > code" */
+    --ox-tufte-code-line-height: 1.42;
     /* values tufte.css reuses for h1,h3,h3 */
     --ox-tufte-heading-font-style: italic;
     --ox-tufte-heading-font-weight: 400;
@@ -15,8 +24,12 @@
     --ox-tufte-heading-code-font-size: 0.80em;
     --ox-tufte-heading-min-margin-bottom: 1.4rem; /* h3=1.4rem; p=1.4rem; */
     --ox-tufte-heading-min-font-size: 1.4rem; /* p=1.4rem; */
-    --ox-tufte-font-size: 1.4rem;
-    --ox-tufte-line-height: 2rem;
+}
+
+/* 1. Prevent adjustments of font size after orientation changes in iOS. */
+/*    <https://github.com/necolas/normalize.css/blob/fc091cce1534909334c1911709a39c22d406977b/normalize.css#L13> */
+html {
+    -webkit-text-size-adjust: 100%; /* 1 */
 }
 
 /**************************************************************************/
@@ -56,11 +69,6 @@ blockquote .marginnote, blockquote .sidenote {
     width: var(--ox-tufte-fullwidth);
 }
 body pre { /* monospace content: .src .example */
-    /* FROM: "code, pre > code" in tufte.css */
-    font-size: 1rem;
-    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    line-height: 1.42;
-    -webkit-text-size-adjust: 100%; /* Prevent adjustments of font size after orientation changes in iOS. See https://github.com/edwardtufte/tufte-css/issues/81#issuecomment-261953409 */
     /* FROM: pre.fullwidth > code in tufte.css; but adjusted */
     width: var(--ox-tufte-src-code-width);
     clear: both; /* ensure that it doesn't overlap sidenotes */
@@ -70,23 +78,31 @@ body pre { /* monospace content: .src .example */
     margin-left: auto;
     margin-right: 0;
 }
-.sans pre, pre.src, code.src, .sans code {
-    font-size: 1.2rem; /* from ".sans > code" */
+pre, code {
+    /* FROM: "code, pre > code" in tufte.css */
+    font-family: var(--ox-tufte-code-font-family);
+    font-size: var(--ox-tufte-code-font-size);
+    line-height: var(--ox-tufte-code-line-height);
 }
-.marginnote code.src, .sidenote code.src {
-    font-size: var(--ox-tufte-note-font-size);
+.sans pre, .sans code {
+    font-size: var(--ox-tufte-code-font-size-sans);
+    line-height: var(--ox-tufte-code-line-height);
+}
+code {
+    vertical-align: middle;
+}
+.sidenote code, .marginnote code, /* inline code */
+.marginnote pre {                 /* code blocks */
+    font-size: var(--ox-tufte-note-code-font-size);
     line-height: var(--ox-tufte-note-line-height);
-    margin-bottom: -0.3rem;
-}   
-code.src, .sans code {
-    margin-bottom: -0.42rem; /* FIXME: is this also true for non-sans? */
 }
+
 article div figure {
     /* tufte.css doesn't intend figure to be within div, but org generates it as
      * such. reset width to full width of article as tufte.css intends */
     max-width: 100%
 }
-div.epigraph blockquote p, div.epigraph blockquote footer {
+blockquote p, blockquote footer {
     width: 100%
 }
 
@@ -347,8 +363,20 @@ section pre.example {
 /* block marginnotes - allows us to include lists, paragraphs, tables etc. */
 /***************************************************************************/
 article div { /* add missing default from tufte.css */
-    font-size: var(--ox-tufte-font-size);
-    line-height: var(--ox-tufte-line-height);
+    font-size: var(--ox-tufte-content-font-size);
+    line-height: var(--ox-tufte-content-line-height);
+}
+div.epigraph {
+    /* NOTE: tufte.css has margins for epigraph in "em" which relies on font-size
+     * for div element not being altered from default; otherwise epigraph margin
+     * will scale with it (<https://zellwk.com/blog/rem-vs-em/>). now epigraphs,
+     * unlike quotes don't have any business in the margin area. but if we did,
+     * it wouldn't make sense to use the same margin absolutely. thus
+     * blockquotes should be in 'em' instead of 'rem'. however, in order to get
+     * same behaviour as tufte either the 'em' value will need to be modified
+     * for epigraph or the font size specified for 'article div' will need to be
+     * modified and will no longer be consistent with 'p'. */
+    margin: var(--ox-tufte-content-epigraph-margin-vertical) 0;
 }
 div.marginnote dl,
 div.marginnote ol,

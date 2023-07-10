@@ -114,11 +114,26 @@ limiting since, in org, link descriptions cannot contain regular links.
   text [[mn:][another margin note]].
 #+END_SRC
 
-** <<epigraphs>>[[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]]
-- Anything in =#+BEGIN_QUOTE= blocks becomes an epigraph, where the =#+NAME= of
-  the quote becomes a reference in the ~<footer>~ inside of the epigraph.
-- Verses (=#+BEGIN_VERSE=) are treated the same as quotes, however they preserve
-  leading spaces in the text
+** <<epigraphs>>[[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]] and [[https://orgmode.org/manual/Paragraphs.html#index-BEGIN_005fVERSE][quotes]]
+- Anything within =#+begin_epigraph= and =#+end_epigraph= becomes an epigraph
+  (which is a collection of one or more quoted blocks). For example:
+  #+begin_src org
+    ,#+begin_epigraph
+    ,#+name: quote-1
+    ,#+caption: Richard P. Feynman, @@html:<cite>“What Do You Care What Other People Think?”</cite>@@
+    ,#+begin_quote
+    For a successful technology, reality must take precedence over public relations,
+    for Nature cannot be fooled.
+    ,#+end_quote
+
+    ,#+name: quote-2
+    ,#+caption: Henri Matisse, @@html:<cite>Henri Matisse Dessins: thèmes et variations</cite>@@ (Paris, 1943), 37
+    ,#+begin_quote
+    I do not paint things, I paint only the differences between things.
+    ,#+end_quote
+    ,#+end_epigraph
+  #+end_src
+- =ox-tufte= also adds support for =#+CAPTION= on [[https://orgmode.org/manual/Paragraphs.html#index-BEGIN_005fVERSE][org-mode =quote= and =verse= blocks]].
 ** <<code>>[[https://edwardtufte.github.io/tufte-css/#code][Code]]
 =ox-tufte= uses =ox-html= to export [[https://orgmode.org/manual/Literal-Examples.html][code fragments]] to HTML (without any
 alteration). =ox-html= and [[https://elpa.nongnu.org/nongnu/htmlize.html][=htmlize=]] allow one to customize the syntax
@@ -168,22 +183,40 @@ However, in =ox-tufte= one can create a figure with multiple images.
   ,#+end_figure
 #+end_src
 ** Deviations and Extensions
+*** Sections and Headings
+- =h4= heading level is supported in a consistent manner similar to =h3=.
+*** Epigraphs
+Epigraphs and quotes by default occupy only the width of the main content. In
+order to get quoted content that extends for the fullwidth add the =fullwidth=
+class with an =#+attr_html= annotation.
+*** Sidenotes and margin-notes
 - =tufte-css= numbers sidenotes via CSS and as such referring to the same
   sidenote more than once results in erroneous numbering. =ox-tufte= fixes
   this.
-- captions on images are placed below the image (as opposed to in the margin
-  area) regardless of whether the image is =fullwidth= or not.
-- h4 heading level is supported in a consistent manner similar to h3.
-- block level margin notes are supported via src_org{#+begin_marginnote} and
+- Block margin-notes are supported via src_org{#+begin_marginnote} and
   src_org{#+end_marginnote}.
-- unlike =ox-html=, in =ox-tufte= captions on figure special-blocks are included
-  as figcaptions. *Limitation:* presently the included caption doesn't include
-  automated numbering.
+*** Figures
+- Captions on images are placed below the image (as opposed to in the margin
+  area) regardless of whether the image is =fullwidth= or not.
+*** Code
+- Since code blocks cannot have footnotes/sidenotes in them, they are treated as
+  if they were using the "fullwidth" class (without having to specify the class
+  via =#+attr_html=).
+*** ImageQuilts
+- Unlike =ox-html=, in =ox-tufte= captions on figure special-blocks (the kind
+  used when including multiple images in a block, as in ImageQuilts) are
+  included as figcaptions. *Limitation:* presently the included caption doesn't
+  include automated numbering.
 ** Experimental
 There are some experimental extensions in =src/ox-tufte-experimental.css=. This
 css file should be included /after/ =src/ox-tufte.css=.
 * Limitations
-ox-tufte presently inherits the following limitations from [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
+- Code blocks (multiline) currently behave /only/ in a "fullwidth" manner. I.e.,
+  if there is sidenote content from previous paragraph, or a block margin-note
+  it will push the code block down.
+
+Additionally, =ox-tufte= presently inherits the following limitations from
+[[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
 - Sidenotes cannot contain paragraphs, tables etc. (since they are HTML =span=
   elements).
 - Captions for =iframe-wrapper= blocks aren't supported.

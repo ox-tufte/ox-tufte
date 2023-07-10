@@ -203,28 +203,29 @@ QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
   (let* ((ox-tufte/ox-html-qb-str (org-html-quote-block quote-block contents info))
          (ox-tufte/ox-html-qb-dom
           (ox-tufte--utils-string-fragment-to-xml ox-tufte/ox-html-qb-str))
-         (ox-tufte/qb-name (org-element-property :name quote-block))
+         (ox-tufte/qb-caption (org-export-data
+	    	                   (org-export-get-caption quote-block) info))
          (ox-tufte/footer-content-maybe
-          (if ox-tufte/qb-name
-              (format "<footer>%s</footer>" ox-tufte/qb-name)
+          (if (org-string-nw-p ox-tufte/qb-caption)
+              (format "<footer>%s</footer>" ox-tufte/qb-caption)
             nil)))
     (when ox-tufte/footer-content-maybe
       (push (ox-tufte--utils-string-fragment-to-xml ox-tufte/footer-content-maybe)
             (cdr (last ox-tufte/ox-html-qb-dom))))
-    (format "<div class='epigraph'>%s</div>"
-            (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
-                (esxml-to-xml ox-tufte/ox-html-qb-dom)
-              ox-tufte/ox-html-qb-str))))
+    (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
+        (esxml-to-xml ox-tufte/ox-html-qb-dom)
+      ox-tufte/ox-html-qb-str)))
 
 (defun org-tufte-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to HTML.
 CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
   (let* ((ox-tufte/ox-html-vb-str (org-html-verse-block verse-block contents info))
-         (ox-tufte/vb-name (org-element-property :name verse-block))
+         (ox-tufte/vb-caption (org-export-data
+	    	                   (org-export-get-caption verse-block) info))
          (ox-tufte/footer-content
-          (if ox-tufte/vb-name
-              (format "<footer>%s</footer>" ox-tufte/vb-name)
+          (if (org-string-nw-p ox-tufte/vb-caption)
+              (format "<footer>%s</footer>" ox-tufte/vb-caption)
             "")))
     (format "<div class='verse'><blockquote>\n%s\n%s</blockquote></div>"
           ox-tufte/ox-html-vb-str
