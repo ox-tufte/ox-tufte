@@ -36,7 +36,7 @@ html {
 /* re-specify tufte.css values, for compatibility with org-generated html */
 /**************************************************************************/
 article > p,
-article > div,
+article > div.epigraph,
 article > table,
 section > div,
 section > h2 { /* set value consistent with "section > p" */
@@ -240,6 +240,10 @@ h4 .sidenote, h4 .marginnote {
     --ox-tufte-sidenote-width-standard: 50%;
     --ox-tufte-sidenote-margin-right-min: -462px;
     --ox-tufte-sidenote-margin-right-standard: -60%;
+}
+article > blockquote { /* assuming within an element 55% in width */
+    width: 50%;
+    margin-left: 5%;
 }
 blockquote {
     margin-left: calc(100% / 11);
