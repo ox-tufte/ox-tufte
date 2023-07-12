@@ -358,7 +358,7 @@ section pre.example {
 .org-src-name {
     display: inline-block;
     max-width: 100%;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 /* END: fix horizontal */
 
@@ -424,7 +424,7 @@ img.fullwidth {
 
 /* BEGIN: prevent side-scroll when result of inline call is long */
 article code {
-    overflow-x: scroll;
+    overflow-x: auto;
     max-width: 100%;
     display: inline-block;
 }
