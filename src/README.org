@@ -24,6 +24,17 @@ above those imposed by =ox-html= and =tufte-css=) for users. In fact, work on
 
 =ox-tufte= is still a work-in-progress, but it is being used by at least [[https://weary_travelers.gitlab.io/][one
 blog]] in "production". Please open an issue if you discover any bugs!
+** Compatibility
+Ox-tufte is compatible and tested with
+- =tufte-css= [[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]
+- =org-mode= >= 9.5
+- =emacs= >= 27.1
+
+It's worth noting that Emacs 27.1 comes with Org version 9.3 (Org version 9.5
+comes with Emacs 28.1), however, it can be updated via Emacs's "package menu"
+(M-x list-packages).
+
+Please open issues if you discover any incompatibility!
 * Installation and Usage
 You can install ox-tufte using [[https://melpa.org][MELPA]]:
 #+BEGIN_SRC emacs-lisp
@@ -263,13 +274,6 @@ For footnote references, something like below would work
       color: #a00000;
   }
 #+end_src
-* Compatibility
-Ox-tufte is compatible and tested with
-- =tufte-css= [[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]
-- =org-mode= >= 9.5
-- =emacs= >= 27.1
-
-Please open issues if you discover any incompatibility!
 * References
 - https://edwardtufte.github.io/tufte-css/
 - https://gitlab.com/snippets/22309
