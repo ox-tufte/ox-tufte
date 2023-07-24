@@ -8,7 +8,7 @@
 ;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
 ;; Version: 2.0.0
-;; Package-Requires: ((org "9.5") (emacs "27.1") (esxml "0.3.7"))
+;; Package-Requires: ((org "9.5") (emacs "27.1"))
 ;; URL: https://github.com/ox-tufte/ox-tufte
 
 ;; This file is not part of GNU Emacs.
@@ -39,7 +39,6 @@
 (require 'ox)
 (require 'ox-html)
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
-(require 'esxml)
 
 
 ;;; User-Configurable Variables
@@ -177,7 +176,9 @@ IDTAG is used in the construction of the 'id' that connects a margin-notes
   "Parse string fragment via `libxml'.
 STR is the xml fragment.
 
-For the inverse, use `esxml-to-xml'."
+For the inverse, use something like `esxml-to-xml' (from package `esxml').  This
+  function is presently never used (an intermediate version of `ox-tufte' used
+  it)."
   (cl-assert (libxml-available-p))
   (with-temp-buffer
     (insert str)
@@ -201,19 +202,17 @@ For the inverse, use `esxml-to-xml'."
   "Transform a quote block into an epigraph in Tufte HTML style.
 QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
   (let* ((ox-tufte/ox-html-qb-str (org-html-quote-block quote-block contents info))
-         (ox-tufte/ox-html-qb-dom
-          (ox-tufte--utils-string-fragment-to-xml ox-tufte/ox-html-qb-str))
          (ox-tufte/qb-caption (org-export-data
 	    	                   (org-export-get-caption quote-block) info))
          (ox-tufte/footer-content-maybe
           (if (org-string-nw-p ox-tufte/qb-caption)
               (format "<footer>%s</footer>" ox-tufte/qb-caption)
             nil)))
-    (when ox-tufte/footer-content-maybe
-      (push (ox-tufte--utils-string-fragment-to-xml ox-tufte/footer-content-maybe)
-            (cdr (last ox-tufte/ox-html-qb-dom))))
-    (if ox-tufte/footer-content-maybe ;; then we would've modified qb-dom
-        (esxml-to-xml ox-tufte/ox-html-qb-dom)
+    (if ox-tufte/footer-content-maybe
+        (replace-regexp-in-string
+         "</blockquote>\\'"
+         (concat ox-tufte/footer-content-maybe "</blockquote>")
+         ox-tufte/ox-html-qb-str t t)
       ox-tufte/ox-html-qb-str)))
 
 (defun org-tufte-verse-block (verse-block contents info)
@@ -303,9 +302,7 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
              ;; using regex because `esxml-to-xml' doesn't put closing iframe
              ;; tag (and also loses some attributes), which results in broken
              ;; html (so cannot do what we do in `org-tufte-quote-block'.
-             ;; FIXME: remove reliance on `esxml' entirely?
-             (o-h-sb-str (org-html-special-block special-block contents info))
-             (o-t-sb-str (replace-regexp-in-string "</figure>$" figcaption o-h-sb-str t t)))
+             (o-h-sb-str (org-html-special-block special-block contents info)))
         (replace-regexp-in-string
          "</figure>\\'"
          (concat figcaption "</figure>") o-h-sb-str t t)))
