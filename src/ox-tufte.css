@@ -48,6 +48,9 @@ section > div .fullwidth {
     max-width: var(--ox-tufte-fullwidth);
     width: max-content;
 }
+article > blockquote.fullwidth {
+    width: max-content;
+}
 @media (max-width: 760px) {
     div.epigraph > blockquote.fullwidth {
         width: unset;
