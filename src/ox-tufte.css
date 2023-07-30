@@ -35,9 +35,14 @@ html {
 /**************************************************************************/
 /* re-specify tufte.css values, for compatibility with org-generated html */
 /**************************************************************************/
+article { /* add missing default from tufte.css */
+    font-size: var(--ox-tufte-content-font-size);
+    line-height: var(--ox-tufte-content-line-height);
+}
 article > p,
 article > div.epigraph,
 article > table,
+article > mjx-container,
 section > div,
 section > h2 { /* set value consistent with "section > p" */
     width: var(--ox-tufte-content-width);
