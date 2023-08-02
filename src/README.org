@@ -118,8 +118,8 @@ Previously, =ox-tufte= encoded margin-notes as links. Said syntax is now
 deprecated and support for it will be dropped in future versions. This syntax is
 limiting since, in org, [[https://orgmode.org/worg/org-syntax.html#orgd10b2cd][link descriptions cannot contain regular links]].
 
-- +Margin notes can be created by having a link to ~mn:<n>~ where the link text
-  gets transformed to the margin note, for example:+
+- The margin note number is optional and either `mn:1` or `mn:` as below would
+  work:
 #+BEGIN_SRC org
   This is some regular text [[mn:1][this will be a margin note]] and some more
   text [[mn:][another margin note]].
@@ -193,7 +193,7 @@ However, in =ox-tufte= one can create a figure with multiple images.
   [[./path/to/img2.png]]
   ,#+end_figure
 #+end_src
-** Deviations and Extensions
+** Deviations and Extensions (from =tufte-css= and =ox-html=)
 *** Sections and Headings
 - =h4= heading level is supported in a consistent manner similar to =h3=.
 *** Epigraphs
@@ -219,12 +219,13 @@ class with an =#+attr_html= annotation.
   included as figcaptions. *Limitation:* presently the included caption doesn't
   include automated numbering.
 ** Experimental
-There are some experimental extensions in =src/ox-tufte-experimental.css=. This
-css file should be included /after/ =src/ox-tufte.css=.
+There may be some experimental extensions in =src/ox-tufte-experimental.css=.
+If desired, this css file should be included /after/ =src/ox-tufte.css=.
 * Limitations
 - Code blocks (multiline) currently behave /only/ in a "fullwidth" manner. I.e.,
   if there is sidenote content from previous paragraph, or a block margin-note
   it will push the code block down.
+- Footnotes/sidenotes cannot contain nested footnotes/sidenotes.
 
 Additionally, =ox-tufte= presently inherits the following limitations from
 [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
