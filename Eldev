@@ -1,0 +1,10 @@
+; -*- mode: emacs-lisp; lexical-binding: t -*-
+
+;; Autodetermined by `eldev init'.
+(eldev-use-package-archive 'melpa)
+
+(eldev-use-plugin 'autoloads)
+
+(setf eldev-files-to-package
+      `(:or ,eldev-files-to-package
+            '("src")))

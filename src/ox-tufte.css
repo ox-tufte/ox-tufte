@@ -1,0 +1,442 @@
+:root {
+    --ox-tufte-content-width: 55%; /* set value consistent with "section > p" */
+    --ox-tufte-fullwidth: 163.636%; /* 90% of body, when ancestor is at 55% */
+    --ox-tufte-src-code-width: 97%;
+    /* 50+5=55% this is what is used by section > {dl, ol, ul} */
+    --ox-tufte-list-width: 50%;
+    --ox-tufte-list-padding-left: 5%;
+    /* font-size and line-height settings from tufte.css */
+    --ox-tufte-content-font-size: 1.4rem;
+    --ox-tufte-content-line-height: 2rem;
+    --ox-tufte-content-epigraph-margin-vertical: calc(5em / 1.4);
+    /* ^ equivalent of 5em when element has 1rem font-size */
+    --ox-tufte-note-line-height: 1.3;
+    --ox-tufte-note-font-size: 1.1rem;
+    --ox-tufte-note-code-font-size: 1rem;
+    --ox-tufte-code-font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    --ox-tufte-code-font-size: 1.0rem;
+    --ox-tufte-code-font-size-sans: 1.2rem; /* from ".sans > code" */
+    --ox-tufte-code-line-height: 1.42;
+    /* values tufte.css reuses for h1,h3,h3 */
+    --ox-tufte-heading-font-style: italic;
+    --ox-tufte-heading-font-weight: 400;
+    --ox-tufte-heading-line-height: 1;
+    --ox-tufte-heading-code-font-size: 0.80em;
+    --ox-tufte-heading-min-margin-bottom: 1.4rem; /* h3=1.4rem; p=1.4rem; */
+    --ox-tufte-heading-min-font-size: 1.4rem; /* p=1.4rem; */
+}
+
+/* 1. Prevent adjustments of font size after orientation changes in iOS. */
+/*    <https://github.com/necolas/normalize.css/blob/fc091cce1534909334c1911709a39c22d406977b/normalize.css#L13> */
+html {
+    -webkit-text-size-adjust: 100%; /* 1 */
+}
+
+/**************************************************************************/
+/* re-specify tufte.css values, for compatibility with org-generated html */
+/**************************************************************************/
+article { /* add missing default from tufte.css */
+    font-size: var(--ox-tufte-content-font-size);
+    line-height: var(--ox-tufte-content-line-height);
+}
+article > p,
+article > div.epigraph,
+article > table,
+article > mjx-container,
+section > div,
+section > h2 { /* set value consistent with "section > p" */
+    width: var(--ox-tufte-content-width);
+}
+article > p .fullwidth,
+article > div .fullwidth,
+section > div .fullwidth {
+    max-width: var(--ox-tufte-fullwidth);
+    width: max-content;
+}
+article > blockquote.fullwidth {
+    width: max-content;
+}
+@media (max-width: 760px) {
+    div.epigraph > blockquote.fullwidth {
+        width: unset;
+    }
+}
+section > dl, section > ol, section > ul,
+article > dl, article > ol, article > ul {
+    width: var(--ox-tufte-list-width);
+    /* instead of tufte.css's -webkit-padding-start, which doesn't work */
+    padding-inline-start: var(--ox-tufte-list-padding-left);
+}
+blockquote .marginnote, blockquote .sidenote {
+    font-style: normal;
+}
+/* code blocks. tufte.css also allows for code within headers and
+ * sidenotes/marginnotes. these are currently not supported by us. */
+.org-src-container {
+    max-width: var(--ox-tufte-fullwidth);
+    width: var(--ox-tufte-fullwidth);
+}
+body pre { /* monospace content: .src .example */
+    /* FROM: pre.fullwidth > code in tufte.css; but adjusted */
+    width: var(--ox-tufte-src-code-width);
+    clear: both; /* ensure that it doesn't overlap sidenotes */
+    /* unset some unnecessary 'org' defaults, which interfere with tufte */
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: 0;
+}
+pre, code {
+    /* FROM: "code, pre > code" in tufte.css */
+    font-family: var(--ox-tufte-code-font-family);
+    font-size: var(--ox-tufte-code-font-size);
+    line-height: var(--ox-tufte-code-line-height);
+}
+.sans pre, .sans code {
+    font-size: var(--ox-tufte-code-font-size-sans);
+    line-height: var(--ox-tufte-code-line-height);
+}
+.sans h1 > code, .sans h2 > code, .sans h3 > code {
+    font-size: var(--ox-tufte-heading-code-font-size);
+}
+code {
+    vertical-align: middle;
+}
+.sidenote code, .marginnote code, /* inline code */
+.marginnote pre {                 /* code blocks */
+    font-size: var(--ox-tufte-note-code-font-size);
+    line-height: var(--ox-tufte-note-line-height);
+}
+
+article div figure {
+    /* tufte.css doesn't intend figure to be within div, but org generates it as
+     * such. reset width to full width of article as tufte.css intends */
+    max-width: 100%
+}
+blockquote p, blockquote footer {
+    width: 100%
+}
+
+/**********************************************************/
+/* tufte.css fixes; should probably be submitted upstream */
+/**********************************************************/
+.sans .numeral { /* don't use et-book-roman-old-style when using .sans */
+    font-family: "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+}
+article { /* needed, if sidenotes have large content */
+    /* we don't apply this on "section", because we do want the sections to be
+     * overlappable with the sidenotes of previous section */
+    overflow-y: auto;
+}
+
+/****************************/
+/* unset/alter org defaults */
+/****************************/
+#content { /* ID corresponding to main article (excluding pre/postamble) */
+    max-width: 100%;
+}
+/* verse */
+p.verse { /* this verse element will always be within a <blockquote> */
+    /* tufte.css already provides margin-left/right for enclosing blockquote */
+    margin-left: 0;
+}
+#footnotes { /* needed, if sidenotes have large content */
+     /* we want to make sure that the footnotes section starts after all the content
+      * for "sections" and "sidenotes" is done */
+    clear: both;
+    width: unset;
+}
+
+/***************************/
+/* undo tufte.css defaults */
+/***************************/
+body pre.example { /* in org, this is within blockquote */
+    font-style: normal;
+}
+/* verse: undoing "blockquote p, blockquote footer" from tufte.css */
+div.verse blockquote p, div.verse blockquote footer {
+    width: 100%
+}
+
+/********************************************************/
+/* verse blocks: support and distinguish from epigraphs */
+/********************************************************/
+div.verse > blockquote {
+    /* gray bar on the left */
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+}
+
+/***********************************/
+/* tufte.css consistent extensions */
+/***********************************/
+/***************************/
+/* support for h4 headings */
+/***************************/
+h4 > code {
+    font-size: var(--ox-tufte-heading-code-font-size);
+}
+h4 {
+    font-style: var(--ox-tufte-heading-font-style);
+    font-weight: var(--ox-tufte-heading-font-weight);
+    margin-bottom: var(--ox-tufte-heading-min-margin-bottom);
+    line-height: var(--ox-tufte-heading-line-height);
+}
+h4 {
+    font-size: 1.5rem; /* h3=1.7rem; */
+    margin-top: 1.8rem; /* h3=2rem; */
+}
+
+/************************************/
+/* sidenotes in headings h2, h3, h4 */
+/************************************/
+h2 .sidenote, h2 .marginnote,
+h3 .sidenote, h3 .marginnote,
+h4 .sidenote, h4 .marginnote {
+    font-style: normal;
+    font-weight: normal;
+}
+
+/**********************/
+/* footnote reference */
+/**********************/
+.sidenote-number > sup.numeral, .sidenote > sup.numeral {
+    /* same as ".sidenote-number:after", ".sidenote:before" */
+    font-size: 1rem;
+    line-height: 1rem;
+}
+/* we don't rely on CSS numbering */
+.sidenote-number:after, .sidenote:before {
+    content: none;
+}
+
+/****************/
+/* small screen */
+/****************/
+@media (max-width: 760px) {
+    :root {
+        --ox-tufte-content-width: 100%;
+        --ox-tufte-fullwidth: 100%;
+        --ox-tufte-list-width: 90;
+        --ox-tufte-list-padding-left: 10%;
+    }
+    /**********************************************************/
+    /* tufte.css fixes; should probably be submitted upstream */
+    /**********************************************************/
+    .margin-toggle:checked + .sidenote,
+    .margin-toggle:checked + .marginnote {
+        /* what tufte.css does results in minute horizontal scrolling on*/
+        /* sufficiently small screens; below fixes that */
+        margin-left: auto;
+        margin-right: 0;
+        left: 0;
+        float: right;
+    }
+    .marginnote img, .sidenote img {
+        height: auto;
+        width: auto;
+    }
+}
+
+/*****************************************************************************/
+/* assorted bugfixes and additional tweaks                                   */
+/* NOTE: code below likely needs to be refactored and assimilated into above */
+/*****************************************************************************/
+
+
+
+/* BEGIN: width and placement of sidenotes + lists, epigraphs */
+:root {
+    --ox-tufte-sidenote-width-max: 385px;
+    --ox-tufte-sidenote-width-standard: 50%;
+    --ox-tufte-sidenote-margin-right-min: -462px;
+    --ox-tufte-sidenote-margin-right-standard: -60%;
+}
+article > blockquote { /* assuming within an element 55% in width */
+    width: 50%;
+    margin-left: 5%;
+}
+blockquote {
+    margin-left: calc(100% / 11);
+    margin-right: 0;
+}
+blockquote .sidenote, blockquote .marginnote {
+    min-width: unset;
+    width:calc(var(--ox-tufte-sidenote-width-standard) / (10 / 11));
+    margin-right:calc(var(--ox-tufte-sidenote-margin-right-standard) / (10 / 11));
+}
+@media (max-width: 760px) {
+    div.epigraph blockquote p { overflow-y: auto; }
+}
+article ul, article ol, article dl {
+    width: var(--ox-tufte-list-width); /* 50% */
+    padding-inline-start: var(--ox-tufte-list-padding-left); /* 5% */
+}
+article ul ul, article ol ol, article ul ol, article ol ul {
+    padding-inline-start: calc(100% / 10); /* 5% wrt body, when 100% is 50% */
+    width: calc(100% * 9 / 10); /* 45% wrt body, when 100% is 50% */
+}
+section ul, section ol, section dl {
+    padding-inline-start: calc(100% / 11);
+    width: calc(100% * 10 / 11);
+}
+article ul .sidenote, article ol .sidenote,
+article ul .marginnote, article ol .marginnote {
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (10 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (10 / 11)));
+}
+article ul ul .sidenote, article ul ul .marginnote,
+article ul ol .sidenote, article ul ol .marginnote,
+article ol ol .sidenote, article ol ol .marginnote,
+article ol ul .sidenote, article ol ul .marginnote { /* 11/9 = 11/10 X(10/9) */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (9 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (9 / 11)));
+}
+@media (max-width: 760px) {
+    ul li, ol li {
+        overflow-y: auto;
+        /* however, this causes issues: https://stackoverflow.com/a/40912185 */
+        list-style-position: inside;
+        margin-left: -1em;
+    }
+}
+/* fix padding issues first and make them percentages */
+article dl > dd {
+    margin-left: calc(100% / 10);
+}
+/* fix sidenote width and margin-right */
+article dl dt .sidenote, article dl dt .marginnote {
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (10 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (10 / 11)));
+    font-weight: normal;
+}
+article dl dd .sidenote, article dl dd .marginnote { /* 11/9 = 11/10 X(10/9) */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (9 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (9 / 11)));
+}
+/* also check on smaller screens */
+@media (max-width: 760px) {
+    dl dt, dl dd {
+        overflow-y: auto;
+    }
+}
+article dl dl {
+    padding-inline-start: calc(100% / 9); /* 5% wrt body, when 100% is 45% wrt body */
+    width: calc(100% * 8 / 9); /* 40% wrt body */
+}
+article dl dl > dd {
+    margin-left: calc(100% / 8) /* 5% wrt body, when 100% is 40% wrt body */
+}
+article dl dl dt .sidenote, article dl dl dt .marginnote { /* 11/8 = 11/10 x 10/9 x 9/8 */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (8 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (8 / 11)));
+    font-weight: normal;
+}
+article dl dl dd .sidenote, article dl dl dd .marginnote { /* 11/7 */
+    width: min(var(--ox-tufte-sidenote-width-max), calc(var(--ox-tufte-sidenote-width-standard) / (7 / 11)));
+    margin-right: max(var(--ox-tufte-sidenote-margin-right-min), calc(var(--ox-tufte-sidenote-margin-right-standard) / (7 / 11)));
+}
+
+/* BEGIN BONUS: fix top-level code blocks */
+article>section .org-src-container { /* make .org-src-container in ox-tufte.css more specific */
+    max-width: var(--ox-tufte-fullwidth);
+    width: var(--ox-tufte-fullwidth);
+}
+article > div.org-src-container { /* override .org-src-container in ox-tufte.css for toplevel */
+    max-width: 90%;
+    width: 90%;
+}
+/* END BONUS: fix top-level code blocks */
+/* END: width and placement of sidenotes + lists, epigraphs */
+
+/* BEGIN: width of result blocks */
+article > pre.example {
+    width: calc(97% * 0.9);
+    margin-right: 10%;
+}
+section pre.example {
+    width: calc(var(--ox-tufte-fullwidth) * 0.97);
+    margin-left: calc(var(--ox-tufte-fullwidth) * 0.03);
+}
+@media (max-width: 760px) {
+    section pre.example {
+        margin-left: auto;
+    }
+}
+/* END: width of result blocks */
+
+/* BEGIN: fix horizontal scroll on small screens */
+.org-src-name {
+    display: inline-block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+/* END: fix horizontal */
+
+/* BEGIN: block margin notes */
+/***************************************************************************/
+/* block marginnotes - allows us to include lists, paragraphs, tables etc. */
+/***************************************************************************/
+article div { /* add missing default from tufte.css */
+    font-size: var(--ox-tufte-content-font-size);
+    line-height: var(--ox-tufte-content-line-height);
+}
+div.epigraph {
+    /* NOTE: tufte.css has margins for epigraph in "em" which relies on font-size
+     * for div element not being altered from default; otherwise epigraph margin
+     * will scale with it (<https://zellwk.com/blog/rem-vs-em/>). now epigraphs,
+     * unlike quotes don't have any business in the margin area. but if we did,
+     * it wouldn't make sense to use the same margin absolutely. thus
+     * blockquotes should be in 'em' instead of 'rem'. however, in order to get
+     * same behaviour as tufte either the 'em' value will need to be modified
+     * for epigraph or the font size specified for 'article div' will need to be
+     * modified and will no longer be consistent with 'p'. */
+    margin: var(--ox-tufte-content-epigraph-margin-vertical) 0;
+}
+div.marginnote dl,
+div.marginnote ol,
+div.marginnote p,
+div.marginnote ul {
+    font-size: var(--ox-tufte-note-font-size);
+    line-height: var(--ox-tufte-note-line-height);
+}
+div.marginnote p {
+    margin-top: var(--ox-tufte-note-font-size);
+    margin-bottom: var(--ox-tufte-note-font-size);
+}
+@media (max-width: 760px) {
+    div.marginnote + *, /* needed for block marginnotes */
+    h2, h3, h4, p { /* these are needed for margin/sidenotes in general */
+        clear: both;
+    }
+}
+/* END: block margin notes */
+
+/* BEGIN: captions on figures */
+figure > figcaption { /* undo tufte-css tweaks, till they're better supported */
+    max-width: unset;
+    float: left;
+    width: 100%;
+}
+/* undo tufte-css tweaks, till they're better supported */
+figure.fullwidth figcaption {
+    margin-right: unset;
+}
+img.fullwidth + figcaption {
+    width: var(--ox-tufte-fullwidth);
+}
+/* END: captions on figures */
+
+/* BEGIN: fullwidth images */
+img.fullwidth {
+    display: block;
+}
+/* END: fullwidth images */
+
+/* BEGIN: prevent side-scroll when result of inline call is long */
+article code {
+    overflow-x: auto;
+    max-width: 100%;
+    display: inline-block;
+}
+/* END: prevent side-scroll when result of inline call is long */

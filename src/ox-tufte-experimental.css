@@ -1,0 +1,18 @@
+/* NOTE: to be included in page after ox-tufte.css */
+
+/**********************************************************/
+/* tufte.css consistent (somewhat opinionated) extensions */
+/**********************************************************/
+:root {
+}
+
+
+/**********************************************************************************/
+/* lists in sidenotes - breaks html standard and works only in special situations */
+/**********************************************************************************/
+.sidenote dl,
+.sidenote ol,
+.sidenote ul {
+    font-size: var(--ox-tufte-note-font-size);
+    line-height: var(--ox-tufte-note-line-height);
+}
