@@ -116,7 +116,7 @@ tables etc. These are defined using an org-mode "marginnote" special-block
 *** <<deprecated-margin-notes>>Deprecated: Margin-notes as links
 Previously, =ox-tufte= encoded margin-notes as links. Said syntax is now
 deprecated and support for it will be dropped in future versions. This syntax is
-limiting since, in org, link descriptions cannot contain regular links.
+limiting since, in org, [[https://orgmode.org/worg/org-syntax.html#orgd10b2cd][link descriptions cannot contain regular links]].
 
 - +Margin notes can be created by having a link to ~mn:<n>~ where the link text
   gets transformed to the margin note, for example:+
