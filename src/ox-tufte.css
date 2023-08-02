@@ -96,6 +96,9 @@ pre, code {
     font-size: var(--ox-tufte-code-font-size-sans);
     line-height: var(--ox-tufte-code-line-height);
 }
+.sans h1 > code, .sans h2 > code, .sans h3 > code {
+    font-size: var(--ox-tufte-heading-code-font-size);
+}
 code {
     vertical-align: middle;
 }
