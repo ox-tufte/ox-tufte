@@ -1,6 +1,9 @@
 #+TITLE: Ox-tufte
 #+AUTHOR: The Bayesians Inc.
 
+[[https://melpa.org/#/ox-tufte][file:https://melpa.org/packages/ox-tufte-badge.svg]]
+[[https://stable.melpa.org/#/ox-tufte][file:https://stable.melpa.org/packages/ox-tufte-badge.svg]]
+
 * Introduction
 [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] has visually appealing defaults for webpages and supports (among other
 things) margin and side notes. Unfortunately, /Tufte CSS/ makes a number of
