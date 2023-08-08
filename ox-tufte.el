@@ -119,7 +119,9 @@ the html structure that tufte.css expects."
   "Return HTML snippet after interpreting DESC as a margin note.
 
 This intended to be called via the `marginnote' library-of-babel function."
-  (let* ((exported-str
+  (let* ((ox-tufte--mn-macro-templates org-macro-templates)
+         ;; ^ copy buffer-local variable
+         (exported-str
           (progn
             ;; (save-excursion
             ;;   (message "HMM: desc = '%s'" desc)
@@ -137,10 +139,11 @@ This intended to be called via the `marginnote' library-of-babel function."
               ;; FIXME: use narrowing instead to obviate having to add functions
               ;; to library-of-babel in `org-tufte-publish-to-html' etc.
               (insert desc)
-              (let ((output-buf
-                     (org-html-export-as-html nil nil nil t)))
-                (with-current-buffer output-buf
-                  (buffer-string))))))
+              (let* ((org-export-global-macros ;; make buffer macros accessible
+                      (append ox-tufte--mn-macro-templates org-export-global-macros))
+                     (output-buf
+                      (org-html-export-as-html nil nil nil t)))
+                (with-current-buffer output-buf (buffer-string))))))
          (exported-newline-fix (replace-regexp-in-string
                                 "\n" " "
                                 (replace-regexp-in-string
@@ -329,8 +332,8 @@ NOTE: this style of margin-notes are DEPRECATED and may be deleted in a future
         (progn
           (display-warning 'deprecation-warning str :warning)
           (ox-tufte--utils-margin-note-snippet
-           (ox-tufte--utils-filter-ptags desc) (if (string= (cadr path) "") nil
-                                                (cadr path))))
+           (ox-tufte--utils-filter-ptags desc)
+           (if (string= (cadr path) "") nil (cadr path))))
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block contents info)
