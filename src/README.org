@@ -225,13 +225,16 @@ class with an =#+attr_html= annotation.
 There may be some experimental extensions in =src/ox-tufte-experimental.css=.
 If desired, this css file should be included /after/ =src/ox-tufte.css=.
 * Limitations
+- The generated HTML is not compatible with [[https://orgmode.org/worg/code/org-info-js/][org-info.js]]. This is because
+  =ox-tufte= customizes the value of =org-html-divs= to align it with what's
+  expected by =tufte-css=.
 - Code blocks (multiline) currently behave /only/ in a "fullwidth" manner. I.e.,
   if there is sidenote content from previous paragraph, or a block margin-note
   it will push the code block down.
-- Footnotes/sidenotes cannot contain nested footnotes/sidenotes.
 
 Additionally, =ox-tufte= presently inherits the following limitations from
 [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
+- Footnotes/sidenotes cannot contain nested footnotes/sidenotes.
 - Sidenotes cannot contain paragraphs, tables etc. (since they are HTML =span=
   elements).
 - Captions for =iframe-wrapper= blocks aren't supported.
