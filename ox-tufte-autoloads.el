@@ -1,4 +1,5 @@
 ;;; ox-tufte-autoloads.el --- automatically extracted autoloads  -*- lexical-binding: t -*-
+;;; Commentary:
 ;;
 ;;; Code:
 
