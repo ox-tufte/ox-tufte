@@ -115,6 +115,8 @@ tables etc. These are defined using an org-mode "marginnote" special-block
   - item 2
   ,#+end_marginnote
 #+end_src
+The block marginnote is displayed to the right side of the paragraph following
+it.
 
 *** <<deprecated-margin-notes>>Deprecated: Margin-notes as links
 Previously, =ox-tufte= encoded margin-notes as links. Said syntax is now
@@ -234,6 +236,7 @@ If desired, this css file should be included /after/ =src/ox-tufte.css=.
 
 Additionally, =ox-tufte= presently inherits the following limitations from
 [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
+- The generated HTML uses an =html5= doctype.
 - Footnotes/sidenotes cannot contain nested footnotes/sidenotes.
 - Sidenotes cannot contain paragraphs, tables etc. (since they are HTML =span=
   elements).
