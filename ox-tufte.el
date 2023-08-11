@@ -155,12 +155,13 @@ This intended to be called via the `marginnote' library-of-babel function."
 (defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
   "Generate html snippet for margin-note with TEXT.
 
-TEXT shouldn't have any '<p>' tags (or behaviour is undefined).  If '<p>' tags
-  are needed, use BLOB which must be an HTML snippet of a containing element
-  with 'marginnote' class.  BLOB is ignored unless TEXT is nil.
+TEXT shouldn't have any <p> tags (or behaviour is undefined).  If
+<p> tags are needed, use BLOB which must be an HTML snippet of a
+containing element with `marginnote' class.  BLOB is ignored
+unless TEXT is nil.
 
-IDTAG is used in the construction of the 'id' that connects a margin-notes
-  visibility-toggle with the margin-note."
+IDTAG is used in the construction of the `id' that connects a
+margin-notes visibility-toggle with the margin-note."
   (let ((mnid (format "mn-%s.%s" (or idtag "auto") (ox-tufte--utils-randid)))
         (content (if text
                      (format "<span class='marginnote'>%s</span>" text)
@@ -234,12 +235,12 @@ contextual information."
           ox-tufte/footer-content)))
 
 ;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
-(defun org-tufte-footnote-reference (footnote-reference contents info)
+(defun org-tufte-footnote-reference (footnote-reference _contents info)
   "Create a footnote according to the tufte css format.
 FOOTNOTE-REFERENCE is the org element, CONTENTS is nil.  INFO is a
 plist holding contextual information.
 
-Modified from `org-html-footnote-reference' in 'org-html'."
+Modified from `org-html-footnote-reference' in `org-html'."
   (concat
    ;; Insert separator between two footnotes in a row.
    (let ((prev (org-export-get-previous-element footnote-reference info)))
@@ -285,9 +286,7 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
                          " "))))
       ;; add support for captions on figures that `ox-html' lacks
       (let* ((caption (let ((raw (org-export-data
-	    	                      (org-export-get-caption special-block) info))
-	                        (org-html-standalone-image-predicate
-	                         #'org-html--has-caption-p))
+	    	                      (org-export-get-caption special-block) info)))
 	                    (if (not (org-string-nw-p raw)) raw
                           ;; FIXME: it would be nice to be able to count figure
                           ;; as an image and number accordingly
@@ -336,7 +335,7 @@ NOTE: this style of margin-notes are DEPRECATED and may be deleted in a future
            (if (string= (cadr path) "") nil (cadr path))))
       (org-html-link link desc info))))
 
-(defun org-tufte-src-block (src-block contents info)
+(defun org-tufte-src-block (src-block _contents info)
   "Transcode SRC-BLOCK element into Tufte HTML format.
 CONTENTS is nil.  INFO is a plist used as a communication channel.
 
