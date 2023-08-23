@@ -47,6 +47,12 @@ section > div,
 section > h2 { /* set value consistent with "section > p" */
     width: var(--ox-tufte-content-width);
 }
+article > object {
+    max-width: var(--ox-tufte-content-width);
+}
+article figure object {
+    max-width: 100%;
+}
 article > p .fullwidth,
 article > div .fullwidth,
 section > div .fullwidth {
