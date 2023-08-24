@@ -95,13 +95,28 @@ than expected, and some extensions.
   (require 'ox-tufte)
   (ox-tufte--utils-margin-note input)
 #+end_src
-The usage is as follows:
+If the only content of an inline margin-note is a link to an image, the
+generated HTML will be malformed. Use the [[https://orgmode.org/manual/Escape-Character.html][zero width space escape character]] to
+communicate to the export process that the rendered image is to be contained
+within a paragraph. If you need to enforce a line break within the margin-note,
+use "\\" at the end of a line as follows:
 #+begin_src org
   This is some regular text call_marginnote("this will be a margin note") and some
-  more text call_marginnote("another margin note").
+  more text call_marginnote("another margin note.\\
+  new line in second margin note.").
+#+end_src
+An alternative syntax of an inline margin-note as a macro is also provided with
+the following additional (wrt the inline babel call syntax) caveats:
+- macro invocations are not permitted in this syntax
+- commas need to be escaped with a backslash ("\")
+- line breaks can be enforced by adding an unescaped comma
+#+begin_src org
+  This is some regular text {{{marginnote(this will be a margin note)}}} and some
+  more text {{{marginnote(another margin note.,new line in second margin
+  note.)}}}.
 #+end_src
 See [[deprecated-margin-notes][deprecation sub-section below]] regarding the alternate syntax for inline
-margin-notes (which is now deprecated).
+margin-notes (which is now deprecated and will soon be removed).
 
 There is also support for "block" margin-notes, which are margin-notes that can
 contain "block" elements ([[https://html.spec.whatwg.org/#flow-content-2][HTML spec flow content]]) such as paragraphs, lists,

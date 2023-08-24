@@ -115,6 +115,22 @@ Sidenotes and margin notes must have <p> and </p> tags removed to conform with
 the html structure that tufte.css expects."
   (replace-regexp-in-string "</?p.*?>" "" str))
 
+(defun ox-tufte--utils-footnotes-section ()
+  "Toggle Footnotes section HTML based on `org-tufte-include-footnotes-at-bottom'."
+  (if org-tufte-include-footnotes-at-bottom
+      org-html-footnotes-section
+    "<!-- %s --><!-- %s -->"))
+
+(defconst ox-tufte--utils-macros-alist
+  `(("marginnote" .
+     (lambda (&rest args)
+       (let ((note (string-join args "\\\n")))
+         (concat
+          "@@html:"
+          (ox-tufte--utils-margin-note note)
+          "@@")))))
+  "Additional macros that are available during export.")
+
 (defun ox-tufte--utils-margin-note (desc)
   "Return HTML snippet after interpreting DESC as a margin note.
 
@@ -380,15 +396,14 @@ non-nil."
   (interactive)
   (let (;; need to bind this because tufte treats footnotes specially, so we
         ;; don't want to display them at the bottom
-        (org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
-                                        org-html-footnotes-section
-                                      "<!-- %s --><!-- %s -->"))
+        (org-html-footnotes-section (ox-tufte--utils-footnotes-section))
+        (org-export-global-macros (append org-export-global-macros
+                                          ox-tufte--utils-macros-alist))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
                     async subtreep visible-only body-only ext-plist
-                    (lambda () (set-auto-mode t));; (lambda () (text-mode))
-                    )))
+                    (lambda () (set-auto-mode t)))))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
       output)))
 
@@ -425,9 +440,9 @@ Return output file's name."
   (let ((outfile (org-export-output-file-name ".html" subtreep))
         ;; need to bind this because tufte treats footnotes specially, so we
         ;; don't want to display them at the bottom
-        (org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
-                                        org-html-footnotes-section
-                                      "<!-- %s --><!-- %s -->"))
+        (org-html-footnotes-section (ox-tufte--utils-footnotes-section))
+        (org-export-global-macros (append org-export-global-macros
+                                          ox-tufte--utils-macros-alist))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-export-to-file 'tufte-html outfile
@@ -448,9 +463,9 @@ publishing directory.
 
 Return output file name."
 
-  (let ((org-html-footnotes-section (if org-tufte-include-footnotes-at-bottom
-                                        org-html-footnotes-section
-                                      "<!-- %s --><!-- %s -->"))
+  (let ((org-html-footnotes-section (ox-tufte--utils-footnotes-section))
+        (org-export-global-macros (append org-export-global-macros
+                                          ox-tufte--utils-macros-alist))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     (org-babel-lob-ingest filename) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (org-publish-org-to 'tufte-html filename
