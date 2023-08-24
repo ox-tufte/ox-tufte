@@ -43,6 +43,7 @@ article > p,
 article > div.epigraph,
 article > table,
 article > mjx-container,
+article > div.zeroth-section,
 section > div,
 section > h2 { /* set value consistent with "section > p" */
     width: var(--ox-tufte-content-width);

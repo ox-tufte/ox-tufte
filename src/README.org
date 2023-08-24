@@ -131,7 +131,18 @@ tables etc. These are defined using an org-mode "marginnote" special-block
   ,#+end_marginnote
 #+end_src
 The block marginnote is displayed to the right side of the paragraph following
-it.
+it. In case a block margin-note is needed in [[https://orgmode.org/worg/org-syntax.html#Zeroth_section][the zeroth section]] (i.e., before
+the first heading in an org document), it needs to be wrapped within
+=#+begin_zeroth-section= and =#+end_zeroth-section= as follows:
+#+begin_src org
+  ,#+begin_zeroth-section
+  ,#+begin_marginnote
+  This is a block level margin-note.
+  - item 1
+  - item 2
+  ,#+end_marginnote
+  ,#+end_zeroth-section
+#+end_src
 
 *** <<deprecated-margin-notes>>Deprecated: Margin-notes as links
 Previously, =ox-tufte= encoded margin-notes as links. Said syntax is now
