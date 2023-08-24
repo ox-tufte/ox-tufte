@@ -91,7 +91,7 @@ than expected, and some extensions.
 [[marginnote][the "marginnote" block defined below]].
 #+name: marginnote
 #+header: :var input=""
-#+begin_src elisp :exports results :results html replace value
+#+begin_src elisp :eval yes :exports results :results html replace value
   (require 'ox-tufte)
   (ox-tufte--utils-margin-note input)
 #+end_src
