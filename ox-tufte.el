@@ -54,12 +54,14 @@ This is in addition to being included as sidenotes.  Sidenotes are not shown on
 very narrow screens (phones), so it may be useful to additionally include them
 at the bottom."
   :group 'org-export-tufte
-  :type 'boolean)
+  :type 'boolean
+  :safe #'booleanp)
 
 (defcustom org-tufte-margin-note-symbol "&#8853;"
   "The symbol that is used as a viewability-toggle on small screens."
   :group 'org-export-tufte
-  :type 'string)
+  :type 'string
+  :safe #'stringp)
 
 (defcustom org-tufte-randid-limit 10000000
   "Upper limit when generating random IDs.
@@ -67,7 +69,8 @@ at the bottom."
 With default value of 10000000, there is ~0.2% chance of collision with 200
 references."
   :group 'org-export-tufte
-  :type 'integer)
+  :type 'integer
+  :safe #'integerp)
 
 ;;;###autoload
 (defun ox-tufte-init (&optional footnotes-at-bottom-p)
@@ -83,6 +86,8 @@ FOOTNOTES-AT-BOTTOM-P initializes the value of
         org-html-doctype "html5"
         org-html-html5-fancy t
         org-tufte-include-footnotes-at-bottom footnotes-at-bottom-p)
+  (advice-add 'org-html-footnote-section
+              :around #'org-tufte-footnote-section-advice)
   (org-babel-lob-ingest
    (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org")))
 
@@ -98,6 +103,9 @@ FOOTNOTES-AT-BOTTOM-P initializes the value of
             (lambda (a s v b)
               (if a (org-tufte-export-to-html t s v b)
                 (org-open-file (org-tufte-export-to-html nil s v b)))))))
+  :options-alist
+  '((:footnotes-section-p nil "footnotes-section-p"
+                          org-tufte-include-footnotes-at-bottom))
   :translate-alist '((footnote-reference . org-tufte-footnote-reference)
                      ;; (src-block . org-tufte-src-block)
                      (link . org-tufte-maybe-margin-note-link)
@@ -157,8 +165,9 @@ This intended to be called via the `marginnote' library-of-babel function."
               (insert desc)
               (let* ((org-export-global-macros ;; make buffer macros accessible
                       (append ox-tufte--mn-macro-templates org-export-global-macros))
-                     (output-buf
-                      (org-html-export-as-html nil nil nil t)))
+                     ;; nested footnotes aren't supported
+                     (org-html-footnotes-section "<!-- %s --><!-- %s -->")
+                     (output-buf (org-html-export-as-html nil nil nil t)))
                 (with-current-buffer output-buf (buffer-string))))))
          (exported-newline-fix (replace-regexp-in-string
                                 "\n" " "
@@ -215,6 +224,26 @@ For the inverse, use something like `esxml-to-xml' (from package `esxml').  This
   "Give a random number below the `org-tufte-randid-limit'."
   (random org-tufte-randid-limit))
 
+(defun ox-tufte--utils-entrypoint-funcall (filename function &rest args)
+  "Call FUNCTION with ARGS in a \"normalized\" environment.
+FILENAME is intended to be the file being processed by one of the
+entrypoint function (e.g. `org-tufte-publish-to-html')."
+  (let ((org-export-global-macros (append org-export-global-macros
+                                          ox-tufte--utils-macros-alist))
+        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+    (org-babel-lob-ingest filename) ;; needed by `ox-tufte--utils-margin-note'
+    (let ((output (apply function args)))
+      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+      output)))
+
+(defun ox-tufte--utils-get-export-output-extension (plist)
+  "Get export filename extension based on PLIST."
+  (concat
+   (when (> (length org-html-extension) 0) ".")
+   (or (plist-get plist :html-extension)
+	   org-html-extension
+	   "html")))
+
 
 ;;; Transcode Functions
 
@@ -250,6 +279,13 @@ contextual information."
           ox-tufte/ox-html-vb-str
           ox-tufte/footer-content)))
 
+(defun org-tufte-footnote-section-advice (fun &rest args)
+  "Modify `org-html-footnote-section' based on `:footnotes-section-p'.
+FUN is `org-html-footnote-section' and ARGS is single-element
+  list containing the plist (\"communication channel\")."
+  (let ((switch-p (plist-get (car args) :footnotes-section-p)))
+    (if switch-p (apply fun args)
+      "")))
 ;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
 (defun org-tufte-footnote-reference (footnote-reference _contents info)
   "Create a footnote according to the tufte css format.
@@ -394,18 +430,11 @@ Export is done in a buffer named \"*Org Tufte Export*\", which will
 be displayed when `org-export-show-temporary-export-buffer' is
 non-nil."
   (interactive)
-  (let (;; need to bind this because tufte treats footnotes specially, so we
-        ;; don't want to display them at the bottom
-        (org-html-footnotes-section (ox-tufte--utils-footnotes-section))
-        (org-export-global-macros (append org-export-global-macros
-                                          ox-tufte--utils-macros-alist))
-        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
-    (let ((output (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
-                    async subtreep visible-only body-only ext-plist
-                    (lambda () (set-auto-mode t)))))
-      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-      output)))
+  (ox-tufte--utils-entrypoint-funcall
+   buffer-file-name
+   #'org-export-to-buffer 'tufte-html "*Org Tufte Export*"
+   async subtreep visible-only body-only ext-plist
+   (lambda () (set-auto-mode t))))
 
 ;;;###autoload
 (defun org-tufte-export-to-html
@@ -437,18 +466,13 @@ file-local settings.
 
 Return output file's name."
   (interactive)
-  (let ((outfile (org-export-output-file-name ".html" subtreep))
-        ;; need to bind this because tufte treats footnotes specially, so we
-        ;; don't want to display them at the bottom
-        (org-html-footnotes-section (ox-tufte--utils-footnotes-section))
-        (org-export-global-macros (append org-export-global-macros
-                                          ox-tufte--utils-macros-alist))
-        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest buffer-file-name) ;; needed by `ox-tufte--utils-margin-note'
-    (let ((output (org-export-to-file 'tufte-html outfile
-                    async subtreep visible-only body-only ext-plist)))
-      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-      output)))
+  (let ((file (org-export-output-file-name
+               (ox-tufte--utils-get-export-output-extension ext-plist)
+               subtreep)))
+    (ox-tufte--utils-entrypoint-funcall
+     buffer-file-name
+     #'org-export-to-file 'tufte-html file
+     async subtreep visible-only body-only ext-plist)))
 
 
 ;;; publishing function
@@ -462,19 +486,11 @@ the filename of the Org file to be published.  PUB-DIR is the
 publishing directory.
 
 Return output file name."
-
-  (let ((org-html-footnotes-section (ox-tufte--utils-footnotes-section))
-        (org-export-global-macros (append org-export-global-macros
-                                          ox-tufte--utils-macros-alist))
-        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest filename) ;; needed by `ox-tufte--utils-margin-note'
-    (let ((output (org-publish-org-to 'tufte-html filename
-                                      (concat "." (or (plist-get plist :html-extension)
-                                                      org-html-extension
-                                                      "html"))
-                                      plist pub-dir)))
-      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-      output)))
+  (ox-tufte--utils-entrypoint-funcall
+   filename
+   #'org-publish-org-to 'tufte-html filename
+   (ox-tufte--utils-get-export-output-extension plist)
+   plist pub-dir))
 
 (provide 'ox-tufte)
 

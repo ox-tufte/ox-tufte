@@ -269,21 +269,26 @@ Additionally, =ox-tufte= presently inherits the following limitations from
 - Captions for =iframe-wrapper= blocks aren't supported.
 * Customization
 ** Footnotes section at bottom
-The behaviour depends on the value of
-~org-tufte-include-footnotes-at-bottom~. Because footnotes are transformed to
-sidenotes they are currently hidden on very narrow screens (like phones), unless
-the use manually toggles visibility for each reference. if you want to include
-footnodes *also* at the bottom of the page, this may be set to =t= using either
-=setq= (src_elisp{(setq org-tufte-include-footnotes-at-bottom t)}), or, more
-conveniently, during initial setup by passing =t= to =ox-tufte-init=:
+The behaviour depends on the =:footnotes-section-p= option (which uses the value
+of ~org-tufte-include-footnotes-at-bottom~ as default).
+
+Because footnotes are transformed to sidenotes they are currently hidden on very
+narrow screens (like phones), unless the use manually toggles visibility for
+each reference. if you want to include footnotes *also* at the bottom of the
+page, this may be set to =t= using either =setq= (src_elisp{(setq
+org-tufte-include-footnotes-at-bottom t)}), or, more conveniently, during
+initial setup by passing =t= to =ox-tufte-init=:
 #+begin_src elisp
   (ox-tufte-init t)
 #+end_src
 
-This behaviour can also be configured on a per-file basis
-(assuming =org-export-allow-bind-keywords= is =t=) using below:
+This behaviour can also be configured on a per-file basis using:
 #+begin_src org
-  ,#+BIND: org-tufte-include-footnotes-at-bottom nil
+  ,#+OPTIONS: footnotes-section-p:t
+#+end_src
+Or, (assuming =org-export-allow-bind-keywords= is =t=) using below:
+#+begin_src org
+  ,#+BIND: org-tufte-include-footnotes-at-bottom t
 #+end_src
 ** Margin-note symbol and visibility on small screens
 From [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
