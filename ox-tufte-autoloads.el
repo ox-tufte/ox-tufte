@@ -89,7 +89,6 @@ Return output file name.
 
 (fn PLIST FILENAME PUB-DIR)")
 (register-definition-prefixes "ox-tufte" '("org-tufte-" "ox-tufte--utils-"))
-
 
 ;;; End of scraped data
 
