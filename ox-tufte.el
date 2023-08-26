@@ -88,6 +88,8 @@ FOOTNOTES-AT-BOTTOM-P initializes the value of
         org-tufte-include-footnotes-at-bottom footnotes-at-bottom-p)
   (advice-add 'org-html-footnote-section
               :around #'org-tufte-footnote-section-advice)
+  (advice-add 'org-babel-lob-ingest ;; make export log less verbose
+              :around #'ox-tufte--utils-inhibit-message-advice)
   (org-babel-lob-ingest
    (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org")))
 
@@ -224,6 +226,13 @@ For the inverse, use something like `esxml-to-xml' (from package `esxml').  This
   "Give a random number below the `org-tufte-randid-limit'."
   (random org-tufte-randid-limit))
 
+(defun ox-tufte--utils-inhibit-message-advice (fun &rest args)
+  "Silence messages during lob ingestion.
+To be used as an around advice where FUN is function and ARGS the
+argument.  Adapted from
+<https://emacs.stackexchange.com/a/53009>."
+  (let ((inhibit-message t))
+    (apply fun args)))
 (defun ox-tufte--utils-entrypoint-funcall (filename function &rest args)
   "Call FUNCTION with ARGS in a \"normalized\" environment.
 FILENAME is intended to be the file being processed by one of the
