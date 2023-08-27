@@ -77,7 +77,7 @@ the body."
 
 ;;; tests
 (ert-deftest ox-tufte/mathjax-path-none ()
-  "Test that MathJax does not load when not needed."
+  "If no LaTeX in page, then MathJax isn't loaded."
   (should-not
    (org-tufte-test-in-exported-buffer
     "No LaTeX here." nil
@@ -93,13 +93,33 @@ the body."
      (search-forward "MathJax" nil t)))))
 
 
+(ert-deftest ox-tufte/uses-html5-tags ()
+  "Ox-tufte uses HTML5 tags."
+  (should
+   (org-tufte-test-in-exported-buffer
+    "* Heading" nil
+    (let ((case-fold-search t))
+      (search-forward "<!DOCTYPE html>" nil t))))
+  (should
+   (org-tufte-test-in-exported-buffer
+    "* Heading" nil
+    (let ((case-fold-search t))
+      (search-forward "<article id=\"content\" class=\"content\">" nil t))))
+  (should
+   (org-tufte-test-in-exported-buffer
+    "* Heading" nil
+    (let ((case-fold-search t))
+      (search-forward "Heading</h2>
+</section>" nil t)))))
+
+
 (ert-deftest ox-tufte/footnotes-section-disabled-default ()
  "No Footnotes section by default."
  (should-not
   (org-tufte-test-in-exported-buffer
    "pre[fn::sidenote] post" t
    (let ((case-fold-search t))
-      (search-forward "Footnotes: " nil t)))))
+     (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
 
 (ert-deftest ox-tufte/footnotes-section-configurable-per-file ()
  "Footnotes section can be enabled as needed."
@@ -108,46 +128,18 @@ the body."
    "#+OPTIONS: footnotes-section-p:t
 pre[fn::sidenote] post" t
    (let ((case-fold-search t))
-     (search-forward "Footnotes: " nil t))))
+     (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t))))
  (should-not
   (org-tufte-test-in-exported-buffer
    "#+OPTIONS: footnotes-section-p:nil
 pre[fn::sidenote] post" t
    (let ((case-fold-search t))
-     (search-forward "Footnotes: " nil t)))))
+     (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
 
 
-(ert-deftest ox-tufte/marginnote-as-link/limitations/nested-links-unsupported ()
-  "Angle and plain links (including image links) are unsupported in
-marginnote-as-link syntax."
-  (should
-   (org-tufte-test-in-exported-buffer
-    "pre[[mn:][<file:./image.png>​]] post" t
-    (let ((case-fold-search t))
-      (search-forward "&lt;file:" nil t))))
-  (should-not
-   (org-tufte-test-in-exported-buffer
-    "pre[[mn:][note file:./image.png]] post" t
-    (let ((case-fold-search t))
-      (search-forward "<img " nil t)))))
+;;; inline marginnotes
 
-(ert-deftest ox-tufte/marginnote-as-link/macros-supported ()
-  "Org macros are supported in marginnote-as-link syntax."
-  (should
-   (org-tufte-test-in-exported-buffer
-    "#+MACRO: prefix $1 macro
-pre[[mn:][pre {{{prefix(text)}}}]] post" t
-    (let ((case-fold-search t))
-      (search-forward "pre text macro" nil t)))))
-
-(ert-deftest ox-tufte/marginnote-as-macro/links-supported ()
-  "Links are supported in marginnote-as-macro syntax."
-  (should
-   (org-tufte-test-in-exported-buffer
-    "pre{{{marginnote(<file:./image.png>​)}}} post" t
-    (let ((case-fold-search t))
-      (search-forward "<img " nil t)))))
-
+;;; general tests
 (ert-deftest ox-tufte/marginnote/limitation/standalone-img-needs-zero-width-space ()
   "Standalone images in inline marginnotes require escaping."
   (should-not
@@ -161,7 +153,57 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
     (let ((case-fold-search t))
       (search-forward "<figure " nil t)))))
 
-(ert-deftest ox-tufte/marginnote-as-macro/limitation/nested-macros-supported ()
+;;; mn-as-link syntax
+(ert-deftest ox-tufte/marginnote-as-link/limitations/nested-links-unsupported ()
+  "Angle and plain links (including image links) are unsupported in
+marginnote-as-link syntax."
+  (let ((warning-minimum-log-level :error))
+    (should
+     (org-tufte-test-in-exported-buffer
+      "pre[[mn:][<file:./image.png>​]] post" t
+      (let ((case-fold-search t))
+        (search-forward "&lt;file:" nil t))))
+    (should-not
+     (org-tufte-test-in-exported-buffer
+      "pre[[mn:][note file:./image.png]] post" t
+      (let ((case-fold-search t))
+        (search-forward "<img " nil t))))))
+
+(ert-deftest ox-tufte/marginnote-as-link/macros-supported ()
+  "Org macros are supported in marginnote-as-link syntax."
+  (let ((warning-minimum-log-level :error))
+   (should
+    (org-tufte-test-in-exported-buffer
+     "#+MACRO: prefix $1 macro
+pre[[mn:][pre {{{prefix(text)}}}]] post" t
+     (let ((case-fold-search t))
+       (search-forward "pre text macro" nil t))))))
+
+(ert-deftest ox-tufte/marginnote-as-link/nested-babel-calls ()
+  "Marginnote-as-link supports nested babel calls."
+  (let ((org-confirm-babel-evaluate nil)
+        (warning-minimum-log-level :error))
+    (should
+     (org-tufte-test-in-exported-buffer
+      "pre [[mn:][in macro call_nested-call() eom]] post
+* resource :noexport:
+#+name: nested-call
+#+begin_src elisp :results value
+  \"nested call\"
+#+end_src" t
+      (let ((case-fold-search t))
+        (search-forward "<code>nested call</code> eom</span>" nil t))))))
+
+;;; mn-as-macro syntax
+(ert-deftest ox-tufte/marginnote-as-macro/links-supported ()
+  "Links are supported in marginnote-as-macro syntax."
+  (should
+   (org-tufte-test-in-exported-buffer
+    "pre{{{marginnote(<file:./image.png>​)}}} post" t
+    (let ((case-fold-search t))
+      (search-forward "<img " nil t)))))
+
+(ert-deftest ox-tufte/marginnote-as-macro/limitation/nested-macros-unsupported ()
   "Nested macros are unsupported in marginnote-as-macro syntax."
   (should
    (org-tufte-test-in-exported-buffer
@@ -169,6 +211,52 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
 pre {{{marginnote(pre {{{prefix(text)}}})}}} post" t
     (let ((case-fold-search t))
       (search-forward "</span>)}}}" nil t)))))
+
+(ert-deftest ox-tufte/marginnote-as-macro/nested-babel-calls ()
+  "marginnote-as-macro supports nested babel calls w/ LOB ingestion."
+  (let ((org-confirm-babel-evaluate nil))
+    (should
+     (org-tufte-test-in-exported-buffer
+      "pre {{{marginnote(in macro call_nested-call() eom)}}} post
+* resource :noexport:
+#+name: nested-call
+#+begin_src elisp :results value
+  \"nested call\"
+#+end_src" t
+      (let ((case-fold-search t))
+        (search-forward "<code>nested call</code> eom </span>" nil t))))))
+
+;;; mn-as-babel-call syntax
+(ert-deftest ox-tufte/marginnote-as-babel-call/links-supported ()
+  "Links are supported in marginnote-as-babel-call syntax."
+  (should
+   (org-tufte-test-in-exported-buffer
+    "pre call_marginnote(\"[[./image.png]]\") post" t
+    (let ((case-fold-search t))
+      (search-forward "<img " nil t)))))
+
+(ert-deftest ox-tufte/marginnote-as-babel-call/nested-macros-supported ()
+  "Marginnote-as-babel-call supports nested macros."
+  (should
+   (org-tufte-test-in-exported-buffer
+    "#+MACRO: prefix $1 macro
+pre call_marginnote(\"pre {{{prefix(text)}}}\") post" t
+    (let ((case-fold-search t))
+      (search-forward "text macro </span> post" nil t)))))
+
+(ert-deftest ox-tufte/marginnote-as-babel-call/nested-babel-calls ()
+  "Marginnote-as-babel-call supports nested babel calls w/ LOB ingestion."
+  (let ((org-confirm-babel-evaluate nil))
+    (should
+     (org-tufte-test-in-exported-buffer
+      "pre call_marginnote(\"in macro call_nested-call() eom\") post
+* resource :noexport:
+#+name: nested-call
+#+begin_src elisp :results value
+  \"nested call\"
+#+end_src" t
+      (let ((case-fold-search t))
+        (search-forward "<code>nested call</code> eom </span>" nil t))))))
 
 
 (provide 'ox-tufte-test)

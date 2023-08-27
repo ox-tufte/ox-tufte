@@ -13,7 +13,6 @@
 
 (autoload 'ox-tufte-init "ox-tufte" "\
 Initialize some `org-html' related settings.
-
 FOOTNOTES-AT-BOTTOM-P initializes the value of
 `org-tufte-include-footnotes-at-bottom'.
 
@@ -88,7 +87,7 @@ publishing directory.
 Return output file name.
 
 (fn PLIST FILENAME PUB-DIR)")
-(register-definition-prefixes "ox-tufte" '("org-tufte-" "ox-tufte--utils-"))
+(register-definition-prefixes "ox-tufte" '("org-tufte-" "ox-tufte--"))
 
 ;;; End of scraped data
 

@@ -75,21 +75,13 @@ references."
 ;;;###autoload
 (defun ox-tufte-init (&optional footnotes-at-bottom-p)
   "Initialize some `org-html' related settings.
-
 FOOTNOTES-AT-BOTTOM-P initializes the value of
 `org-tufte-include-footnotes-at-bottom'."
-  (setq org-html-divs '((preamble "header" "preamble") ;; `header' i/o  `div'
-                        (content "article" "content") ;; `article' for `tufte.css'
-                        (postamble "footer" "postamble")) ;; `footer' i/o `div'
-        org-html-container-element "section" ;; consistent with `tufte.css'
-        org-html-checkbox-type 'html
-        org-html-doctype "html5"
-        org-html-html5-fancy t
-        org-tufte-include-footnotes-at-bottom footnotes-at-bottom-p)
+  (setq org-tufte-include-footnotes-at-bottom footnotes-at-bottom-p)
+
+  ;; FIXME: below are all benign and likely can be evaluated upon require
   (advice-add 'org-html-footnote-section
               :around #'org-tufte-footnote-section-advice)
-  (advice-add 'org-babel-lob-ingest ;; make export log less verbose
-              :around #'ox-tufte--utils-inhibit-message-advice)
   (org-babel-lob-ingest
    (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org")))
 
@@ -226,21 +218,47 @@ For the inverse, use something like `esxml-to-xml' (from package `esxml').  This
   "Give a random number below the `org-tufte-randid-limit'."
   (random org-tufte-randid-limit))
 
-(defun ox-tufte--utils-inhibit-message-advice (fun &rest args)
-  "Silence messages during lob ingestion.
-To be used as an around advice where FUN is function and ARGS the
-argument.  Adapted from
-<https://emacs.stackexchange.com/a/53009>."
-  (let ((inhibit-message t))
-    (apply fun args)))
+
+;;; Common customizations to ensure compatibility with both tufte-css and
+;;; ox-html
+
+(defvar ox-tufte--sema-in-tufte-export nil
+  "Currently in the midst of an export.")
+(defvar ox-tufte--store-confirm-babel-evaluate nil
+  "Store value of `org-confirm-babel-evaluate'.")
+
+(defun ox-tufte--utils-permit-mn-babel-call (lang body)
+  "Permit evaluation of marginnote babel-call.
+LANG is the language of the code block whose text is BODY,"
+  (if (and (string= lang "elisp")
+           (string= body "(require 'ox-tufte)
+(ox-tufte--utils-margin-note input)"))
+      nil
+    ox-tufte--store-confirm-babel-evaluate))
 (defun ox-tufte--utils-entrypoint-funcall (filename function &rest args)
   "Call FUNCTION with ARGS in a \"normalized\" environment.
 FILENAME is intended to be the file being processed by one of the
 entrypoint function (e.g. `org-tufte-publish-to-html')."
-  (let ((org-export-global-macros (append org-export-global-macros
+  (let ((ox-tufte--store-confirm-babel-evaluate
+         (if ox-tufte--sema-in-tufte-export
+             ox-tufte--store-confirm-babel-evaluate
+           org-confirm-babel-evaluate))
+        (ox-tufte--sema-in-tufte-export t)
+        (org-html-divs '((preamble "header" "preamble") ;; `header' i/o  `div'
+                        (content "article" "content") ;; `article' for `tufte.css'
+                        (postamble "footer" "postamble")) ;; `footer' i/o `div'
+                       )
+        (org-html-container-element "section") ;; consistent with `tufte.css'
+        (org-html-checkbox-type 'html)
+        (org-html-doctype "html5")
+        (org-html-html5-fancy t)
+        (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
+        (org-export-global-macros (append org-export-global-macros
                                           ox-tufte--utils-macros-alist))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    (org-babel-lob-ingest filename) ;; needed by `ox-tufte--utils-margin-note'
+    ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
+    (let ((inhibit-message t)) ;; silence lob ingestion messages
+      (org-babel-lob-ingest filename)) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (apply function args)))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
       output)))
@@ -250,8 +268,8 @@ entrypoint function (e.g. `org-tufte-publish-to-html')."
   (concat
    (when (> (length org-html-extension) 0) ".")
    (or (plist-get plist :html-extension)
-	   org-html-extension
-	   "html")))
+       org-html-extension
+       "html")))
 
 
 ;;; Transcode Functions
@@ -261,7 +279,7 @@ entrypoint function (e.g. `org-tufte-publish-to-html')."
 QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
   (let* ((ox-tufte/ox-html-qb-str (org-html-quote-block quote-block contents info))
          (ox-tufte/qb-caption (org-export-data
-	    	                   (org-export-get-caption quote-block) info))
+                               (org-export-get-caption quote-block) info))
          (ox-tufte/footer-content-maybe
           (if (org-string-nw-p ox-tufte/qb-caption)
               (format "<footer>%s</footer>" ox-tufte/qb-caption)
@@ -279,7 +297,7 @@ CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
   (let* ((ox-tufte/ox-html-vb-str (org-html-verse-block verse-block contents info))
          (ox-tufte/vb-caption (org-export-data
-	    	                   (org-export-get-caption verse-block) info))
+                               (org-export-get-caption verse-block) info))
          (ox-tufte/footer-content
           (if (org-string-nw-p ox-tufte/vb-caption)
               (format "<footer>%s</footer>" ox-tufte/vb-caption)
@@ -292,9 +310,11 @@ contextual information."
   "Modify `org-html-footnote-section' based on `:footnotes-section-p'.
 FUN is `org-html-footnote-section' and ARGS is single-element
   list containing the plist (\"communication channel\")."
-  (let ((switch-p (plist-get (car args) :footnotes-section-p)))
-    (if switch-p (apply fun args)
-      "")))
+  (if ox-tufte--sema-in-tufte-export
+      (let ((switch-p (plist-get (car args) :footnotes-section-p)))
+        (if switch-p (apply fun args)
+          ""))
+    (apply fun args)))
 ;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
 (defun org-tufte-footnote-reference (footnote-reference _contents info)
   "Create a footnote according to the tufte css format.
@@ -347,19 +367,19 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
                          " "))))
       ;; add support for captions on figures that `ox-html' lacks
       (let* ((caption (let ((raw (org-export-data
-	    	                      (org-export-get-caption special-block) info)))
-	                    (if (not (org-string-nw-p raw)) raw
+                                  (org-export-get-caption special-block) info)))
+                        (if (not (org-string-nw-p raw)) raw
                           ;; FIXME: it would be nice to be able to count figure
                           ;; as an image and number accordingly
                           raw
                           ;; (concat "<span class=\"figure-number\">"
-	    	              ;;         (format (org-html--translate "Figure %d:" info)
-	    		          ;;                 (org-export-get-ordinal
-	    		          ;;                  (org-element-map special-block 'link
-	    		          ;;                    #'identity info t)
-	    		          ;;                  info '(link) #'org-html-standalone-image-p))
-	    	              ;;         " </span>"
-	    	              ;;         raw)
+                          ;;         (format (org-html--translate "Figure %d:" info)
+                          ;;                 (org-export-get-ordinal
+                          ;;                  (org-element-map special-block 'link
+                          ;;                    #'identity info t)
+                          ;;                  info '(link) #'org-html-standalone-image-p))
+                          ;;         " </span>"
+                          ;;         raw)
                           )))
              (figcaption (format "<figcaption>%s</figcaption>" caption))
              ;; using regex because `esxml-to-xml' doesn't put closing iframe
