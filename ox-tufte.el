@@ -398,19 +398,11 @@ will show \"this is some text\" in the margin.
 
 If it does not, it will be passed onto the original function in
 order to be handled properly. DESC is the description part of the
-link. INFO is a plist holding contextual information.
-
-NOTE: this style of margin-notes are DEPRECATED and may be deleted in a future
-  version."
-  (let ((path (split-string (org-element-property :path link) ":"))
-        (str (format (concat "DEPRECATION: ox-tufte: %s\n"
-                             "DEPRECATION: ox-tufte: %s")
-                     "margin-notes as links are deprecated."
-                     "Please use the `call_marginnote' syntax instead.")))
+link. INFO is a plist holding contextual information."
+  (let ((path (split-string (org-element-property :path link) ":")))
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
         (progn
-          (display-warning 'deprecation-warning str :warning)
           (ox-tufte--utils-margin-note-snippet
            (ox-tufte--utils-filter-ptags desc)
            (if (string= (cadr path) "") nil (cadr path))))

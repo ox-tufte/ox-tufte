@@ -83,11 +83,16 @@ than expected, and some extensions.
 | [[https://edwardtufte.github.io/tufte-css/#imagequilts][ImageQuilts]]           | [[quilts][single image or images in"figure" special-block]] |                                                   |
 
 ** [[https://edwardtufte.github.io/tufte-css/#sidenotes][Sidenotes and margin-notes]]
-- <<footnotes>>Org-mode footnotes become numbered Sidenotes from the tufte spec
-
-<<marginnotes-inline>>"Inline" margin-notes (i.e., margin-notes that can include
-[[https://html.spec.whatwg.org/#phrasing-content-2][HTML phrasing content]]) are implemented as an inline babel call, specifically, to
-[[marginnote][the "marginnote" block defined below]].
+<<footnotes>>Org-mode footnotes become numbered Sidenotes from the tufte
+spec. The only limitation (inherited from =tufte-css=) is that a footnote can no
+longer include another footnote within.
+*** Inline margin-notes
+<<marginnotes-inline>>Since, Org-mode doesn't yet support syntax for inline
+special blocks ([[https://list.orgmode.org/orgmode/87a6b8pbhg.fsf@posteo.net/][though it's being discussed and may be implemented in the near
+future]]), there are multiple ways to express inline margin-notes (i.e.,
+margin-notes that can include [[https://html.spec.whatwg.org/#phrasing-content-2][HTML phrasing content]]). Inline margin-notes are
+implemented in their most feature-full incarnation as an inline babel call,
+specifically, to [[marginnote][the "marginnote" block defined below]].
 #+name: marginnote
 #+header: :var input=""
 #+begin_src elisp :eval yes :exports results :results html replace value
@@ -114,9 +119,19 @@ the following additional (wrt the inline babel call syntax) caveats:
   more text {{{marginnote(another margin note.,new line in second margin
   note.)}}}.
 #+end_src
-See [[deprecated-margin-notes][deprecation sub-section below]] regarding the alternate syntax for inline
-margin-notes (which is now deprecated and will soon be removed).
-
+If, however, you only need an inline margin-note with some text without
+requiring specific control over line breaks or insertion of links or images (but
+still allowing for macro and babel call invocation), the margin-note-as-a-link
+syntax might be preferable.
+- The margin note number is optional and either `mn:1` or `mn:` as below would
+  work:
+#+BEGIN_SRC org
+  This is some regular text [[mn:1][this will be a margin note. while links aren't
+  supported, commas don't need escaping.]] and some more text [[mn:][another margin note]].
+#+END_SRC
+The reason for not being able to insert links (or images) using this syntax is
+an org syntax limitation.
+*** Block margin-notes
 There is also support for "block" margin-notes, which are margin-notes that can
 contain "block" elements ([[https://html.spec.whatwg.org/#flow-content-2][HTML spec flow content]]) such as paragraphs, lists,
 tables etc. These are defined using an org-mode "marginnote" special-block
@@ -142,18 +157,6 @@ the first heading in an org document), it needs to be wrapped within
   ,#+end_marginnote
   ,#+end_zeroth-section
 #+end_src
-
-*** <<deprecated-margin-notes>>Deprecated: Margin-notes as links
-Previously, =ox-tufte= encoded margin-notes as links. Said syntax is now
-deprecated and support for it will be dropped in future versions. This syntax is
-limiting since, in org, [[https://orgmode.org/worg/org-syntax.html#orgd10b2cd][link descriptions cannot contain regular links]].
-
-- The margin note number is optional and either `mn:1` or `mn:` as below would
-  work:
-#+BEGIN_SRC org
-  This is some regular text [[mn:1][this will be a margin note]] and some more
-  text [[mn:][another margin note]].
-#+END_SRC
 
 ** <<epigraphs>>[[https://edwardtufte.github.io/tufte-css/#epigraphs][Epigraphs]] and [[https://orgmode.org/manual/Paragraphs.html#index-BEGIN_005fVERSE][quotes]]
 - Anything within =#+begin_epigraph= and =#+end_epigraph= becomes an epigraph
@@ -261,11 +264,11 @@ If desired, this css file should be included /after/ =src/ox-tufte.css=.
 
 Additionally, =ox-tufte= presently inherits the following limitations from
 [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
-- The generated HTML uses an =html5= doctype.
 - Footnotes/sidenotes cannot contain nested footnotes/sidenotes.
 - Sidenotes cannot contain paragraphs, tables etc. (since they are HTML =span=
   elements).
 - Captions for =iframe-wrapper= blocks aren't supported.
+- The generated HTML must (and does) use an =html5= doctype.
 * Customization
 ** Footnotes section at bottom
 The behaviour depends on the =:footnotes-section-p= option (which uses the value
