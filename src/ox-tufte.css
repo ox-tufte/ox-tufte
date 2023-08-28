@@ -82,6 +82,7 @@ blockquote .marginnote, blockquote .sidenote {
 .org-src-container {
     max-width: var(--ox-tufte-fullwidth);
     width: var(--ox-tufte-fullwidth);
+    clear: both; /* necessary to prevent overlap between long label and sidenote */
 }
 body pre { /* monospace content: .src .example */
     /* FROM: pre.fullwidth > code in tufte.css; but adjusted */
