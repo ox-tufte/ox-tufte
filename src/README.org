@@ -4,6 +4,14 @@
 [[https://melpa.org/#/ox-tufte][file:https://melpa.org/packages/ox-tufte-badge.svg]]
 [[https://stable.melpa.org/#/ox-tufte][file:https://stable.melpa.org/packages/ox-tufte-badge.svg]]
 
+* Changes since version 2.x
+- =ox-tufte-init= is no longer needed in addition to loading the library and has
+  been removed.
+- inline margin-note syntax changes
+  - inline margin-note-as-macro syntax has been added.
+  - margin-note-as-link syntax has been un-deprecated.
+  - all three inline margin-note syntaxes (=-as-babel-call=, =-as-macro=,
+    =-as-link=) are documented with their respective limitations and quirks.
 * Introduction
 [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] has visually appealing defaults for webpages and supports (among other
 things) margin and side notes. Unfortunately, /Tufte CSS/ makes a number of
