@@ -40,6 +40,9 @@
 (require 'ox-html)
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
 
+(org-babel-lob-ingest
+ (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org"))
+
 
 ;;; User-Configurable Variables
 
@@ -47,6 +50,12 @@
   "Options for exporting Org mode files to Tufte-CSS themed HTML."
   :tag "Org Export Tufte HTML"
   :group 'org-export)
+
+(defcustom org-tufte-feature-more-expressive-inline-marginnotes t
+  "Non-nil enables marginnote-as-macro and marginnote-as-babelcall syntax."
+  :group 'org-export-tufte
+  :type 'boolean
+  :safe #'booleanp)
 
 (defcustom org-tufte-include-footnotes-at-bottom nil
   "Non-nil means to include footnotes at the bottom of the page.
@@ -72,22 +81,8 @@ references."
   :type 'integer
   :safe #'integerp)
 
-;;;###autoload
-(defun ox-tufte-init (&optional footnotes-at-bottom-p)
-  "Initialize some `org-html' related settings.
-FOOTNOTES-AT-BOTTOM-P initializes the value of
-`org-tufte-include-footnotes-at-bottom'."
-  (setq org-tufte-include-footnotes-at-bottom footnotes-at-bottom-p)
-
-  ;; FIXME: below are all benign and likely can be evaluated upon require
-  (advice-add 'org-html-footnote-section
-              :around #'org-tufte-footnote-section-advice)
-  (org-babel-lob-ingest
-   (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org")))
-
 
 ;;; Define Back-End
-
 (org-export-define-derived-backend 'tufte-html 'html
   :menu-entry
   '(?T "Export to Tufte-HTML"
@@ -137,39 +132,41 @@ the html structure that tufte.css expects."
   "Return HTML snippet after interpreting DESC as a margin note.
 
 This intended to be called via the `marginnote' library-of-babel function."
-  (let* ((ox-tufte--mn-macro-templates org-macro-templates)
-         ;; ^ copy buffer-local variable
-         (exported-str
-          (progn
-            ;; (save-excursion
-            ;;   (message "HMM: desc = '%s'" desc)
-            ;;   (message "HMM: buffer-string = '%s'" (buffer-string))
-            ;;   (goto-char (point-min))
-            ;;   (let ((end (search-forward desc))
-            ;;         (beg (match-beginning 0)))
-            ;;     (narrow-to-region beg end)
-            ;;     (let ((output-buf (org-html-export-as-html nil nil
-            ;;                                                nil t)))
-            ;;       (widen)
-            ;;       (with-current-buffer output-buf
-            ;;         (buffer-string)))))
-            (with-temp-buffer
-              ;; FIXME: use narrowing instead to obviate having to add functions
-              ;; to library-of-babel in `org-tufte-publish-to-html' etc.
-              (insert desc)
-              (let* ((org-export-global-macros ;; make buffer macros accessible
-                      (append ox-tufte--mn-macro-templates org-export-global-macros))
-                     ;; nested footnotes aren't supported
-                     (org-html-footnotes-section "<!-- %s --><!-- %s -->")
-                     (output-buf (org-html-export-as-html nil nil nil t)))
-                (with-current-buffer output-buf (buffer-string))))))
-         (exported-newline-fix (replace-regexp-in-string
-                                "\n" " "
-                                (replace-regexp-in-string
-                                 "\\\\\n" "<br>"
-                                 exported-str)))
-         (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
-    (ox-tufte--utils-margin-note-snippet exported-para-fix)))
+  (if org-tufte-feature-more-expressive-inline-marginnotes
+      (let* ((ox-tufte--mn-macro-templates org-macro-templates)
+          ;; ^ copy buffer-local variable
+          (exported-str
+           (progn
+             ;; (save-excursion
+             ;;   (message "HMM: desc = '%s'" desc)
+             ;;   (message "HMM: buffer-string = '%s'" (buffer-string))
+             ;;   (goto-char (point-min))
+             ;;   (let ((end (search-forward desc))
+             ;;         (beg (match-beginning 0)))
+             ;;     (narrow-to-region beg end)
+             ;;     (let ((output-buf (org-html-export-as-html nil nil
+             ;;                                                nil t)))
+             ;;       (widen)
+             ;;       (with-current-buffer output-buf
+             ;;         (buffer-string)))))
+             (with-temp-buffer
+               ;; FIXME: use narrowing instead to obviate having to add functions
+               ;; to library-of-babel in `org-tufte-publish-to-html' etc.
+               (insert desc)
+               (let* ((org-export-global-macros ;; make buffer macros accessible
+                       (append ox-tufte--mn-macro-templates org-export-global-macros))
+                      ;; nested footnotes aren't supported
+                      (org-html-footnotes-section "<!-- %s --><!-- %s -->")
+                      (output-buf (org-html-export-as-html nil nil nil t)))
+                 (with-current-buffer output-buf (buffer-string))))))
+          (exported-newline-fix (replace-regexp-in-string
+                                 "\n" " "
+                                 (replace-regexp-in-string
+                                  "\\\\\n" "<br>"
+                                  exported-str)))
+          (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
+        (ox-tufte--utils-margin-note-snippet exported-para-fix))
+    ""))
 
 (defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
   "Generate html snippet for margin-note with TEXT.
@@ -257,8 +254,9 @@ entrypoint function (e.g. `org-tufte-publish-to-html')."
                                           ox-tufte--utils-macros-alist))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
-    (let ((inhibit-message t)) ;; silence lob ingestion messages
-      (org-babel-lob-ingest filename)) ;; needed by `ox-tufte--utils-margin-note'
+    (when org-tufte-feature-more-expressive-inline-marginnotes
+      (let ((inhibit-message t))         ;; silence lob ingestion messages
+       (org-babel-lob-ingest filename))) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (apply function args)))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
       output)))
@@ -315,6 +313,8 @@ FUN is `org-html-footnote-section' and ARGS is single-element
         (if switch-p (apply fun args)
           ""))
     (apply fun args)))
+(advice-add 'org-html-footnote-section
+            :around #'org-tufte-footnote-section-advice)
 ;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
 (defun org-tufte-footnote-reference (footnote-reference _contents info)
   "Create a footnote according to the tufte css format.

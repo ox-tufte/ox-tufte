@@ -11,12 +11,6 @@
 
 ;;; Generated autoloads from ox-tufte.el
 
-(autoload 'ox-tufte-init "ox-tufte" "\
-Initialize some `org-html' related settings.
-FOOTNOTES-AT-BOTTOM-P initializes the value of
-`org-tufte-include-footnotes-at-bottom'.
-
-(fn &optional FOOTNOTES-AT-BOTTOM-P)")
 (autoload 'org-tufte-export-as-html "ox-tufte" "\
 Export current buffer to a Tufte HTML buffer.
 

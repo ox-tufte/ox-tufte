@@ -51,7 +51,6 @@ You can install ox-tufte using [[https://melpa.org][MELPA]]:
 And then in your ~init.el~ (or equivalent):
 #+BEGIN_SRC emacs-lisp
   (require 'ox-tufte)
-  (ox-tufte-init)
 #+END_SRC
 
 It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] ([[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]) and place it on your server
@@ -275,11 +274,16 @@ of ~org-tufte-include-footnotes-at-bottom~ as default).
 Because footnotes are transformed to sidenotes they are currently hidden on very
 narrow screens (like phones), unless the use manually toggles visibility for
 each reference. if you want to include footnotes *also* at the bottom of the
-page, this may be set to =t= using either =setq= (src_elisp{(setq
-org-tufte-include-footnotes-at-bottom t)}), or, more conveniently, during
-initial setup by passing =t= to =ox-tufte-init=:
+page, this may be set to =t= using =setq=:
 #+begin_src elisp
-  (ox-tufte-init t)
+  (require 'ox-tufte)
+  (setq org-tufte-include-footnotes-at-bottom t)
+#+end_src
+Or, if you're using =use-package=:
+#+begin_src elisp
+  (use-package ox-tufte
+    :config
+    (setq org-tufte-include-footnotes-at-bottom t))
 #+end_src
 
 This behaviour can also be configured on a per-file basis using:
