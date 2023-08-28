@@ -129,6 +129,13 @@ the body."
 pre[fn::sidenote] post" t
    (let ((case-fold-search t))
      (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t))))
+ (let ((org-export-allow-bind-keywords t))
+   (should
+    (org-tufte-test-in-exported-buffer
+     "#+BIND: org-tufte-include-footnotes-at-bottom t
+pre[fn::sidenote] post" t
+     (let ((case-fold-search t))
+       (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
  (should-not
   (org-tufte-test-in-exported-buffer
    "#+OPTIONS: footnotes-section-p:nil
