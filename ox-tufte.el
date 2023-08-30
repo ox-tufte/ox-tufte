@@ -3,11 +3,12 @@
 ;; Copyright (C) 2023      The Bayesians Inc.
 ;; Copyright (C) 2016-2022 Matthew Lee Hinman
 
-;; Author: M. Lee Hinman
+;; Author: The Bayesians Inc.
+;;         M. Lee Hinman
 ;; Maintainer: The Bayesians Inc.
 ;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
-;; Version: 2.0.4
+;; Version: 3.0.1
 ;; Package-Requires: ((org "9.5") (emacs "27.1"))
 ;; URL: https://github.com/ox-tufte/ox-tufte
 
