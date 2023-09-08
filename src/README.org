@@ -33,7 +33,7 @@ above those imposed by =ox-html= and =tufte-css=) for users. In fact, work on
     - [[https://github.com/Zilong-Li/org-tufte/blob/404ab1286139ea6cbdc00bb1fb50a0afd9d067de/org-tufte.el#L87][modified html-template]]
   - [[https://github.com/Zilong-Li/org-tufte/blob/404ab1286139ea6cbdc00bb1fb50a0afd9d067de/org-tufte.el#L97][automated inclusion of css hosted at third-party location]]
 
-=ox-tufte= is still a work-in-progress, but it is being used by at least [[https://weary_travelers.gitlab.io/][one
+=ox-tufte= is still a work-in-progress, but it is being used by at least [[https://weary-travelers.gitlab.io/][one
 blog]] in "production". Please open an issue if you discover any bugs!
 ** Compatibility
 Ox-tufte is compatible and tested with
