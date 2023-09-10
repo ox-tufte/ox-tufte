@@ -197,9 +197,9 @@ margin-notes visibility-toggle with the margin-note."
   "Parse string fragment via `libxml'.
 STR is the xml fragment.
 
-For the inverse, use something like `esxml-to-xml' (from package `esxml').  This
-  function is presently never used (an intermediate version of `ox-tufte' used
-  it)."
+For the inverse, use something like `esxml-to-xml' (from package
+`esxml').  This function is presently never used (an intermediate
+version of `ox-tufte' used it)."
   (cl-assert (libxml-available-p))
   (with-temp-buffer
     (insert str)
@@ -399,14 +399,21 @@ will show \"this is some text\" in the margin.
 
 If it does not, it will be passed onto the original function in
 order to be handled properly. DESC is the description part of the
-link. INFO is a plist holding contextual information."
-  (let ((path (split-string (org-element-property :path link) ":")))
+link. INFO is a plist holding contextual information.
+
+Defining margin-note link in this manner, as opposed to via
+`org-link-set-parameters', ensures that margin-notes are only
+handled when occurring as regular links and not as angle or plain
+links. Additionally, it ensures that we only handle margin-notes
+for HTML backend without having an opinion on how to treat them
+for other backends."
+  (let ((path (split-string (org-element-property :path link) ":"))
+        (desc (or desc "")))
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
-        (progn
-          (ox-tufte--utils-margin-note-snippet
-           (ox-tufte--utils-filter-ptags desc)
-           (if (string= (cadr path) "") nil (cadr path))))
+        (ox-tufte--utils-margin-note-snippet
+         (ox-tufte--utils-filter-ptags desc)
+         (if (string= (cadr path) "") nil (cadr path)))
       (org-html-link link desc info))))
 
 (defun org-tufte-src-block (src-block _contents info)

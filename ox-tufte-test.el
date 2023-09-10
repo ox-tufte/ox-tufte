@@ -61,15 +61,28 @@ the body."
        nil nil nil ,body-only nil)
       (with-current-buffer export-buffer
         ,@body))))
-
-(defun org-tufte-test-debug (text &optional body-only)
-  "Debug the result of exporting TEXT.
+(defmacro org-html-test-in-exported-buffer (text body-only &rest body)
+  "Execute BODY in buffer containing exported result of TEXT.
 BODY-ONLY controls whether entire html page is exported or only
 the body."
-  (should
-   (org-tufte-test-in-exported-buffer
-    text body-only
-    (progn
+  `(org-test-with-temp-text
+    ,text
+    (let ((export-buffer "*Org HTML Export*")
+          (org-export-show-temporary-export-buffer nil))
+      (org-html-export-as-html
+       nil nil nil ,body-only nil)
+      (with-current-buffer export-buffer
+        ,@body))))
+
+(defmacro org-tufte-test-debug (text &optional body-only html)
+  "Debug the result of exporting TEXT.
+BODY-ONLY controls whether entire html page is exported or only
+the body.  If HTML is t then the output of `ox-html' is shown."
+  `(should
+    (,(if html 'org-html-test-in-exported-buffer
+        'org-tufte-test-in-exported-buffer)
+     ,text ,body-only
+     (progn
       (message "'%s'" (buffer-string))
       t))))
 
@@ -112,6 +125,21 @@ the body."
 </section>" nil t)))))
 
 
+(ert-deftest ox-tufte/footnotes-section/design/consistent-with-ox-html ()
+  "Ensure concordance of footnotes between `ox-tufte' and `ox-html'."
+  (should ;; empty sidenotes okay, since empty footnotes are
+   (and
+    (org-tufte-test-in-exported-buffer
+     "[fn::]" t
+     (let ((case-fold-search t))
+       (search-forward
+        "class='sidenote'><sup class='numeral'>1</sup></span>" nil t)))
+    (org-html-test-in-exported-buffer
+     "[fn::]" t
+     (let ((case-fold-search t))
+       (search-forward
+        "1</a></sup>" nil t))))))
+
 (ert-deftest ox-tufte/footnotes-section-disabled-default ()
  "No Footnotes section by default."
  (should-not
@@ -144,8 +172,43 @@ pre[fn::sidenote] post" t
 
 
 ;;; inline marginnotes
+(ert-deftest ox-tufte/marginnote-variations/consistency ()
+  "Ensure the different margin-note syntax behave consistently."
+  (should
+   (org-tufte-test-in-exported-buffer
+     "[[mn:]]" t
+     (let ((case-fold-search t))
+       (search-forward "class='marginnote'>" nil t))))
+  (should
+   (org-tufte-test-in-exported-buffer
+     "{{{marginnote()}}}" t
+     (let ((case-fold-search t))
+       (search-forward "class='marginnote'>" nil t))))
+  (should
+   (org-tufte-test-in-exported-buffer
+     "call_marginnote(\"\")" t
+     (let ((case-fold-search t))
+       (search-forward "class='marginnote'>" nil t)))))
 
 ;;; mn-as-link syntax
+(ert-deftest ox-tufte/marginnote-as-link/design/only-as-regular-links ()
+  "Angle and plain links for marginnotes shouldn't work."
+  (should-not
+   (org-tufte-test-in-exported-buffer
+    "<mn:some text>" t
+    (let ((case-fold-search t))
+      (search-forward "class='marginnote'>" nil t))))
+  (should-not
+   (org-tufte-test-in-exported-buffer
+    "mn:some text" t
+    (let ((case-fold-search t))
+      (search-forward "class='marginnote'>" nil t))))
+  (should
+   (org-tufte-test-in-exported-buffer
+    "[[mn:][some text]]" t
+    (let ((case-fold-search t))
+      (search-forward "class='marginnote'>some text</span>" nil t)))))
+
 (ert-deftest ox-tufte/marginnote-as-link/limitations/nested-links-unsupported ()
   "Angle and plain links (including image links) are unsupported in
 marginnote-as-link syntax."
