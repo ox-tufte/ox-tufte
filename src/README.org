@@ -213,10 +213,20 @@ To use =tufte-css='s =iframe-wrapper= class, one can do something like below:
 To have fullwidth figures:
 #+begin_src org
   ,#+ATTR_HTML: :class fullwidth
+  ,#+begin_figure
   ,#+CAPTION: Edward Tufte’s English translation of the Napoleon’s March data visualization. From Beautiful Evidence, page 122-124.
   [[https://edwardtufte.github.io/tufte-css/img/napoleons-march.png]]
   ,#+end_figure
 #+end_src
+Alternatively, the =fullwidth= class can also be applied to the image
+directly. However, in this case the resulting image may not truly be
+"fullwidth".
+#+begin_src org
+  ,#+ATTR_HTML: :class fullwidth
+  ,#+CAPTION: Edward Tufte’s English translation of the Napoleon’s March data visualization. From Beautiful Evidence, page 122-124.
+  [[https://edwardtufte.github.io/tufte-css/img/napoleons-march.png]]
+#+end_src
+Experiment and choose depending on your application.
 ** <<quilts>>ImageQuilts
 =tufte-css= has a notion of image quilts. [[https://edwardtufte.github.io/tufte-css/#imagequilts][the examples on tufte-css website]] are
 single images that were created by combining multiple images. However, that
