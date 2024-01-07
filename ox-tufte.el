@@ -135,37 +135,40 @@ the html structure that tufte.css expects."
 This intended to be called via the `marginnote' library-of-babel function."
   (if org-tufte-feature-more-expressive-inline-marginnotes
       (let* ((ox-tufte--mn-macro-templates org-macro-templates)
-          ;; ^ copy buffer-local variable
-          (exported-str
-           (progn
-             ;; (save-excursion
-             ;;   (message "HMM: desc = '%s'" desc)
-             ;;   (message "HMM: buffer-string = '%s'" (buffer-string))
-             ;;   (goto-char (point-min))
-             ;;   (let ((end (search-forward desc))
-             ;;         (beg (match-beginning 0)))
-             ;;     (narrow-to-region beg end)
-             ;;     (let ((output-buf (org-html-export-as-html nil nil
-             ;;                                                nil t)))
-             ;;       (widen)
-             ;;       (with-current-buffer output-buf
-             ;;         (buffer-string)))))
-             (with-temp-buffer
-               ;; FIXME: use narrowing instead to obviate having to add functions
-               ;; to library-of-babel in `org-tufte-publish-to-html' etc.
-               (insert desc)
-               (let* ((org-export-global-macros ;; make buffer macros accessible
-                       (append ox-tufte--mn-macro-templates org-export-global-macros))
-                      ;; nested footnotes aren't supported
-                      (org-html-footnotes-section "<!-- %s --><!-- %s -->")
-                      (output-buf (org-html-export-as-html nil nil nil t)))
-                 (with-current-buffer output-buf (buffer-string))))))
-          (exported-newline-fix (replace-regexp-in-string
-                                 "\n" " "
-                                 (replace-regexp-in-string
-                                  "\\\\\n" "<br>"
-                                  exported-str)))
-          (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
+             ;; ^ copy buffer-local variable
+             (exported-str
+              (progn
+                ;; (save-excursion
+                ;;   (message "HMM: desc = '%s'" desc)
+                ;;   (message "HMM: buffer-string = '%s'" (buffer-string))
+                ;;   (goto-char (point-min))
+                ;;   (let ((end (search-forward desc))
+                ;;         (beg (match-beginning 0)))
+                ;;     (narrow-to-region beg end)
+                ;;     (let ((output-buf (org-html-export-as-html nil nil
+                ;;                                                nil t)))
+                ;;       (widen)
+                ;;       (with-current-buffer output-buf
+                ;;         (buffer-string)))))
+                (with-temp-buffer
+                  ;; FIXME: use narrowing instead to obviate having to add functions
+                  ;; to library-of-babel in `org-tufte-publish-to-html' etc.
+                  (insert desc)
+                  (let* ((org-export-global-macros ;; make buffer macros accessible
+                          (append ox-tufte--mn-macro-templates org-export-global-macros))
+                         ;; nested footnotes aren't supported
+                         (org-html-footnotes-section "<!-- %s --><!-- %s -->")
+                         (output-buf (org-html-export-as-html nil nil nil t))
+                         (output-str (with-current-buffer output-buf
+                                       (buffer-string))))
+                    (kill-buffer output-buf)
+                    output-str))))
+             (exported-newline-fix (replace-regexp-in-string
+                                    "\n" " "
+                                    (replace-regexp-in-string
+                                     "\\\\\n" "<br>"
+                                     exported-str)))
+             (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
         (ox-tufte--utils-margin-note-snippet exported-para-fix))
     ""))
 
