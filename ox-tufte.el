@@ -137,25 +137,11 @@ This intended to be called via the `marginnote' library-of-babel function."
       (let* ((ox-tufte--mn-macro-templates org-macro-templates)
              ;; ^ copy buffer-local variable
              (exported-str
-              (progn
-                ;; (save-excursion
-                ;;   (message "HMM: desc = '%s'" desc)
-                ;;   (message "HMM: buffer-string = '%s'" (buffer-string))
-                ;;   (goto-char (point-min))
-                ;;   (let ((end (search-forward desc))
-                ;;         (beg (match-beginning 0)))
-                ;;     (narrow-to-region beg end)
-                ;;     (let ((output-buf (org-html-export-as-html nil nil
-                ;;                                                nil t)))
-                ;;       (widen)
-                ;;       (with-current-buffer output-buf
-                ;;         (buffer-string)))))
-                (with-temp-buffer
-                  (let* ((org-export-global-macros ;; make buffer macros accessible
-                          (append ox-tufte--mn-macro-templates org-export-global-macros))
-                         ;; nested footnotes aren't supported
-                         (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
-                    (org-export-string-as desc 'html t)))))
+              (let* ((org-export-global-macros ;; make buffer macros accessible
+                      (append ox-tufte--mn-macro-templates org-export-global-macros))
+                     ;; footnotes nested within marginalia aren't supported
+                     (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
+                (org-export-string-as desc 'html t)))
              (exported-newline-fix (replace-regexp-in-string
                                     "\n" " "
                                     (replace-regexp-in-string
