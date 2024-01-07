@@ -151,18 +151,11 @@ This intended to be called via the `marginnote' library-of-babel function."
                 ;;       (with-current-buffer output-buf
                 ;;         (buffer-string)))))
                 (with-temp-buffer
-                  ;; FIXME: use narrowing instead to obviate having to add functions
-                  ;; to library-of-babel in `org-tufte-publish-to-html' etc.
-                  (insert desc)
                   (let* ((org-export-global-macros ;; make buffer macros accessible
                           (append ox-tufte--mn-macro-templates org-export-global-macros))
                          ;; nested footnotes aren't supported
-                         (org-html-footnotes-section "<!-- %s --><!-- %s -->")
-                         (output-buf (org-html-export-as-html nil nil nil t))
-                         (output-str (with-current-buffer output-buf
-                                       (buffer-string))))
-                    (kill-buffer output-buf)
-                    output-str))))
+                         (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
+                    (org-export-string-as desc 'html t)))))
              (exported-newline-fix (replace-regexp-in-string
                                     "\n" " "
                                     (replace-regexp-in-string
