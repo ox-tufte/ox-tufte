@@ -176,19 +176,36 @@ pre[fn::sidenote] post" t
   "Ensure the different margin-note syntax behave consistently."
   (should
    (org-tufte-test-in-exported-buffer
-     "[[mn:]]" t
-     (let ((case-fold-search t))
-       (search-forward "class='marginnote'>" nil t))))
+    "[[mn:]]" t
+    (let ((case-fold-search t))
+      (search-forward "class='marginnote'>" nil t))))
   (should
    (org-tufte-test-in-exported-buffer
-     "{{{marginnote()}}}" t
-     (let ((case-fold-search t))
-       (search-forward "class='marginnote'>" nil t))))
+    "{{{marginnote()}}}" t
+    (let ((case-fold-search t))
+      (search-forward "class='marginnote'>" nil t))))
   (should
    (org-tufte-test-in-exported-buffer
-     "call_marginnote(\"\")" t
-     (let ((case-fold-search t))
-       (search-forward "class='marginnote'>" nil t)))))
+    "call_marginnote(\"\")" t
+    (let ((case-fold-search t))
+      (search-forward "class='marginnote'>" nil t)))))
+
+(ert-deftest ox-tufte/marginnote-variations/org-export-string-as ()
+  "Support marginnote-as-macro syntax within `org-export-string-as'."
+  (should
+   (let ((output-str (org-export-string-as
+                      "{{{marginnote(note)}}}" 'tufte-html t)))
+     (string-search "<span class='marginnote'> note </span>" output-str)))
+  (let ((org-confirm-babel-evaluate nil))
+    ;; NEXT: ^ `ox-tufte--utils-entrypoint-funcall` is being bypassed
+    (should
+     (let ((output-str (org-export-string-as
+                        "call_marginnote(\"note\")" 'tufte-html t)))
+       (string-search "<span class='marginnote'> note </span>" output-str))))
+  (should
+   (let ((output-str (org-export-string-as
+                      "[[mn:][note]]" 'tufte-html t)))
+     (string-search "<span class='marginnote'>note</span>" output-str))))
 
 ;;; mn-as-link syntax
 (ert-deftest ox-tufte/marginnote-as-link/design/only-as-regular-links ()

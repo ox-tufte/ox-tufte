@@ -41,8 +41,12 @@
 (require 'ox-html)
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
 
+;;;; marginnote syntax support
 (org-babel-lob-ingest
  (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org"))
+
+(add-to-list 'org-export-before-processing-functions
+             #'ox-tufte--utils-macros-alist-enable)
 
 
 ;;; User-Configurable Variables
@@ -128,6 +132,13 @@ the html structure that tufte.css expects."
           (ox-tufte--utils-margin-note note)
           "@@")))))
   "Additional macros that are available during export.")
+(defun ox-tufte--utils-macros-alist-enable (backend)
+  "Ensure that necessary macros are available when BACKEND is `ox-tufte'."
+  (when (and (org-export-derived-backend-p backend 'tufte-html)
+             org-tufte-feature-more-expressive-inline-marginnotes)
+    (setq org-export-global-macros
+          (append org-export-global-macros
+                  ox-tufte--utils-macros-alist))))
 
 (defun ox-tufte--utils-margin-note (desc)
   "Return HTML snippet after interpreting DESC as a margin note.
@@ -225,21 +236,19 @@ entrypoint function (e.g. `org-tufte-publish-to-html')."
            org-confirm-babel-evaluate))
         (ox-tufte--sema-in-tufte-export t)
         (org-html-divs '((preamble "header" "preamble") ;; `header' i/o  `div'
-                        (content "article" "content") ;; `article' for `tufte.css'
-                        (postamble "footer" "postamble")) ;; `footer' i/o `div'
+                         (content "article" "content") ;; `article' for `tufte.css'
+                         (postamble "footer" "postamble")) ;; `footer' i/o `div'
                        )
         (org-html-container-element "section") ;; consistent with `tufte.css'
         (org-html-checkbox-type 'html)
         (org-html-doctype "html5")
         (org-html-html5-fancy t)
         (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
-        (org-export-global-macros (append org-export-global-macros
-                                          ox-tufte--utils-macros-alist))
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
     (when org-tufte-feature-more-expressive-inline-marginnotes
       (let ((inhibit-message t))         ;; silence lob ingestion messages
-       (org-babel-lob-ingest filename))) ;; needed by `ox-tufte--utils-margin-note'
+        (org-babel-lob-ingest filename))) ;; needed by `ox-tufte--utils-margin-note'
     (let ((output (apply function args)))
       (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
       output)))
