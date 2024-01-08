@@ -122,7 +122,12 @@ the body.  If HTML is t then the output of `ox-html' is shown."
     "* Heading" nil
     (let ((case-fold-search t))
       (search-forward "Heading</h2>
-</section>" nil t)))))
+</section>" nil t))))
+  (should
+   (org-tufte-test-in-exported-buffer
+    "<file:./image.png>" t
+    (let ((case-fold-search t))
+      (search-forward "<figure " nil t)))))
 
 
 (ert-deftest ox-tufte/footnotes-section/design/consistent-with-ox-html ()
@@ -284,15 +289,15 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
         (search-forward "<code>nested call</code> eom</span>" nil t))))))
 
 ;;; non-link syntax
-(ert-deftest ox-tufte/marginnote-extended/inconvenience/standalone-img-needs-zero-width-space ()
-  "Standalone images in inline marginnotes require escaping."
+(ert-deftest ox-tufte/marginnote-extended/resolved/standalone-img-dont-need-zero-width-space ()
+  "Standalone images in inline marginnotes don't require escaping."
   (skip-unless org-tufte-feature-more-expressive-inline-marginnotes)
   (should-not
    (org-tufte-test-in-exported-buffer
     "pre{{{marginnote(<file:./image.png>​)}}} post" t
     (let ((case-fold-search t))
       (search-forward "<figure " nil t))))
-  (should
+  (should-not
    (org-tufte-test-in-exported-buffer
     "pre{{{marginnote(<file:./image.png>)}}} post" t
     (let ((case-fold-search t))
@@ -370,6 +375,16 @@ pre {{{marginnote(pre {{{prefix(text)}}})}}} post" t
   (should-error
    (org-tufte-test-in-exported-buffer
     "pre call_marginnote(hello world) post" t)))
+
+(ert-deftest ox-tufte/marginnote-as-babel-call/silently-fail-when-expressive-syntax-disabled ()
+  "Silently elide marginnote-as-babel-call when expressive syntax disabled."
+  (let ((org-tufte-feature-more-expressive-inline-marginnotes nil))
+    (should
+     (org-tufte-test-in-exported-buffer
+      "pre call_marginnote(\"hello world\") post" t
+      (let ((case-fold-search t))
+        (or (search-forward "pre  post" nil t)
+            (search-forward "pre post" nil t)))))))
 
 (ert-deftest ox-tufte/marginnote-as-babel-call/links-supported ()
   "Links are supported in marginnote-as-babel-call syntax."

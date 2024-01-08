@@ -11,6 +11,7 @@
 
 ;;; Generated autoloads from ox-tufte.el
 
+(put 'org-tufte-html-sections 'safe-local-variable (lambda (x) (string= (car (alist-get 'content x)) "article")))
 (autoload 'org-tufte-export-as-html "ox-tufte" "\
 Export current buffer to a Tufte HTML buffer.
 

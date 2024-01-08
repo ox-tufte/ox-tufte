@@ -99,13 +99,61 @@ references."
                 (org-open-file (org-tufte-export-to-html nil s v b)))))))
   :options-alist
   '((:footnotes-section-p nil "footnotes-section-p"
-                          org-tufte-include-footnotes-at-bottom))
+                          org-tufte-include-footnotes-at-bottom)
+    ;; Recommended overrides for `ox-html'
+    (:html-checkbox-type nil nil org-tufte-html-checkbox-type)
+    ;; Essential overrides: recommended not to alter.  Thus their KEYWORDS and
+    ;; OPTIONS are set to nil and disabled.
+    (:html-divs nil nil org-tufte-html-sections)
+    (:html-container nil nil "section")
+    (:html-doctype nil nil "html5")
+    (:html-html5-fancy nil nil t))
   :translate-alist '((footnote-reference . org-tufte-footnote-reference)
                      ;; (src-block . org-tufte-src-block)
                      (link . org-tufte-maybe-margin-note-link)
                      (quote-block . org-tufte-quote-block)
                      (special-block . org-tufte-special-block)
                      (verse-block . org-tufte-verse-block)))
+
+;;;; Backend overrides
+(defcustom org-tufte-html-checkbox-type 'html
+  "The type of checkboxes to use for Tufte HTML export.
+See `org-html-checkbox-types' for the values used for each
+option."
+  :group 'org-export-tufte
+  :package-version '(ox-tufte . "3.1.0")
+  :type '(choice
+	      (const :tag "ASCII characters" ascii)
+	      (const :tag "Unicode characters" unicode)
+	      (const :tag "HTML checkboxes" html)))
+
+(defcustom org-tufte-html-sections
+  '((preamble "header" "preamble") ;; `header' i/o  `div'
+    (content "article" "content") ;; `article' for `tufte.css'
+    (postamble "footer" "postamble")) ;; footer i/o `div'
+  "Alist of the three section elements for Tufte HTML export.
+The car of each entry is one of `preamble', `content' or `postamble'.
+The cdrs of each entry are the ELEMENT_TYPE and ID for each
+section of the exported document.
+
+Note that changing the default may break the associated CSS.  The
+ELEMENT_TYPE of the `content' entry must be \"article\"."
+  :group 'org-export-tufte
+  :package-version '(ox-tufte . "3.1.0")
+  :type '(list :greedy t
+	           (list :tag "Preamble"
+		             (const :format "" preamble)
+		             (string :tag "element") (string :tag "     id"))
+	           (list :tag "Content"
+		             (const :format "" content)
+		             (string :tag "element") (string :tag "     id"))
+	           (list :tag "Postamble" (const :format "" postamble)
+		             (string :tag "     id") (string :tag "element"))))
+;;;###autoload
+(put 'org-tufte-html-sections 'safe-local-variable
+     (lambda (x)
+       (string= (car (alist-get 'content x))
+                "article")))
 
 
 ;;; Utility Functions
@@ -116,12 +164,6 @@ references."
 Sidenotes and margin notes must have <p> and </p> tags removed to conform with
 the html structure that tufte.css expects."
   (replace-regexp-in-string "</?p.*?>" "" str))
-
-(defun ox-tufte--utils-footnotes-section ()
-  "Toggle Footnotes section HTML based on `org-tufte-include-footnotes-at-bottom'."
-  (if org-tufte-include-footnotes-at-bottom
-      org-html-footnotes-section
-    "<!-- %s --><!-- %s -->"))
 
 (defconst ox-tufte--utils-macros-alist
   `(("marginnote" .
@@ -160,6 +202,7 @@ This intended to be called via the `marginnote' library-of-babel function."
                                      exported-str)))
              (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
         (ox-tufte--utils-margin-note-snippet exported-para-fix))
+    ;; if expressive-inline-marginnotes isn't enabled, silently fail
     ""))
 
 (defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
@@ -212,7 +255,7 @@ version of `ox-tufte' used it)."
 
 ;;; Common customizations to ensure compatibility with both tufte-css and
 ;;; ox-html
-
+;;;; NEXT: entrypoint
 (defvar ox-tufte--sema-in-tufte-export nil
   "Currently in the midst of an export.")
 (defvar ox-tufte--store-confirm-babel-evaluate nil
@@ -221,7 +264,8 @@ version of `ox-tufte' used it)."
 (defun ox-tufte--utils-permit-mn-babel-call (lang body)
   "Permit evaluation of marginnote babel-call.
 LANG is the language of the code block whose text is BODY,"
-  (if (and (string= lang "elisp")
+  (if (and org-tufte-feature-more-expressive-inline-marginnotes
+           (string= lang "elisp")
            (string= body "(require 'ox-tufte)
 (ox-tufte--utils-margin-note input)"))
       nil
@@ -235,14 +279,6 @@ entrypoint function (e.g. `org-tufte-publish-to-html')."
              ox-tufte--store-confirm-babel-evaluate
            org-confirm-babel-evaluate))
         (ox-tufte--sema-in-tufte-export t)
-        (org-html-divs '((preamble "header" "preamble") ;; `header' i/o  `div'
-                         (content "article" "content") ;; `article' for `tufte.css'
-                         (postamble "footer" "postamble")) ;; `footer' i/o `div'
-                       )
-        (org-html-container-element "section") ;; consistent with `tufte.css'
-        (org-html-checkbox-type 'html)
-        (org-html-doctype "html5")
-        (org-html-html5-fancy t)
         (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
         (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
     ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
