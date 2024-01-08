@@ -1,6 +1,6 @@
 ;;; ox-tufte.el --- Tufte HTML org-mode export backend -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023      The Bayesians Inc.
+;; Copyright (C) 2023-2024 The Bayesians Inc.
 ;; Copyright (C) 2016-2022 Matthew Lee Hinman
 
 ;; Author: The Bayesians Inc.
