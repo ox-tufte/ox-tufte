@@ -269,7 +269,9 @@ LANG is the language of the code block whose text is BODY,"
            (string= body "(require 'ox-tufte)
 (ox-tufte--utils-margin-note input)"))
       nil
-    ox-tufte--store-confirm-babel-evaluate))
+    (if (functionp ox-tufte--store-confirm-babel-evaluate)
+        (funcall ox-tufte--store-confirm-babel-evaluate lang body)
+      ox-tufte--store-confirm-babel-evaluate)))
 (defun ox-tufte--utils-entrypoint-funcall (filename function &rest args)
   "Call FUNCTION with ARGS in a \"normalized\" environment.
 FILENAME is intended to be the file being processed by one of the
