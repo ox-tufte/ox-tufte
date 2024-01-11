@@ -196,21 +196,60 @@ pre[fn::sidenote] post" t
       (search-forward "class='marginnote'>" nil t)))))
 
 (ert-deftest ox-tufte/marginnote-variations/org-export-string-as ()
-  "Support marginnote-as-macro syntax within `org-export-string-as'."
+             "Support marginnote-as-macro syntax within `org-export-string-as'."
+             (should
+              (let ((output-str (org-export-string-as
+                                 "{{{marginnote(note)}}}" 'tufte-html t)))
+                (string-search "<span class='marginnote'> note </span>" output-str)))
+             (let ((org-confirm-babel-evaluate nil))
+               ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
+               (should
+                (let ((output-str (org-export-string-as
+                                   "call_marginnote(\"note\")" 'tufte-html t)))
+                  (string-search "<span class='marginnote'> note </span>" output-str))))
+             (should
+              (let ((output-str (org-export-string-as
+                                 "[[mn:][note]]" 'tufte-html t)))
+                (string-search "<span class='marginnote'>note</span>" output-str))))
+
+(ert-deftest ox-tufte/marginnote-symbol ()
+  "Marginnote symbol can be tweaked."
   (should
-   (let ((output-str (org-export-string-as
-                      "{{{marginnote(note)}}}" 'tufte-html t)))
-     (string-search "<span class='marginnote'> note </span>" output-str)))
-  (let ((org-confirm-babel-evaluate nil))
-    ;; NEXT: ^ `ox-tufte--utils-entrypoint-funcall` is being bypassed
-    (should
-     (let ((output-str (org-export-string-as
-                        "call_marginnote(\"note\")" 'tufte-html t)))
-       (string-search "<span class='marginnote'> note </span>" output-str))))
+   (let* ((org-confirm-babel-evaluate nil)
+          ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
+          (org-tufte-margin-note-symbol "AAA")
+          (marker-str (concat "class='margin-toggle'>"
+                              org-tufte-margin-note-symbol
+                              "</label>"))
+          (macro-str (org-export-string-as
+                      "{{{marginnote(note)}}}" 'tufte-html t))
+          (link-str (org-export-string-as
+                     "[[mn:][note]]" 'tufte-html t))
+          (babel-str (org-export-string-as
+                      "call_marginnote(\"note\")" 'tufte-html t)))
+     (and (string-search marker-str macro-str)
+          (string-search marker-str link-str)
+          (string-search marker-str babel-str))))
   (should
-   (let ((output-str (org-export-string-as
-                      "[[mn:][note]]" 'tufte-html t)))
-     (string-search "<span class='marginnote'>note</span>" output-str))))
+   (let* ((org-export-allow-bind-keywords t)
+          (org-confirm-babel-evaluate nil)
+          ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
+          (keyword-str "#+BIND: org-tufte-margin-note-symbol \"BBB\"\n")
+          (marker-str (concat "class='margin-toggle'>"
+                              "BBB"
+                              "</label>"))
+          (macro-str (org-export-string-as
+                      (concat keyword-str "{{{marginnote(note)}}}")
+                      'tufte-html t))
+          (link-str (org-export-string-as
+                     (concat keyword-str "[[mn:][note]]")
+                     'tufte-html t))
+          (babel-str (org-export-string-as
+                      (concat keyword-str "call_marginnote(\"note\")")
+                      'tufte-html t)))
+     (or (string-search marker-str macro-str)
+         (string-search marker-str link-str)
+         (string-search marker-str babel-str)))))
 
 ;;; mn-as-link syntax
 (ert-deftest ox-tufte/marginnote-as-link/design/only-as-regular-links ()

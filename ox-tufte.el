@@ -41,7 +41,7 @@
 (require 'ox-html)
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
 
-;;;; marginnote syntax support
+;;;; initialization: marginnote syntax support
 (org-babel-lob-ingest
  (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org"))
 
@@ -49,44 +49,7 @@
              #'ox-tufte--utils-macros-alist-enable)
 
 
-;;; User-Configurable Variables
 
-(defgroup org-export-tufte nil
-  "Options for exporting Org mode files to Tufte-CSS themed HTML."
-  :tag "Org Export Tufte HTML"
-  :group 'org-export)
-
-(defcustom org-tufte-feature-more-expressive-inline-marginnotes t
-  "Non-nil enables marginnote-as-macro and marginnote-as-babelcall syntax."
-  :group 'org-export-tufte
-  :type 'boolean
-  :safe #'booleanp)
-
-(defcustom org-tufte-include-footnotes-at-bottom nil
-  "Non-nil means to include footnotes at the bottom of the page.
-This is in addition to being included as sidenotes.  Sidenotes are not shown on
-very narrow screens (phones), so it may be useful to additionally include them
-at the bottom."
-  :group 'org-export-tufte
-  :type 'boolean
-  :safe #'booleanp)
-
-(defcustom org-tufte-margin-note-symbol "&#8853;"
-  "The symbol that is used as a viewability-toggle on small screens."
-  :group 'org-export-tufte
-  :type 'string
-  :safe #'stringp)
-
-(defcustom org-tufte-randid-limit 10000000
-  "Upper limit when generating random IDs.
-
-With default value of 10000000, there is ~0.2% chance of collision with 200
-references."
-  :group 'org-export-tufte
-  :type 'integer
-  :safe #'integerp)
-
-
 ;;; Define Back-End
 (org-export-define-derived-backend 'tufte-html 'html
   :menu-entry
@@ -115,7 +78,55 @@ references."
                      (special-block . org-tufte-special-block)
                      (verse-block . org-tufte-verse-block)))
 
-;;;; Backend overrides
+
+;;; User-Configurable Variables
+(defgroup org-export-tufte nil
+  "Options for exporting Org mode files to Tufte-CSS themed HTML."
+  :tag "Org Export Tufte HTML"
+  :group 'org-export)
+
+(defcustom org-tufte-feature-more-expressive-inline-marginnotes t
+  "Non-nil enables marginnote-as-macro and marginnote-as-babelcall syntax."
+  :group 'org-export-tufte
+  :type 'boolean
+  :safe #'booleanp)
+
+(defcustom org-tufte-include-footnotes-at-bottom nil
+  "Non-nil means to include footnotes at the bottom of the page.
+This is in addition to being included as sidenotes.  Sidenotes are not shown on
+very narrow screens (phones), so it may be useful to additionally include them
+at the bottom."
+  :group 'org-export-tufte
+  :type 'boolean
+  :safe #'booleanp)
+
+(defcustom org-tufte-margin-note-symbol "&#8853;"
+  "The symbol that is used as a viewability-toggle on small screens.
+Neither marginnote-as-macro nor marginnote-as-babel-call have
+access to the communication channel (not unless they invoke
+something like `org-export-get-environment' which could get
+expensive).  As such we don't include this in the
+`:options-alist' to limit confusion.
+
+Those wanting to set this option within the Org mode file can
+enable `org-export-allow-bind-keywords' and then use something
+like `#+BIND: org-tufte-margin-note-symbol \"replacement\"' to
+define \"replacement\" as the local value for
+`org-tufte-margin-note-symbol'."
+  :group 'org-export-tufte
+  :type 'string
+  :safe #'stringp)
+
+(defcustom org-tufte-randid-limit 10000000
+  "Upper limit when generating random IDs.
+
+With default value of 10000000, there is ~0.2% chance of collision with 200
+references."
+  :group 'org-export-tufte
+  :type 'integer
+  :safe #'integerp)
+
+;;;; `ox-html' overrides
 (defcustom org-tufte-html-checkbox-type 'html
   "The type of checkboxes to use for Tufte HTML export.
 See `org-html-checkbox-types' for the values used for each
@@ -157,34 +168,30 @@ ELEMENT_TYPE of the `content' entry must be \"article\"."
 
 
 ;;; Utility Functions
-
+;;;; marginalia
 (defun ox-tufte--utils-filter-ptags (str)
   "Remove <p> tags from STR.
-
 Sidenotes and margin notes must have <p> and </p> tags removed to conform with
 the html structure that tufte.css expects."
   (replace-regexp-in-string "</?p.*?>" "" str))
 
-(defconst ox-tufte--utils-macros-alist
-  `(("marginnote" .
-     (lambda (&rest args)
-       (let ((note (string-join args "\\\n")))
-         (concat
-          "@@html:"
-          (ox-tufte--utils-margin-note note)
-          "@@")))))
-  "Additional macros that are available during export.")
 (defun ox-tufte--utils-macros-alist-enable (backend)
   "Ensure that necessary macros are available when BACKEND is `ox-tufte'."
   (when (and (org-export-derived-backend-p backend 'tufte-html)
              org-tufte-feature-more-expressive-inline-marginnotes)
-    (setq org-export-global-macros
-          (append org-export-global-macros
-                  ox-tufte--utils-macros-alist))))
+    (add-to-list 'org-export-global-macros
+                 '("marginnote" . ox-tufte--utils-margin-note-macro))))
+
+(defun ox-tufte--utils-margin-note-macro (&rest args)
+  "Return HTML snippet treating each arg in ARGS as a separate line."
+  (let ((note (string-join args "\\\n")))
+    (concat
+     "@@html:"
+     (ox-tufte--utils-margin-note note)
+     "@@")))
 
 (defun ox-tufte--utils-margin-note (desc)
   "Return HTML snippet after interpreting DESC as a margin note.
-
 This intended to be called via the `marginnote' library-of-babel function."
   (if org-tufte-feature-more-expressive-inline-marginnotes
       (let* ((ox-tufte--mn-macro-templates org-macro-templates)
@@ -207,7 +214,6 @@ This intended to be called via the `marginnote' library-of-babel function."
 
 (defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
   "Generate html snippet for margin-note with TEXT.
-
 TEXT shouldn't have any <p> tags (or behaviour is undefined).  If
 <p> tags are needed, use BLOB which must be an HTML snippet of a
 containing element with `marginnote' class.  BLOB is ignored
@@ -229,6 +235,11 @@ margin-notes visibility-toggle with the margin-note."
      mnid mnid
      content)))
 
+(defun ox-tufte--utils-randid ()
+  "Give a random number below the `org-tufte-randid-limit'."
+  (random org-tufte-randid-limit))
+
+;;;; dead code
 (defun ox-tufte--utils-string-fragment-to-xml (str)
   "Parse string fragment via `libxml'.
 STR is the xml fragment.
@@ -248,12 +259,7 @@ version of `ox-tufte' used it)."
      (caddr ;; strip <html> tag
       (libxml-parse-html-region (point-min) (point-max))))))
 
-(defun ox-tufte--utils-randid ()
-  "Give a random number below the `org-tufte-randid-limit'."
-  (random org-tufte-randid-limit))
-
 
-;;; Common customizations to ensure compatibility with both tufte-css and
 ;;; ox-html
 ;;;; NEXT: entrypoint
 (defvar ox-tufte--sema-in-tufte-export nil
@@ -301,7 +307,7 @@ entrypoint function (e.g. `org-tufte-publish-to-html')."
 
 
 ;;; Transcode Functions
-
+;;;; quote-block
 (defun org-tufte-quote-block (quote-block contents info)
   "Transform a quote block into an epigraph in Tufte HTML style.
 QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
@@ -319,6 +325,7 @@ QUOTE-BLOCK CONTENTS INFO are as they are in `org-html-quote-block'."
          ox-tufte/ox-html-qb-str t t)
       ox-tufte/ox-html-qb-str)))
 
+;;;; verse-block
 (defun org-tufte-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to HTML.
 CONTENTS is verse block contents.  INFO is a plist holding
@@ -331,9 +338,10 @@ contextual information."
               (format "<footer>%s</footer>" ox-tufte/vb-caption)
             "")))
     (format "<div class='verse'><blockquote>\n%s\n%s</blockquote></div>"
-          ox-tufte/ox-html-vb-str
-          ox-tufte/footer-content)))
+            ox-tufte/ox-html-vb-str
+            ox-tufte/footer-content)))
 
+;;;; footnotes as sidenotes
 (defun org-tufte-footnote-section-advice (fun &rest args)
   "Modify `org-html-footnote-section' based on `:footnotes-section-p'.
 FUN is `org-html-footnote-section' and ARGS is single-element
@@ -381,6 +389,7 @@ Modified from `org-html-footnote-reference' in `org-html'."
       ox-tufte/fn-inputid
       ox-tufte/fn-num ox-tufte/fn-data-unpar))))
 
+;;;; special-block
 (defun org-tufte-special-block (special-block contents info)
   "Add support for block margin-note special blocks.
 Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
@@ -421,6 +430,7 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
          (concat figcaption "</figure>") o-h-sb-str t t)))
      (t (org-html-special-block special-block contents info)))))
 
+;;;; margin-note as link
 (defun org-tufte-maybe-margin-note-link (link desc info)
   "Render LINK as a margin note if it begins with `mn:'.
 For example, `[[mn:1][this is some text]]' is margin note 1 that
@@ -445,6 +455,7 @@ for other backends."
          (if (string= (cadr path) "") nil (cadr path)))
       (org-html-link link desc info))))
 
+;;;; src-block
 (defun org-tufte-src-block (src-block _contents info)
   "Transcode SRC-BLOCK element into Tufte HTML format.
 CONTENTS is nil.  INFO is a plist used as a communication channel.
