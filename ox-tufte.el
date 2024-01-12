@@ -510,7 +510,7 @@ NOTE: this is dead code and currently unused."
           (org-html-format-code src-block info)))
 
 
-;;; Export functions
+;;; Export commands
 
 ;;;###autoload
 (defun org-tufte-export-as-html
@@ -549,6 +549,15 @@ non-nil."
     (lambda () (set-auto-mode t))))
 
 ;;;###autoload
+(defun org-tufte-convert-region-to-html ()
+  "Assume the current region has Org syntax, and convert it to Tufte HTML.
+This can be used in any buffer.  For example, you can write an
+itemized list in Org syntax in an HTML buffer and use this command
+to convert it."
+  (interactive)
+  (org-export-replace-region-by 'tufte-html))
+
+;;;###autoload
 (defun org-tufte-export-to-html
     (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a Tufte HTML file.
@@ -585,7 +594,7 @@ Return output file's name."
       async subtreep visible-only body-only ext-plist)))
 
 
-;;; publishing function
+;;; Publishing function
 
 ;;;###autoload
 (defun org-tufte-publish-to-html (plist filename pub-dir)

@@ -43,6 +43,11 @@ be displayed when `org-export-show-temporary-export-buffer' is
 non-nil.
 
 (fn &optional ASYNC SUBTREEP VISIBLE-ONLY BODY-ONLY EXT-PLIST)" t)
+(autoload 'org-tufte-convert-region-to-html "ox-tufte" "\
+Assume the current region has Org syntax, and convert it to Tufte HTML.
+This can be used in any buffer.  For example, you can write an
+itemized list in Org syntax in an HTML buffer and use this command
+to convert it." t)
 (autoload 'org-tufte-export-to-html "ox-tufte" "\
 Export current buffer to a Tufte HTML file.
 
