@@ -4,14 +4,23 @@
 [[https://melpa.org/#/ox-tufte][file:https://melpa.org/packages/ox-tufte-badge.svg]]
 [[https://stable.melpa.org/#/ox-tufte][file:https://stable.melpa.org/packages/ox-tufte-badge.svg]]
 
-* Changes since version 2.x
-- =ox-tufte-init= is no longer needed in addition to loading the library and has
-  been removed.
-- inline margin-note syntax changes
-  - inline margin-note-as-macro syntax has been added.
-  - margin-note-as-link syntax has been un-deprecated.
-  - all three inline margin-note syntaxes (=-as-babel-call=, =-as-macro=,
-    =-as-link=) are documented with their respective limitations and quirks.
+* Changes since version 3.x
+Version 4.x alters some of the internal considerably from the 3.x version.
+Notably some configuration options have changed.  See below for details.
+
+- Altering =org-html-checkbox-type= and =org-html-divs= no longer has any
+  effect.  These have been replaced by =org-tufte-html-checkbox-type= and
+  =org-tufte-html-sections= respectively.
+- Similarly, =HTML_DOCTYPE= (and variable =org-html-doctype=) and
+  =HTML_CONTAINER= (and variable =org-html-container-element=) keywords and
+  =html5-fancy= option (and variable =org-html-html5-fancy=) are disabled.
+  Altering these values from the defaults is not supported.
+- The =tufte-html= backend definition makes explicit the options that it
+  overrides compared to the =html= backend.
+- New command =org-tufte-convert-region-to-html= added.
+- Invoking =org-export-string-as= now works (#22).
+- Loading =ox-tufte= now advises =org-export-as=.  The depth of the installed
+  advice is user-configurable (see =org-tufte-export-as-advice-depth=).
 * Introduction
 [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] has visually appealing defaults for webpages and supports (among other
 things) margin and side notes. Unfortunately, /Tufte CSS/ makes a number of
@@ -350,3 +359,16 @@ For footnote references, something like below would work
 * References
 - https://edwardtufte.github.io/tufte-css/
 - https://gitlab.com/snippets/22309
+
+* CHANGELOG                                                         :ARCHIVE:
+** Changes since version 2.x
+:PROPERTIES:
+:ARCHIVE_TIME: 2024-01-12 Fri 15:14
+:END:
+- =ox-tufte-init= is no longer needed in addition to loading the library and has
+  been removed.
+- inline margin-note syntax changes
+  - inline margin-note-as-macro syntax has been added.
+  - margin-note-as-link syntax has been un-deprecated.
+  - all three inline margin-note syntaxes (=-as-babel-call=, =-as-macro=,
+    =-as-link=) are documented with their respective limitations and quirks.
