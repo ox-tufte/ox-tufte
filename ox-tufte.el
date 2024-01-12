@@ -117,15 +117,6 @@ define \"replacement\" as the local value for
   :type 'string
   :safe #'stringp)
 
-(defcustom org-tufte-randid-limit 10000000
-  "Upper limit when generating random IDs.
-
-With default value of 10000000, there is ~0.2% chance of collision with 200
-references."
-  :group 'org-export-tufte
-  :type 'integer
-  :safe #'integerp)
-
 ;;;; `ox-html' overrides
 (defcustom org-tufte-html-checkbox-type 'html
   "The type of checkboxes to use for Tufte HTML export.
@@ -165,6 +156,39 @@ ELEMENT_TYPE of the `content' entry must be \"article\"."
      (lambda (x)
        (string= (car (alist-get 'content x))
                 "article")))
+
+;;;; advanced
+(defcustom org-tufte-randid-limit 10000000
+  "Upper limit when generating random IDs.
+With default value of 10000000, there is ~0.2% chance of collision with 200
+references."
+  :group 'org-export-tufte
+  :type 'integer
+  :safe #'integerp)
+
+(defcustom org-tufte-export-as-advice-depth 100
+  "Depth at which to install `org-export-as' advice.
+The default of 100 ensures that it is the innermost advice.
+Please use `setopt' in order to modify this value."
+  :group 'org-export-tufte
+  :type 'integer
+  :safe (lambda (x)
+          (and (integerp x)
+               (>= x -100)
+               (<= x 100)))
+  :set (lambda (sym val)
+         (let ((safeval (or
+                         (and (funcall
+                               (plist-get
+                                (symbol-plist 'org-tufte-export-as-advice-depth)
+                                'safe-local-variable)
+                               val)
+                              val)
+                         100)))
+           (advice-remove #'org-export-as #'org-tufte-export-as-advice)
+           (advice-add #'org-export-as :around
+                       #'org-tufte-export-as-advice `((depth . ,safeval)))
+           (set-default-toplevel-value sym safeval))))
 
 
 ;;; Utility Functions
@@ -307,9 +331,8 @@ babel block."
           (let ((output (apply fun backend args)))
             (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
             output))))))
-;; NEXT: make advice depth configurable
-(advice-add 'org-export-as
-            :around #'org-tufte-export-as-advice '((depth . 100)))
+;; NOTE: ^ no need to `advice-add' `org-tufte-export-as-advice', since it gets
+;; added by the `org-tufte-export-as-advice-depth' defcustom on load.
 
 (defun ox-tufte--utils-get-export-output-extension (plist)
   "Get export filename extension based on PLIST."
@@ -359,7 +382,7 @@ contextual information."
 (defun org-tufte-footnote-section-advice (fun &rest args)
   "Modify `org-html-footnote-section' based on `:footnotes-section-p'.
 FUN is `org-html-footnote-section' and ARGS is single-element
-  list containing the plist (\"communication channel\")."
+list containing the plist (\"communication channel\")."
   (if ox-tufte--sema-in-tufte-export
       (let ((switch-p (plist-get (car args) :footnotes-section-p)))
         (if switch-p (apply fun args)
