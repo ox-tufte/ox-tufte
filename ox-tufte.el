@@ -160,12 +160,20 @@ ELEMENT_TYPE of the `content' entry must be \"article\"."
 ;;;; advanced
 (defcustom org-tufte-randid-limit 10000000
   "Upper limit when generating random IDs.
-With default value of 10000000, there is ~0.2% chance of collision with 200
-references."
+This has to be a positive integer.  With the default value of
+10000000, there is ~0.2% chance of collision with 200 references."
   :group 'org-export-tufte
   :type 'integer
-  :safe #'integerp)
-
+  :safe (lambda (x)
+          (and (integerp x)
+               (> x 0)))
+  :set (lambda (sym val)
+         (if (funcall
+              (plist-get (symbol-plist 'org-tufte-randid-limit)
+                         'safe-local-variable)
+              val)
+             (set-default-toplevel-value sym val)
+           (error "`org-tufte-randid-limit' must be a positive integer"))))
 (defcustom org-tufte-export-as-advice-depth 100
   "Depth at which to install `org-export-as' advice.
 The default of 100 ensures that it is the innermost advice.
