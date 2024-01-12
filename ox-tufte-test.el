@@ -201,12 +201,10 @@ pre[fn::sidenote] post" t
    (let ((output-str (org-export-string-as
                       "{{{marginnote(note)}}}" 'tufte-html t)))
      (string-search "<span class='marginnote'> note </span>" output-str)))
-  (let ((org-confirm-babel-evaluate nil))
-    ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
-    (should
-     (let ((output-str (org-export-string-as
-                        "call_marginnote(\"note\")" 'tufte-html t)))
-       (string-search "<span class='marginnote'> note </span>" output-str))))
+  (should
+   (let ((output-str (org-export-string-as
+                      "call_marginnote(\"note\")" 'tufte-html t)))
+     (string-search "<span class='marginnote'> note </span>" output-str)))
   (should
    (let ((output-str (org-export-string-as
                       "[[mn:][note]]" 'tufte-html t)))
@@ -215,9 +213,7 @@ pre[fn::sidenote] post" t
 (ert-deftest ox-tufte/marginnote-symbol ()
   "Marginnote symbol can be tweaked."
   (should
-   (let* ((org-confirm-babel-evaluate nil)
-          ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
-          (org-tufte-margin-note-symbol "AAA")
+   (let* ((org-tufte-margin-note-symbol "AAA")
           (marker-str (concat "class='margin-toggle'>"
                               org-tufte-margin-note-symbol
                               "</label>"))
@@ -232,8 +228,6 @@ pre[fn::sidenote] post" t
           (string-search marker-str babel-str))))
   (should
    (let* ((org-export-allow-bind-keywords t)
-          (org-confirm-babel-evaluate nil)
-          ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
           (keyword-str "#+BIND: org-tufte-margin-note-symbol \"BBB\"\n")
           (marker-str (concat "class='margin-toggle'>"
                               "BBB"

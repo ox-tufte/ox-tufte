@@ -266,8 +266,7 @@ version of `ox-tufte' used it)."
       (libxml-parse-html-region (point-min) (point-max))))))
 
 
-;;; ox-html
-;;;; NEXT: entrypoint
+;;;; ox-html
 (defvar ox-tufte--sema-in-tufte-export nil
   "Currently in the midst of an export.")
 (defvar ox-tufte--store-confirm-babel-evaluate nil
@@ -296,8 +295,7 @@ advice may additionally temporarily override the value of
 babel block."
   (if (or ox-tufte--sema-in-tufte-export
           (not (org-export-derived-backend-p backend 'tufte-html)))
-      (let ((output (apply fun backend args)))
-        output)
+      (apply fun backend args)
     (let ((ox-tufte--sema-in-tufte-export t))
       (if (not org-tufte-feature-more-expressive-inline-marginnotes)
           (apply fun backend args)
