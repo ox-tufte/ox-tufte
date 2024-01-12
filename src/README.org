@@ -273,13 +273,15 @@ class with an =#+attr_html= annotation.
 There may be some experimental extensions in =src/ox-tufte-experimental.css=.
 If desired, this css file should be included /after/ =src/ox-tufte.css=.
 * Limitations
-- The generated HTML is not compatible with [[https://orgmode.org/worg/code/org-info-js/][org-info.js]]. This is because
-  =ox-tufte= customizes the value of =org-html-divs= to align it with what's
-  expected by =tufte-css=.
-- Code blocks (multiline) currently behave /only/ in a "fullwidth" manner. I.e.,
-  if there is sidenote content from previous paragraph, or a block margin-note
-  it will push the code block down.
-
+** Incompatibility with =org-info.js=
+The generated HTML is not compatible with [[https://orgmode.org/worg/code/org-info-js/][org-info.js]]. This is because
+=ox-tufte= customizes the value of =org-html-divs= to align it with what's
+expected by =tufte-css=.
+** Code blocks are only fullwidth
+Code blocks (multiline) currently behave /only/ in a "fullwidth" manner. I.e.,
+if there is sidenote content from previous paragraph, or a block margin-note it
+will push the code block down.
+** Constraints inherited from =tufte-css=
 Additionally, =ox-tufte= presently inherits the following limitations from
 [[https://edwardtufte.github.io/tufte-css/][tufte-css]]:
 - Footnotes/sidenotes cannot contain nested footnotes/sidenotes.
@@ -287,6 +289,11 @@ Additionally, =ox-tufte= presently inherits the following limitations from
   elements).
 - Captions for =iframe-wrapper= blocks aren't supported.
 - The generated HTML must (and does) use an =html5= doctype.
+** Incompatibility with =org-special-block-extras=
+As of [2024-01-12 Fri], =org-special-block-extras= is incompatible with
+=ox-tufte=.  As noted in [[https://github.com/ox-tufte/ox-tufte/issues/20#issuecomment-1880626278][this comment]], the incompatibility is primarily due to
+hard-coded checks in =org-special-block-extras= which are too restrictive and
+need to be relaxed.
 * Customization
 ** Footnotes section at bottom
 The behaviour depends on the =:footnotes-section-p= option (which uses the value
