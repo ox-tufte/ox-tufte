@@ -169,11 +169,11 @@ ELEMENT_TYPE of the `content' entry must be \"article\"."
 
 ;;; Utility Functions
 ;;;; marginalia
-(defun ox-tufte--utils-filter-ptags (str)
-  "Remove <p> tags from STR.
-Sidenotes and margin notes must have <p> and </p> tags removed to conform with
+(defun ox-tufte--utils-filter-tags (str)
+  "Remove <p>, <div> and <figure> tags from STR.
+Sidenotes and margin notes must have these tags removed to conform with
 the html structure that tufte.css expects."
-  (replace-regexp-in-string "</?p.*?>" "" str))
+  (replace-regexp-in-string "</?p.*?>\\|</?div.*?>\\|</?figure.*?>" "" str))
 
 (defun ox-tufte--utils-macros-alist-enable (backend)
   "Ensure that necessary macros are available when BACKEND is `ox-tufte'."
@@ -201,15 +201,21 @@ This intended to be called via the `marginnote' library-of-babel function."
                       (append ox-tufte--mn-macro-templates org-export-global-macros))
                      ;; footnotes nested within marginalia aren't supported
                      (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
-                (org-export-string-as desc 'html t)))
+                (org-export-string-as desc 'html t
+                                      '(:html-checkbox-type
+                                        org-tufte-html-checkbox-type
+                                        :html-container "section"
+                                        :html-doctype "html5"
+                                        :html-html5-fancy t))))
              (exported-newline-fix (replace-regexp-in-string
                                     "\n" " "
                                     (replace-regexp-in-string
                                      "\\\\\n" "<br>"
                                      exported-str)))
-             (exported-para-fix (ox-tufte--utils-filter-ptags exported-newline-fix)))
+             (exported-para-fix (ox-tufte--utils-filter-tags exported-newline-fix)))
         (ox-tufte--utils-margin-note-snippet exported-para-fix))
     ;; if expressive-inline-marginnotes isn't enabled, silently fail
+    (message "FIXME: wtf???!!")
     ""))
 
 (defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
@@ -278,24 +284,65 @@ LANG is the language of the code block whose text is BODY,"
     (if (functionp ox-tufte--store-confirm-babel-evaluate)
         (funcall ox-tufte--store-confirm-babel-evaluate lang body)
       ox-tufte--store-confirm-babel-evaluate)))
+
+(defun org-tufte-export-as-advice (fun backend &rest args)
+  "Evaluate FUN `org-export-as' with ARGS in appropriate environment.
+When BACKEND is derived from `tufte-html' this advice ensures the
+export is carried out in an environment where
+`ox-tufte--sema-in-tufte-export' is t.  Depending on the value of
+`org-tufte-feature-more-expressive-inline-marginnotes' this
+advice may additionally temporarily override the value of
+`org-confirm-babel-evaluate' in order to allow the `marginnote'
+babel block."
+  (if (or ox-tufte--sema-in-tufte-export
+          (not (org-export-derived-backend-p backend 'tufte-html)))
+      (let ((output (apply fun backend args)))
+        output)
+    (let ((ox-tufte--sema-in-tufte-export t))
+      (if (not org-tufte-feature-more-expressive-inline-marginnotes)
+          (apply fun backend args)
+        (let ((ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
+              (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
+              (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+          (let ((inhibit-message t)) ;; silence only the lob ingestion messages
+            (org-babel-lob-ingest buffer-file-name))
+          (let ((output (apply fun backend args)))
+            (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+            output))))))
+;; NEXT: make advice depth configurable
+(advice-add 'org-export-as
+            :around #'org-tufte-export-as-advice '((depth . 100)))
+
 (defun ox-tufte--utils-entrypoint-funcall (filename function &rest args)
   "Call FUNCTION with ARGS in a \"normalized\" environment.
 FILENAME is intended to be the file being processed by one of the
 entrypoint function (e.g. `org-tufte-publish-to-html')."
-  (let ((ox-tufte--store-confirm-babel-evaluate
-         (if ox-tufte--sema-in-tufte-export
-             ox-tufte--store-confirm-babel-evaluate
-           org-confirm-babel-evaluate))
-        (ox-tufte--sema-in-tufte-export t)
-        (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
-        (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-    ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
-    (when org-tufte-feature-more-expressive-inline-marginnotes
-      (let ((inhibit-message t))         ;; silence lob ingestion messages
-        (org-babel-lob-ingest filename))) ;; needed by `ox-tufte--utils-margin-note'
-    (let ((output (apply function args)))
-      (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-      output)))
+  (if (and 'disable t)
+      (apply function args)
+    (let ((ox-tufte--store-confirm-babel-evaluate
+           ;; 1. cache babel-evaluate [at most once]
+           (if ox-tufte--sema-in-tufte-export
+               ox-tufte--store-confirm-babel-evaluate
+             org-confirm-babel-evaluate))
+          ;; 2. set semaphore [at most once]
+          (ox-tufte--sema-in-tufte-export t)
+          ;; 3. override org-confirm-babel-evaluate [idempotent]
+          (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
+          ;; 4. cache lob [at most once and only when more expressive syntax]
+          (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+      ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
+      ;; 5. update lob [at most once and only when more expressive syntax]
+      (when org-tufte-feature-more-expressive-inline-marginnotes
+        (let ((inhibit-message t))         ;; silence lob ingestion messages
+          (org-babel-lob-ingest filename))) ;; needed by `ox-tufte--utils-margin-note'
+      ;; 6. get output
+      (let ((output (apply function args)))
+        ;; 7. revert lob [finally]
+        (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+        ;; 8. unset semaphore [outermost]
+        ;; 9. unset org-confirm-babel-evaluate [at most once]
+        output))
+    ))
 
 (defun ox-tufte--utils-get-export-output-extension (plist)
   "Get export filename extension based on PLIST."
@@ -379,7 +426,7 @@ Modified from `org-html-footnote-reference' in `org-html'."
            (org-trim (org-export-data ox-tufte/fn-def info)))
           (ox-tufte/fn-data-unpar
            ;; footnotes must have spurious <p> tags removed or they will not work
-           (ox-tufte--utils-filter-ptags ox-tufte/fn-data)))
+           (ox-tufte--utils-filter-tags ox-tufte/fn-data)))
      (format
       (concat
        "<label id='%s' for='%s' class='margin-toggle sidenote-number'><sup class='numeral'>%s</sup></label>"
@@ -451,7 +498,7 @@ for other backends."
     (if (and (string= (org-element-property :type link) "fuzzy")
              (string= (car path) "mn"))
         (ox-tufte--utils-margin-note-snippet
-         (ox-tufte--utils-filter-ptags desc)
+         (ox-tufte--utils-filter-tags desc)
          (if (string= (cadr path) "") nil (cadr path)))
       (org-html-link link desc info))))
 
@@ -499,11 +546,9 @@ Export is done in a buffer named \"*Org Tufte Export*\", which will
 be displayed when `org-export-show-temporary-export-buffer' is
 non-nil."
   (interactive)
-  (ox-tufte--utils-entrypoint-funcall
-   buffer-file-name
-   #'org-export-to-buffer 'tufte-html "*Org Tufte Export*"
-   async subtreep visible-only body-only ext-plist
-   (lambda () (set-auto-mode t))))
+  (org-export-to-buffer 'tufte-html "*Org Tufte Export*"
+    async subtreep visible-only body-only ext-plist
+    (lambda () (set-auto-mode t))))
 
 ;;;###autoload
 (defun org-tufte-export-to-html
@@ -538,10 +583,8 @@ Return output file's name."
   (let ((file (org-export-output-file-name
                (ox-tufte--utils-get-export-output-extension ext-plist)
                subtreep)))
-    (ox-tufte--utils-entrypoint-funcall
-     buffer-file-name
-     #'org-export-to-file 'tufte-html file
-     async subtreep visible-only body-only ext-plist)))
+    (org-export-to-file 'tufte-html file
+      async subtreep visible-only body-only ext-plist)))
 
 
 ;;; publishing function
@@ -555,9 +598,8 @@ the filename of the Org file to be published.  PUB-DIR is the
 publishing directory.
 
 Return output file name."
-  (ox-tufte--utils-entrypoint-funcall
-   filename
-   #'org-publish-org-to 'tufte-html filename
+  (org-publish-org-to
+   'tufte-html filename
    (ox-tufte--utils-get-export-output-extension plist)
    plist pub-dir))
 

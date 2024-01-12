@@ -83,8 +83,8 @@ the body.  If HTML is t then the output of `ox-html' is shown."
         'org-tufte-test-in-exported-buffer)
      ,text ,body-only
      (progn
-      (message "'%s'" (buffer-string))
-      t))))
+       (message "'%s'" (buffer-string))
+       t))))
 
 
 ;;; tests
@@ -97,12 +97,12 @@ the body.  If HTML is t then the output of `ox-html' is shown."
       (search-forward "MathJax" nil t)))))
 
 (ert-deftest ox-tufte/mathjax-as-default ()
- "Test that MathJax is the default LaTeX renderer."
- (should
-  (org-tufte-test-in-exported-buffer
-   "$x$" nil
-   (let ((case-fold-search t))
-     (search-forward "MathJax" nil t)))))
+  "Test that MathJax is the default LaTeX renderer."
+  (should
+   (org-tufte-test-in-exported-buffer
+    "$x$" nil
+    (let ((case-fold-search t))
+      (search-forward "MathJax" nil t)))))
 
 
 (ert-deftest ox-tufte/html/uses-html5-tags ()
@@ -146,34 +146,34 @@ the body.  If HTML is t then the output of `ox-html' is shown."
         "1</a></sup>" nil t))))))
 
 (ert-deftest ox-tufte/footnotes-section-disabled-default ()
- "No Footnotes section by default."
- (should-not
-  (org-tufte-test-in-exported-buffer
-   "pre[fn::sidenote] post" t
-   (let ((case-fold-search t))
-     (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
+  "No Footnotes section by default."
+  (should-not
+   (org-tufte-test-in-exported-buffer
+    "pre[fn::sidenote] post" t
+    (let ((case-fold-search t))
+      (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
 
 (ert-deftest ox-tufte/footnotes-section-configurable-per-file ()
- "Footnotes section can be enabled as needed."
- (should
-  (org-tufte-test-in-exported-buffer
-   "#+OPTIONS: footnotes-section-p:t
+  "Footnotes section can be enabled as needed."
+  (should
+   (org-tufte-test-in-exported-buffer
+    "#+OPTIONS: footnotes-section-p:t
 pre[fn::sidenote] post" t
-   (let ((case-fold-search t))
-     (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t))))
- (let ((org-export-allow-bind-keywords t))
-   (should
-    (org-tufte-test-in-exported-buffer
-     "#+BIND: org-tufte-include-footnotes-at-bottom t
+    (let ((case-fold-search t))
+      (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t))))
+  (let ((org-export-allow-bind-keywords t))
+    (should
+     (org-tufte-test-in-exported-buffer
+      "#+BIND: org-tufte-include-footnotes-at-bottom t
 pre[fn::sidenote] post" t
-     (let ((case-fold-search t))
-       (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
- (should-not
-  (org-tufte-test-in-exported-buffer
-   "#+OPTIONS: footnotes-section-p:nil
+      (let ((case-fold-search t))
+        (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
+  (should-not
+   (org-tufte-test-in-exported-buffer
+    "#+OPTIONS: footnotes-section-p:nil
 pre[fn::sidenote] post" t
-   (let ((case-fold-search t))
-     (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
+    (let ((case-fold-search t))
+      (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
 
 
 ;;; inline marginnotes
@@ -196,21 +196,21 @@ pre[fn::sidenote] post" t
       (search-forward "class='marginnote'>" nil t)))))
 
 (ert-deftest ox-tufte/marginnote-variations/org-export-string-as ()
-             "Support marginnote-as-macro syntax within `org-export-string-as'."
-             (should
-              (let ((output-str (org-export-string-as
-                                 "{{{marginnote(note)}}}" 'tufte-html t)))
-                (string-search "<span class='marginnote'> note </span>" output-str)))
-             (let ((org-confirm-babel-evaluate nil))
-               ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
-               (should
-                (let ((output-str (org-export-string-as
-                                   "call_marginnote(\"note\")" 'tufte-html t)))
-                  (string-search "<span class='marginnote'> note </span>" output-str))))
-             (should
-              (let ((output-str (org-export-string-as
-                                 "[[mn:][note]]" 'tufte-html t)))
-                (string-search "<span class='marginnote'>note</span>" output-str))))
+  "Support marginnote-as-macro syntax within `org-export-string-as'."
+  (should
+   (let ((output-str (org-export-string-as
+                      "{{{marginnote(note)}}}" 'tufte-html t)))
+     (string-search "<span class='marginnote'> note </span>" output-str)))
+  (let ((org-confirm-babel-evaluate nil))
+    ;; NEXT: ^ mn-babel-call doesn't work in `org-export-string-as'
+    (should
+     (let ((output-str (org-export-string-as
+                        "call_marginnote(\"note\")" 'tufte-html t)))
+       (string-search "<span class='marginnote'> note </span>" output-str))))
+  (should
+   (let ((output-str (org-export-string-as
+                      "[[mn:][note]]" 'tufte-html t)))
+     (string-search "<span class='marginnote'>note</span>" output-str))))
 
 (ert-deftest ox-tufte/marginnote-symbol ()
   "Marginnote symbol can be tweaked."
@@ -251,6 +251,7 @@ pre[fn::sidenote] post" t
          (string-search marker-str link-str)
          (string-search marker-str babel-str)))))
 
+
 ;;; mn-as-link syntax
 (ert-deftest ox-tufte/marginnote-as-link/design/only-as-regular-links ()
   "Angle and plain links for marginnotes shouldn't work."
@@ -327,6 +328,7 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
       (let ((case-fold-search t))
         (search-forward "<code>nested call</code> eom</span>" nil t))))))
 
+
 ;;; non-link syntax
 (ert-deftest ox-tufte/marginnote-extended/resolved/standalone-img-dont-need-zero-width-space ()
   "Standalone images in inline marginnotes don't require escaping."
@@ -356,6 +358,7 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
     (let ((case-fold-search t))
       (search-forward "hello <br> world </span>" nil t)))))
 
+
 ;;; mn-as-macro syntax
 (ert-deftest ox-tufte/marginnote-as-macro/limitation/nested-macros-unsupported ()
   "Nested macros are unsupported in marginnote-as-macro syntax."
@@ -408,6 +411,7 @@ pre {{{marginnote(pre {{{prefix(text)}}})}}} post" t
     (let ((case-fold-search t))
       (search-forward "hello<br>world </span>" nil t)))))
 
+
 ;;; mn-as-babel-call syntax
 (ert-deftest ox-tufte/marginnote-as-babel-call/inconvenience/text-has-to-be-quoted ()
   "Text has to be quoted when using marginnote-as-babel-call syntax."
