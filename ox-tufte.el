@@ -313,37 +313,6 @@ babel block."
 (advice-add 'org-export-as
             :around #'org-tufte-export-as-advice '((depth . 100)))
 
-(defun ox-tufte--utils-entrypoint-funcall (filename function &rest args)
-  "Call FUNCTION with ARGS in a \"normalized\" environment.
-FILENAME is intended to be the file being processed by one of the
-entrypoint function (e.g. `org-tufte-publish-to-html')."
-  (if (and 'disable t)
-      (apply function args)
-    (let ((ox-tufte--store-confirm-babel-evaluate
-           ;; 1. cache babel-evaluate [at most once]
-           (if ox-tufte--sema-in-tufte-export
-               ox-tufte--store-confirm-babel-evaluate
-             org-confirm-babel-evaluate))
-          ;; 2. set semaphore [at most once]
-          (ox-tufte--sema-in-tufte-export t)
-          ;; 3. override org-confirm-babel-evaluate [idempotent]
-          (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
-          ;; 4. cache lob [at most once and only when more expressive syntax]
-          (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-      ;; FIXME: could this be obviated for mn-as-macro and mn-as-babelcall syntax?
-      ;; 5. update lob [at most once and only when more expressive syntax]
-      (when org-tufte-feature-more-expressive-inline-marginnotes
-        (let ((inhibit-message t))         ;; silence lob ingestion messages
-          (org-babel-lob-ingest filename))) ;; needed by `ox-tufte--utils-margin-note'
-      ;; 6. get output
-      (let ((output (apply function args)))
-        ;; 7. revert lob [finally]
-        (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-        ;; 8. unset semaphore [outermost]
-        ;; 9. unset org-confirm-babel-evaluate [at most once]
-        output))
-    ))
-
 (defun ox-tufte--utils-get-export-output-extension (plist)
   "Get export filename extension based on PLIST."
   (concat
