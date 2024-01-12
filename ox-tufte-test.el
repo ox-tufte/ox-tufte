@@ -1,6 +1,6 @@
 ;;; ox-tufte-test.el --- Tests for ox-tufte.el -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023      The Bayesians Inc.
+;; Copyright (C) 2023, 2024      The Bayesians Inc.
 
 ;; Author: The Bayesians Inc.
 ;; URL: https://github.com/ox-tufte/ox-tufte
