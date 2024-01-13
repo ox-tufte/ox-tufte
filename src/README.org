@@ -1,4 +1,4 @@
-#+TITLE: Ox-tufte
+#+TITLE: ox-tufte
 #+AUTHOR: The Bayesians Inc.
 
 [[https://melpa.org/#/ox-tufte][file:https://melpa.org/packages/ox-tufte-badge.svg]]
@@ -24,7 +24,7 @@ Notably some configuration options have changed.  See below for details.
 - New command =org-tufte-convert-region-to-html= added.
 - Invoking =org-export-string-as= now works ([[https://github.com/ox-tufte/ox-tufte/issues/22][#22]]).
 - Loading =ox-tufte= now advises =org-export-as=.  For advanced uses, the depth
-  of the installed advice is user-configurable (see
+  of the installed advice is user-configurable via =setopt= (see
   =org-tufte-export-as-advice-depth=).
 * Introduction
 [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] has visually appealing defaults for webpages and supports (among other
