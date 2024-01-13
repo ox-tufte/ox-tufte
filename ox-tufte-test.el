@@ -129,6 +129,30 @@ the body.  If HTML is t then the output of `ox-html' is shown."
     (let ((case-fold-search t))
       (search-forward "<figure " nil t)))))
 
+(ert-deftest ox-tufte/html/forces-use-of-html5-tags ()
+  "Ox-tufte only has defined behaviour for HTML5 so forces it."
+  (should ;; sanity-check: default ox-html doesn't output figures
+   (let ((res (org-export-string-as "<file:./image.png>" 'html t nil)))
+     (not (string-search "<figure " res))))
+  (should ;; sanity-check: ox-html with doctype alone doesn't output figures
+   (let ((res (org-export-string-as "<file:./image.png>" 'html t
+                                    '(:html-doctype "xhtml-strict"))))
+     (not (string-search "<figure " res))))
+  (should ;; sanity-check: ox-html can output figures
+   (let ((res (org-export-string-as "<file:./image.png>" 'html t
+                                    (list :html-doctype "html5"
+                                          :html-html5-fancy t))))
+     (string-search "<figure " res)))
+  (should
+   (let ((res (org-export-string-as "<file:./image.png>" 'tufte-html t nil)))
+     (string-search "<figure " res)))
+  (should
+   (let ((res (org-export-string-as "<file:./image.png>" 'tufte-html t
+                                    (list
+                                     :html-doctype "xhtml-strict"
+                                     :html-html5-fancy nil))))
+     (string-search "<figure " res))))
+
 
 (ert-deftest ox-tufte/footnotes-section/design/consistent-with-ox-html ()
   "Ensure concordance of footnotes between `ox-tufte' and `ox-html'."

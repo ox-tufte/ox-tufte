@@ -235,10 +235,7 @@ This intended to be called via the `marginnote' library-of-babel function."
                      (org-html-footnotes-section "<!-- %s --><!-- %s -->"))
                 (org-export-string-as desc 'html t
                                       '(:html-checkbox-type
-                                        org-tufte-html-checkbox-type
-                                        :html-container "section"
-                                        :html-doctype "html5"
-                                        :html-html5-fancy t))))
+                                        org-tufte-html-checkbox-type))))
              (exported-newline-fix (replace-regexp-in-string
                                     "\n" " "
                                     (replace-regexp-in-string
@@ -247,7 +244,6 @@ This intended to be called via the `marginnote' library-of-babel function."
              (exported-para-fix (ox-tufte--utils-filter-tags exported-newline-fix)))
         (ox-tufte--utils-margin-note-snippet exported-para-fix))
     ;; if expressive-inline-marginnotes isn't enabled, silently fail
-    (message "FIXME: wtf???!!")
     ""))
 
 (defun ox-tufte--utils-margin-note-snippet (text &optional idtag blob)
@@ -316,29 +312,42 @@ LANG is the language of the code block whose text is BODY,"
         (funcall ox-tufte--store-confirm-babel-evaluate lang body)
       ox-tufte--store-confirm-babel-evaluate)))
 
-(defun org-tufte-export-as-advice (fun backend &rest args)
-  "Evaluate FUN `org-export-as' with ARGS in appropriate environment.
-When BACKEND is derived from `tufte-html' this advice ensures the
-export is carried out in an environment where
-`ox-tufte--sema-in-tufte-export' is t.  Depending on the value of
+(defun org-tufte-export-as-advice (fun backend &optional s v b p)
+  "Evaluate FUN `org-export-as' in appropriate environment.
+Arguments (S V B P) are the same as the corresponding positional
+arguments needed by org-export-as.  When BACKEND is derived from
+`tufte-html' this advice ensures the export is carried out in an
+environment where `ox-tufte--sema-in-tufte-export' is t.
+Depending on the value of
 `org-tufte-feature-more-expressive-inline-marginnotes' this
 advice may additionally temporarily override the value of
 `org-confirm-babel-evaluate' in order to allow the `marginnote'
 babel block."
-  (if (or ox-tufte--sema-in-tufte-export
-          (not (org-export-derived-backend-p backend 'tufte-html)))
-      (apply fun backend args)
-    (let ((ox-tufte--sema-in-tufte-export t))
-      (if (not org-tufte-feature-more-expressive-inline-marginnotes)
-          (apply fun backend args)
-        (let ((ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
-              (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
-              (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-          (let ((inhibit-message t)) ;; silence only the lob ingestion messages
-            (org-babel-lob-ingest buffer-file-name))
-          (let ((output (apply fun backend args)))
-            (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-            output))))))
+  (let* ((ox-tufte-p (org-export-derived-backend-p backend 'tufte-html))
+         (p+ (if (or ox-tufte--sema-in-tufte-export ox-tufte-p)
+                 (append p ;; later values triumph for this plist
+                         '(;; we don't override `:html-divs' and
+                           ;; `:html-checkbox-type' since it's possible for them
+                           ;; to still be valid when altered
+                           :html-container "section"
+                           :html-doctype "html5"
+                           :html-html5-fancy t))
+               p)))
+    (if (or ox-tufte--sema-in-tufte-export
+            (not ox-tufte-p))
+        ;; i.e., not in the first call to tufte export
+        (funcall fun backend s v b p+)
+      (let ((ox-tufte--sema-in-tufte-export t))
+        (if (not org-tufte-feature-more-expressive-inline-marginnotes)
+            (funcall fun backend s v b p+)
+          (let ((ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
+                (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
+                (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+            (let ((inhibit-message t)) ;; silence only the lob ingestion messages
+              (org-babel-lob-ingest buffer-file-name))
+            (let ((output (funcall fun backend s v b p+)))
+              (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+              output)))))))
 ;; NOTE: ^ no need to `advice-add' `org-tufte-export-as-advice', since it gets
 ;; added by the `org-tufte-export-as-advice-depth' defcustom on load.
 

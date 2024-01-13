@@ -8,13 +8,17 @@
 Version 4.x alters some of the internal considerably from the 3.x version.
 Notably some configuration options have changed.  See below for details.
 
-- Altering =org-html-checkbox-type= and =org-html-divs= no longer has any
-  effect.  These have been replaced by =org-tufte-html-checkbox-type= and
-  =org-tufte-html-sections= respectively.
-- Similarly, =HTML_DOCTYPE= (and variable =org-html-doctype=) and
-  =HTML_CONTAINER= (and variable =org-html-container-element=) keywords and
-  =html5-fancy= option (and variable =org-html-html5-fancy=) are disabled.
-  Altering these values from the defaults is not supported.
+- Altering variables =org-html-checkbox-type= and =org-html-divs= no longer has
+  any effect.  To provide default values for the corresponding options, use
+  variables =org-tufte-html-checkbox-type= and =org-tufte-html-sections=
+  respectively.  The properties are still called =:html-checkbox-type= and
+  =:html-divs=, however.
+- Similarly, =HTML_DOCTYPE= (as well, variable =org-html-doctype= and property
+  =:html-doctype=) and =HTML_CONTAINER= (as well, variable
+  =org-html-container-element= and property =:html-container=) keywords and
+  =html5-fancy= option (as well, variable =org-html-html5-fancy= and property
+  =:html-html5-fancy=) are disabled.  Altering these values from the defaults is
+  not supported.
 - The =tufte-html= backend definition makes explicit the options that it
   overrides compared to the =html= backend.
 - New command =org-tufte-convert-region-to-html= added.
