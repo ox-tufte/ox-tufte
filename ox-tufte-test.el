@@ -87,7 +87,8 @@ the body.  If HTML is t then the output of `ox-html' is shown."
        t))))
 
 
-;;; tests
+;;; General tests
+;;;; mathjax
 (ert-deftest ox-tufte/mathjax-path-none ()
   "If no LaTeX in page, then MathJax isn't loaded."
   (should-not
@@ -105,6 +106,7 @@ the body.  If HTML is t then the output of `ox-html' is shown."
       (search-forward "MathJax" nil t)))))
 
 
+;;;; html5
 (ert-deftest ox-tufte/html/uses-html5-tags ()
   "Ox-tufte uses HTML5 tags."
   (should
@@ -154,6 +156,27 @@ the body.  If HTML is t then the output of `ox-html' is shown."
      (string-search "<figure " res))))
 
 
+;;;; `ox-html' overrides
+(ert-deftest ox-tufte/ox-html-overrides/org-html-divs ()
+  "Ensure `org-html-divs' is ignored in favor of `org-tufte-html-sections'."
+  (should
+   (let ((res (org-export-string-as "hello" 'tufte-html)))
+     (string-search "<article id=\"content\"" res)))
+  (should
+   (let* ((org-tufte-html-sections '((preamble "header" "preamble")
+                                     (content "article" "canary")
+                                     (postamble "footer" "postamble")))
+          (res (org-export-string-as "hello" 'tufte-html)))
+     (string-search "<article id=\"canary\"" res)))
+  (should
+   (let* ((org-html-divs '((preamble "header" "preamble")
+                           (content "article" "canary")
+                           (postamble "footer" "postamble")))
+          (res (org-export-string-as "hello" 'tufte-html)))
+     (not (string-search "<article id=\"canary\"" res)))))
+
+
+;;; Footnotes
 (ert-deftest ox-tufte/footnotes-section/design/consistent-with-ox-html ()
   "Ensure concordance of footnotes between `ox-tufte' and `ox-html'."
   (should ;; empty sidenotes okay, since empty footnotes are
@@ -200,7 +223,7 @@ pre[fn::sidenote] post" t
       (search-forward "class=\"footnotes\">Footnotes: </h2>" nil t)))))
 
 
-;;; inline marginnotes
+;;; Inline marginnotes
 (ert-deftest ox-tufte/marginnote-variations/consistency ()
   "Ensure the different margin-note syntax behave consistently."
   (should
@@ -270,7 +293,7 @@ pre[fn::sidenote] post" t
          (string-search marker-str babel-str)))))
 
 
-;;; mn-as-link syntax
+;;;; mn-as-link syntax
 (ert-deftest ox-tufte/marginnote-as-link/design/only-as-regular-links ()
   "Angle and plain links for marginnotes shouldn't work."
   (should-not
@@ -347,7 +370,7 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
         (search-forward "<code>nested call</code> eom</span>" nil t))))))
 
 
-;;; non-link syntax
+;;;; non-link syntax
 (ert-deftest ox-tufte/marginnote-extended/resolved/standalone-img-dont-need-zero-width-space ()
   "Standalone images in inline marginnotes don't require escaping."
   (skip-unless org-tufte-feature-more-expressive-inline-marginnotes)
@@ -377,7 +400,7 @@ pre[[mn:][pre {{{prefix(text)}}}]] post" t
       (search-forward "hello <br> world </span>" nil t)))))
 
 
-;;; mn-as-macro syntax
+;;;; mn-as-macro syntax
 (ert-deftest ox-tufte/marginnote-as-macro/limitation/nested-macros-unsupported ()
   "Nested macros are unsupported in marginnote-as-macro syntax."
   (skip-unless org-tufte-feature-more-expressive-inline-marginnotes)
@@ -430,7 +453,7 @@ pre {{{marginnote(pre {{{prefix(text)}}})}}} post" t
       (search-forward "hello<br>world </span>" nil t)))))
 
 
-;;; mn-as-babel-call syntax
+;;;; mn-as-babel-call syntax
 (ert-deftest ox-tufte/marginnote-as-babel-call/inconvenience/text-has-to-be-quoted ()
   "Text has to be quoted when using marginnote-as-babel-call syntax."
   (should-error
