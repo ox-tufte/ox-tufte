@@ -123,7 +123,7 @@ define \"replacement\" as the local value for
 See `org-html-checkbox-types' for the values used for each
 option."
   :group 'org-export-tufte
-  :package-version '(ox-tufte . "3.1.0")
+  :package-version '(ox-tufte . "4.0.0")
   :type '(choice
 	      (const :tag "ASCII characters" ascii)
 	      (const :tag "Unicode characters" unicode)
@@ -141,7 +141,7 @@ section of the exported document.
 Note that changing the default may break the associated CSS.  The
 ELEMENT_TYPE of the `content' entry must be \"article\"."
   :group 'org-export-tufte
-  :package-version '(ox-tufte . "3.1.0")
+  :package-version '(ox-tufte . "4.0.0")
   :type '(list :greedy t
 	           (list :tag "Preamble"
 		             (const :format "" preamble)

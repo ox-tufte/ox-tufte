@@ -5,7 +5,7 @@
 [[https://stable.melpa.org/#/ox-tufte][file:https://stable.melpa.org/packages/ox-tufte-badge.svg]]
 
 * Changes since version 3.x
-Version 4.x alters some of the internal considerably from the 3.x version.
+Version 4.x alters some of the internals considerably from the 3.x version.
 Notably some configuration options have changed.  See below for details.
 
 - Altering variables =org-html-checkbox-type= and =org-html-divs= no longer has
@@ -23,8 +23,9 @@ Notably some configuration options have changed.  See below for details.
   overrides compared to the =html= backend.
 - New command =org-tufte-convert-region-to-html= added.
 - Invoking =org-export-string-as= now works (#22).
-- Loading =ox-tufte= now advises =org-export-as=.  The depth of the installed
-  advice is user-configurable (see =org-tufte-export-as-advice-depth=).
+- Loading =ox-tufte= now advises =org-export-as=.  For advanced uses, the depth
+  of the installed advice is user-configurable (see
+  =org-tufte-export-as-advice-depth=).
 * Introduction
 [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]] has visually appealing defaults for webpages and supports (among other
 things) margin and side notes. Unfortunately, /Tufte CSS/ makes a number of
