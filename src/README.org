@@ -22,7 +22,7 @@ Notably some configuration options have changed.  See below for details.
 - The =tufte-html= backend definition makes explicit the options that it
   overrides compared to the =html= backend.
 - New command =org-tufte-convert-region-to-html= added.
-- Invoking =org-export-string-as= now works (#22).
+- Invoking =org-export-string-as= now works ([[https://github.com/ox-tufte/ox-tufte/issues/22][#22]]).
 - Loading =ox-tufte= now advises =org-export-as=.  For advanced uses, the depth
   of the installed advice is user-configurable (see
   =org-tufte-export-as-advice-depth=).
