@@ -158,23 +158,18 @@ the body.  If HTML is t then the output of `ox-html' is shown."
 
 
 ;;;; `ox-html' overrides
-(ert-deftest ox-tufte/ox-html-overrides/org-html-divs ()
-  "Ensure `org-html-divs' is ignored in favor of `org-tufte-html-sections'."
-  (should
-   (let ((res (org-export-string-as "hello" 'tufte-html)))
-     (string-search "<article id=\"content\"" res)))
-  (should
-   (let* ((org-tufte-html-sections '((preamble "header" "preamble")
-                                     (content "article" "canary")
-                                     (postamble "footer" "postamble")))
-          (res (org-export-string-as "hello" 'tufte-html)))
-     (string-search "<article id=\"canary\"" res)))
-  (should
-   (let* ((org-html-divs '((preamble "header" "preamble")
-                           (content "article" "canary")
-                           (postamble "footer" "postamble")))
-          (res (org-export-string-as "hello" 'tufte-html)))
-     (not (string-search "<article id=\"canary\"" res)))))
+(describe "`org-tufte-html-sections' overrides `org-html-divs'"
+  :var ((html-sections '((preamble "header" "preamble")
+                         (content "article" "canary")
+                         (postamble "footer" "postamble"))))
+  (it "respects the value of `org-tufte-html-sections'"
+    (let ((org-tufte-html-sections html-sections))
+      (expect (org-export-string-as "hello" 'tufte-html)
+              :to-match (rx "<article id=\"canary\""))))
+  (it "ignores the value of `org-html-divs'"
+    (let ((org-html-divs html-sections))
+      (expect (org-export-string-as "hello" 'tufte-html)
+              :not :to-match (rx "<article id=\"canary\"")))))
 
 
 ;;; Footnotes
