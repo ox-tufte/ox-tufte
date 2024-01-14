@@ -23,7 +23,8 @@
 ;;; Code:
 
 (eval-when-compile
-  (require 'ert))
+  (require 'ert)
+  (require 'buttercup))
 
 (require 'ox-tufte)
 

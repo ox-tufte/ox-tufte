@@ -5,6 +5,6 @@
 
 (eldev-use-plugin 'autoloads)
 
-(setf eldev-files-to-package
-      `(:or ,eldev-files-to-package
-            '("src")))
+(setf eldev-files-to-package `(:or ,eldev-files-to-package
+                                   '("src"))
+      eldev-test-framework '(ert buttercup))
