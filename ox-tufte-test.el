@@ -132,6 +132,12 @@ the body.  If HTML is t then the output of `ox-html' is shown."
     (let ((case-fold-search t))
       (search-forward "<figure " nil t)))))
 
+(describe "HTML5: uses HTML checkboxes"
+  (it "uses HTML checkboxes by default"
+    (expect (org-export-string-as "- [ ] first \n- [ ] second"
+                                  'tufte-html t)
+            :to-match (rx "<input type='checkbox'"))))
+
 (ert-deftest ox-tufte/html/forces-use-of-html5-tags ()
   "Ox-tufte only has defined behaviour for HTML5 so forces it."
   (should ;; sanity-check: default ox-html doesn't output figures
@@ -157,8 +163,20 @@ the body.  If HTML is t then the output of `ox-html' is shown."
      (string-search "<figure " res))))
 
 
-;;;; `ox-html' overrides
-(describe "`org-tufte-html-sections' overrides `org-html-divs'"
+;;;; `ox-html' substitutes
+(describe "Substitute: `org-html-checkbox-type' => `org-tufte-html-checkbox-type'"
+  (it "observes `org-tufte-html-checkbox-type'"
+    (let ((org-tufte-html-checkbox-type 'ascii))
+      (expect (org-export-string-as "- [ ] first \n- [ ] second"
+                                    'tufte-html t)
+              :to-match (rx "<code>["))))
+  (it "ignores `org-html-checkbox-type'"
+    (let ((org-html-checkbox-type 'ascii))
+      (expect (org-export-string-as "- [ ] first \n- [ ] second"
+                                    'tufte-html t)
+              :not :to-match (rx "<code>[")))))
+
+(describe "Substitute: `org-html-divs' => `org-tufte-html-sections'"
   :var ((html-sections '((preamble "header" "preamble")
                          (content "article" "canary")
                          (postamble "footer" "postamble"))))
