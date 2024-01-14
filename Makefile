@@ -1,7 +1,7 @@
 all: test
 .PHONY: all
 
-.PHONY: info init check test devel clean
+.PHONY: info init check test test-debug devel clean
 info:
 	eldev info
 init:
@@ -9,6 +9,8 @@ init:
 check:
 	eldev lint
 test: clean
+	eldev test -B
+test-debug: clean
 	eldev test
 clean:
 	eldev clean
