@@ -39,7 +39,6 @@
 
 (require 'ox)
 (require 'ox-html)
-(eval-when-compile (require 'cl-lib)) ;; for cl-assert
 
 ;;;; initialization: marginnote syntax support
 (org-babel-lob-ingest ;; for marginnote-as-babel-call syntax
@@ -261,26 +260,6 @@ margin-notes visibility-toggle with the margin-note."
 (defun ox-tufte--utils-randid ()
   "Give a random number below the `org-tufte-randid-limit'."
   (random org-tufte-randid-limit))
-
-;;;; dead code
-(defun ox-tufte--utils-string-fragment-to-xml (str)
-  "Parse string fragment via `libxml'.
-STR is the xml fragment.
-
-For the inverse, use something like `esxml-to-xml' (from package
-`esxml').  This function is presently never used (an intermediate
-version of `ox-tufte' used it)."
-  (cl-assert (libxml-available-p))
-  (with-temp-buffer
-    (insert str)
-    ;; we really want to use `libxml-parse-xml-region', but that's too
-    ;; strict. `libxml-parse-html-region' is more lax (and that's good for us),
-    ;; but it creates <html> and <body> tags when missing. since we'll only be
-    ;; using this function on html fragments, we can assume these elements are
-    ;; always added and thus are safe to strip away
-    (caddr  ;; strip <body> tag
-     (caddr ;; strip <html> tag
-      (libxml-parse-html-region (point-min) (point-max))))))
 
 
 ;;;; ox-html
