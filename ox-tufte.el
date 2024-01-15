@@ -72,7 +72,6 @@
     (:html-doctype nil nil "html5")
     (:html-html5-fancy nil nil t))
   :translate-alist '((footnote-reference . org-tufte-footnote-reference)
-                     ;; (src-block . org-tufte-src-block)
                      (link . org-tufte-maybe-margin-note-link)
                      (quote-block . org-tufte-quote-block)
                      (special-block . org-tufte-special-block)
@@ -508,15 +507,6 @@ for other backends."
          (ox-tufte--utils-filter-tags desc)
          (if (string= (cadr path) "") nil (cadr path)))
       (org-html-link link desc info))))
-
-;;;; src-block
-(defun org-tufte-src-block (src-block _contents info)
-  "Transcode SRC-BLOCK element into Tufte HTML format.
-CONTENTS is nil.  INFO is a plist used as a communication channel.
-
-NOTE: this is dead code and currently unused."
-  (format "<pre class=\"code\"><code>%s</code></pre>"
-          (org-html-format-code src-block info)))
 
 
 ;;; Export commands
