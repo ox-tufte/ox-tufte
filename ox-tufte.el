@@ -42,11 +42,8 @@
 (eval-when-compile (require 'cl-lib)) ;; for cl-assert
 
 ;;;; initialization: marginnote syntax support
-(org-babel-lob-ingest
+(org-babel-lob-ingest ;; for marginnote-as-babel-call syntax
  (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org"))
-
-(add-to-list 'org-export-before-processing-functions
-             #'ox-tufte--utils-macros-alist-enable)
 
 
 
@@ -206,13 +203,6 @@ Sidenotes and margin notes must have these tags removed to conform with
 the html structure that tufte.css expects."
   (replace-regexp-in-string "</?p.*?>\\|</?div.*?>\\|</?figure.*?>" "" str))
 
-(defun ox-tufte--utils-macros-alist-enable (backend)
-  "Ensure that necessary macros are available when BACKEND is `ox-tufte'."
-  (when (and (org-export-derived-backend-p backend 'tufte-html)
-             org-tufte-feature-more-expressive-inline-marginnotes)
-    (add-to-list 'org-export-global-macros
-                 '("marginnote" . ox-tufte--utils-margin-note-macro))))
-
 (defun ox-tufte--utils-margin-note-macro (&rest args)
   "Return HTML snippet treating each arg in ARGS as a separate line."
   (let ((note (string-join args "\\\n")))
@@ -334,14 +324,19 @@ babel block."
                p)))
     (if (or ox-tufte--sema-in-tufte-export
             (not ox-tufte-p))
-        ;; i.e., not in the first call to tufte export
+        ;; i.e., either not tufte-html, or within recursive invocation
         (funcall fun backend s v b p+)
+      ;; o.w. within first call to tufte-html
       (let ((ox-tufte--sema-in-tufte-export t))
         (if (not org-tufte-feature-more-expressive-inline-marginnotes)
             (funcall fun backend s v b p+)
-          (let ((ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
+          (let ((org-export-global-macros ;; could be done in `org-export-before-processing-functions'
+                 (cons '("marginnote" . ox-tufte--utils-margin-note-macro)
+                       org-export-global-macros))
+                (ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
                 (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
                 (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+            ;; allow evaluation of blocks within mn-as-macro or mn-as-babel-call
             (let ((inhibit-message t)) ;; silence only the lob ingestion messages
               (org-babel-lob-ingest buffer-file-name))
             (let ((output (funcall fun backend s v b p+)))
