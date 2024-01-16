@@ -294,8 +294,9 @@ babel block."
   (let* ((ox-tufte-p (org-export-derived-backend-p backend 'tufte-html))
          (ox-tufte-first-call-p (and ox-tufte-p
                                      (not ox-tufte--sema-in-tufte-export)))
-         ;; NOTE: next two assignments can be in any order
-         (p+ (if (or ox-tufte--sema-in-tufte-export ox-tufte-p)
+         (ox-tufte--sema-in-tufte-export (or ox-tufte-p
+                                             ox-tufte--sema-in-tufte-export))
+         (p+ (if ox-tufte--sema-in-tufte-export
                  (append p ;; later values triumph for this plist
                          '(;; we don't override `:html-divs' and
                            ;; `:html-checkbox-type' since it's possible for them
@@ -371,15 +372,14 @@ contextual information."
             ox-tufte/footer-content)))
 
 ;;;; footnotes as sidenotes
-(defun org-tufte-footnote-section-advice (fun &rest args)
+(defun org-tufte-footnote-section-advice (fun info)
   "Modify `org-html-footnote-section' based on `:footnotes-section-p'.
-FUN is `org-html-footnote-section' and ARGS is single-element
-list containing the plist (\"communication channel\")."
-  (if ox-tufte--sema-in-tufte-export
-      (let ((switch-p (plist-get (car args) :footnotes-section-p)))
-        (if switch-p (apply fun args)
-          ""))
-    (apply fun args)))
+FUN is `org-html-footnote-section' and INFO is the
+plist (\"communication channel\")."
+  (if (and ox-tufte--sema-in-tufte-export
+           (not (plist-get info :footnotes-section-p)))
+      ""
+    (funcall fun info)))
 (advice-add 'org-html-footnote-section
             :around #'org-tufte-footnote-section-advice)
 ;; ox-html: definition: id="fn.<id>"; href="#fnr.<id>"
