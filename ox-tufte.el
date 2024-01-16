@@ -292,6 +292,9 @@ advice may additionally temporarily override the value of
 `org-confirm-babel-evaluate' in order to allow the `marginnote'
 babel block."
   (let* ((ox-tufte-p (org-export-derived-backend-p backend 'tufte-html))
+         (ox-tufte-first-call-p (and ox-tufte-p
+                                     (not ox-tufte--sema-in-tufte-export)))
+         ;; NOTE: next two assignments can be in any order
          (p+ (if (or ox-tufte--sema-in-tufte-export ox-tufte-p)
                  (append p ;; later values triumph for this plist
                          '(;; we don't override `:html-divs' and
@@ -300,27 +303,26 @@ babel block."
                            :html-container "section"
                            :html-doctype "html5"
                            :html-html5-fancy t))
-               p)))
-    (if (or ox-tufte--sema-in-tufte-export
-            (not ox-tufte-p))
-        ;; i.e., either not tufte-html, or within recursive invocation
+               p))
+         (ox-tufte--sema-in-tufte-export (or ox-tufte-p
+                                             ox-tufte--sema-in-tufte-export)))
+    (if (not (and  ox-tufte-first-call-p
+                   org-tufte-feature-more-expressive-inline-marginnotes))
         (funcall fun backend s v b p+)
-      ;; o.w. within first call to tufte-html
-      (let ((ox-tufte--sema-in-tufte-export t))
-        (if (not org-tufte-feature-more-expressive-inline-marginnotes)
-            (funcall fun backend s v b p+)
-          (let ((org-export-global-macros ;; could be done in `org-export-before-processing-functions'
-                 (cons '("marginnote" . ox-tufte--utils-margin-note-macro)
-                       org-export-global-macros))
-                (ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
-                (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
-                (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
-            ;; allow evaluation of blocks within mn-as-macro or mn-as-babel-call
-            (let ((inhibit-message t)) ;; silence only the lob ingestion messages
-              (org-babel-lob-ingest buffer-file-name))
-            (let ((output (funcall fun backend s v b p+)))
-              (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
-              output)))))))
+      ;; o.w. in first call to tufte-html w/ more-expressive-syntax enabled, so
+      ;; setup environment before evaluating
+      (let ((org-export-global-macros ;; could be done in `org-export-before-processing-functions'
+             (cons '("marginnote" . ox-tufte--utils-margin-note-macro)
+                   org-export-global-macros))
+            (ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
+            (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
+            (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
+        ;; allow evaluation of blocks within mn-as-macro or mn-as-babel-call
+        (let ((inhibit-message t)) ;; silence only the lob ingestion messages
+          (org-babel-lob-ingest buffer-file-name))
+        (let ((output (funcall fun backend s v b p+)))
+          (setq org-babel-library-of-babel ox-tufte/tmp/lob-pre)
+          output)))))
 ;; NOTE: ^ no need to `advice-add' `org-tufte-export-as-advice', since it gets
 ;; added by the `org-tufte-export-as-advice-depth' defcustom on load.
 
