@@ -268,14 +268,14 @@ margin-notes visibility-toggle with the margin-note."
 (defvar ox-tufte--store-confirm-babel-evaluate nil
   "Store value of `org-confirm-babel-evaluate'.")
 
-(defun ox-tufte--utils-permit-mn-babel-call (lang body)
+(defun ox-tufte--allow-mn-babel-call-maybe (lang body)
   "Permit evaluation of marginnote babel-call.
 LANG is the language of the code block whose text is BODY,"
   (if (and org-tufte-feature-more-expressive-inline-marginnotes
            (string= lang "elisp")
            (string= body "(require 'ox-tufte)
 (ox-tufte--utils-margin-note input)"))
-      nil
+      nil ;; i.e., don't seek confirmation from user
     (if (functionp ox-tufte--store-confirm-babel-evaluate)
         (funcall ox-tufte--store-confirm-babel-evaluate lang body)
       ox-tufte--store-confirm-babel-evaluate)))
@@ -316,7 +316,7 @@ babel block."
              (cons '("marginnote" . ox-tufte--utils-margin-note-macro)
                    org-export-global-macros))
             (ox-tufte--store-confirm-babel-evaluate org-confirm-babel-evaluate)
-            (org-confirm-babel-evaluate #'ox-tufte--utils-permit-mn-babel-call)
+            (org-confirm-babel-evaluate #'ox-tufte--allow-mn-babel-call-maybe)
             (ox-tufte/tmp/lob-pre org-babel-library-of-babel))
         ;; allow evaluation of blocks within mn-as-macro or mn-as-babel-call
         (let ((inhibit-message t)) ;; silence only the lob ingestion messages
@@ -427,13 +427,16 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
      ((string= block-type "marginnote")
       (ox-tufte--utils-margin-note-snippet
        nil nil (org-html-special-block special-block contents info)))
+     ;; add support for captions on figures that `ox-html' lacks
      ((and (string= block-type "figure")
            (org-html--has-caption-p special-block info)
-           (not (member "iframe-wrapper" ;; FIXME: fix tufte-css before enabling
+           ;; FIXME: tufte-css v1.8.0 doesn't support captions on iframe-wrapper
+           (not (member "iframe-wrapper"
                         (split-string
-                         (plist-get (org-export-read-attribute :attr_html special-block) :class)
+                         (plist-get (org-export-read-attribute :attr_html
+                                                               special-block)
+                                    :class)
                          " "))))
-      ;; add support for captions on figures that `ox-html' lacks
       (let* ((caption (let ((raw (org-export-data
                                   (org-export-get-caption special-block) info)))
                         (if (not (org-string-nw-p raw)) raw
@@ -450,13 +453,11 @@ Pass SPECIAL-BLOCK CONTENTS and INFO to `org-html-special-block' otherwise."
                           ;;         raw)
                           )))
              (figcaption (format "<figcaption>%s</figcaption>" caption))
-             ;; using regex because `esxml-to-xml' doesn't put closing iframe
-             ;; tag (and also loses some attributes), which results in broken
-             ;; html (so cannot do what we do in `org-tufte-quote-block'.
+             ;; FIXME: might be more robust to parse-replace-serialize the HTML
+             ;; instead.
              (o-h-sb-str (org-html-special-block special-block contents info)))
-        (replace-regexp-in-string
-         "</figure>\\'"
-         (concat figcaption "</figure>") o-h-sb-str t t)))
+        (replace-regexp-in-string "</figure>\\'" (concat figcaption "</figure>")
+                                  o-h-sb-str t t)))
      (t (org-html-special-block special-block contents info)))))
 
 ;;;; margin-note as link
