@@ -476,7 +476,8 @@ pre {{{marginnote(pre {{{prefix(text)}}})}}} post" t
 
 (ert-deftest ox-tufte/marginnote-as-babel-call/silently-fail-when-expressive-syntax-disabled ()
   "Silently elide marginnote-as-babel-call when expressive syntax disabled."
-  (let ((org-tufte-feature-more-expressive-inline-marginnotes nil))
+  (let ((org-tufte-feature-more-expressive-inline-marginnotes nil)
+        (org-confirm-babel-evaluate nil))
     (should
      (org-tufte-test-in-exported-buffer
       "pre call_marginnote(\"hello world\") post" t
