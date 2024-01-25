@@ -1,7 +1,7 @@
 all: test
 .PHONY: all
 
-.PHONY: info init check test test-debug devel clean
+.PHONY: info init check test test-ci devel clean clean-ci
 info:
 	eldev info
 init:
@@ -10,10 +10,13 @@ check:
 	eldev lint
 test: clean
 	eldev test -B
-test-debug: clean
-	eldev test
+test-ci: clean-ci
+	eldev -p prepare 2>/dev/null
+	eldev -p -dtTC test -B
 clean:
 	eldev clean
+clean-ci:
+	rm -rf .eldev
 devel: test
 	{ \
 	FILES="./*.el"; \
