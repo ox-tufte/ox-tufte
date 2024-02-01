@@ -1,8 +1,8 @@
 #+TITLE: ox-tufte
 #+AUTHOR: The Bayesians Inc.
 
-[[https://melpa.org/#/ox-tufte][file:https://melpa.org/packages/ox-tufte-badge.svg]]
-[[https://stable.melpa.org/#/ox-tufte][file:https://stable.melpa.org/packages/ox-tufte-badge.svg]]
+This is an [[https://orgmode.org/manual/Exporting.html#index-export-back_002dend][export backend for Org mode]] that exports buffers to HTML that is
+compatible with [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]].
 
 * Changes since version 3.x
 Version 4.x alters some of the internals considerably from the 3.x version.
@@ -77,6 +77,8 @@ And then in your ~init.el~ (or equivalent):
 
 It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] ([[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]) and place it on your server
 (with the fonts).
+
+[[https://repology.org/badge/vertical-allrepos/emacs:ox-tufte.svg]]
 
 ** Usage
 The recommended way to use =ox-tufte= is *with* [[https://orgmode.org/manual/CSS-support.html][the default style provided by
