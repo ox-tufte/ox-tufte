@@ -78,7 +78,7 @@ And then in your ~init.el~ (or equivalent):
 It's important that you download [[https://github.com/edwardtufte/tufte-css][tufte css]] ([[https://github.com/edwardtufte/tufte-css/releases/tag/v1.8.0][v1.8.0]]) and place it on your server
 (with the fonts).
 
-[[https://repology.org/badge/vertical-allrepos/emacs:ox-tufte.svg]]
+[[https://repology.org/project/emacs:ox-tufte/versions][file:https://repology.org/badge/vertical-allrepos/emacs:ox-tufte.svg]]
 
 ** Usage
 The recommended way to use =ox-tufte= is *with* [[https://orgmode.org/manual/CSS-support.html][the default style provided by
