@@ -8,6 +8,11 @@ compatible with [[https://edwardtufte.github.io/tufte-css/][Tufte CSS]].
 Version 4.x alters some of the internals considerably from the 3.x version.
 Notably some configuration options have changed.  See below for details.
 
+** As of version 4.1.x
+- Some care is taken to ensure that the IDs of the generated HTML elements
+  (e.g., footnote references) are reproducible.  In case the IDs vary across
+  builds, it's a bug.
+** As of version 4.0.x
 - Altering variables =org-html-checkbox-type= and =org-html-divs= no longer has
   any effect.  To provide default values for the corresponding options, use
   variables =org-tufte-html-checkbox-type= and =org-tufte-html-sections=
