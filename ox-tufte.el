@@ -40,9 +40,16 @@
 (require 'ox)
 (require 'ox-html)
 
-;;;; initialization: marginnote syntax support
+;;;; initialization:
+;;;;; marginnote syntax support
 (org-babel-lob-ingest ;; for marginnote-as-babel-call syntax
  (concat (file-name-directory (locate-library "ox-tufte")) "src/README.org"))
+;;;;; reproducible identifiers
+(require 'org)
+(require 'ox-html)
+;; HACK: doing below once seems to be needed if `org-export-as' hasn't been
+;; invoked previously
+(org-export-string-as "" 'html t nil)
 
 
 
@@ -291,6 +298,7 @@ Depending on the value of
 advice may additionally temporarily override the value of
 `org-confirm-babel-evaluate' in order to allow the `marginnote'
 babel block."
+  (random "ox-tufte") ;; initialize the random seed
   (let* ((ox-tufte-p (org-export-derived-backend-p backend 'tufte-html))
          (ox-tufte-first-call-p (and ox-tufte-p
                                      (not ox-tufte--sema-in-tufte-export)))
