@@ -8,7 +8,7 @@
 ;; Maintainer: The Bayesians Inc.
 ;; Description: An org exporter for Tufte HTML
 ;; Keywords: org, tufte, html, outlines, hypermedia, calendar, wp
-;; Version: 4.1.1
+;; Version: 4.2.0
 ;; Package-Requires: ((org "9.5") (emacs "27.1"))
 ;; URL: https://github.com/ox-tufte/ox-tufte
 
