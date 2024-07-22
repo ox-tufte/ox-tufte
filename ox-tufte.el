@@ -484,13 +484,19 @@ handled when occurring as regular links and not as angle or plain
 links. Additionally, it ensures that we only handle margin-notes
 for HTML backend without having an opinion on how to treat them
 for other backends."
-  (let ((path (split-string (org-element-property :path link) ":"))
-        (desc (or desc "")))
-    (if (and (string= (org-element-property :type link) "fuzzy")
-             (string= (car path) "mn"))
-        (ox-tufte--utils-margin-note-snippet
-         (ox-tufte--utils-filter-tags desc)
-         (if (string= (cadr path) "") nil (cadr path)))
+  (if-let ((path (org-element-property :path link))
+           (pathelems (split-string path ":"))
+           (type (downcase (org-element-property :type link)))
+           ((and (string= type "fuzzy")
+                 (string= (car pathelems) "mn")))
+           (tag (cadr pathelems)))
+      (ox-tufte--utils-margin-note-snippet
+       (ox-tufte--utils-filter-tags (or desc ""))
+       (if (string= tag "") nil tag))
+    (if-let ((fn (plist-get (alist-get type org-link-parameters
+                                       nil nil #'string=)
+                            :export)))
+        (funcall fn path desc 'tufte-html info)
       (org-html-link link desc info))))
 
 
