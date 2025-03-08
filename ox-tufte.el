@@ -160,10 +160,13 @@ ELEMENT_TYPE of the `content' entry must be \"article\"."
                 "article")))
 
 ;;;; advanced
-(defcustom org-tufte-randid-limit 10000000
+(defcustom org-tufte-randid-limit #x10000000
   "Upper limit when generating random IDs.
-This has to be a positive integer.  With the default value of
-10000000, there is ~0.2% chance of collision with 200 references."
+This has to be a positive integer.  With the default hexadecimal
+value of 10000000, there is ~0.2% chance of collision with 1000
+references.  The default value is the same as what is used by
+`org-export-new-reference'."
+  ;; NEXT: should we be reusing `org-export-get-reference' here?
   :group 'org-export-tufte
   :type 'integer
   :safe (lambda (x)
