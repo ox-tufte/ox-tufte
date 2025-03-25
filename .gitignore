@@ -4,3 +4,4 @@
 /.eldev
 /Eldev-local
 /*-autoloads.el
+/.dir-locals-2.el
