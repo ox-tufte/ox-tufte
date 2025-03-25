@@ -31,3 +31,18 @@ devel: test
 		make test; \
 	done; \
 	}
+
+.PHONY: guix guix-profile guix-profile-update
+channels := ./.guix/channels.scm
+manifest := ./.guix/manifest.scm
+guix:
+	guix build -K -f guix.scm
+guix-profile:
+	@mkdir -p ~/.guix-extra-profiles/ox-tufte
+	guix time-machine -C $(channels) -- \
+		package --fallback \
+		-p ~/.guix-extra-profiles/ox-tufte/ox-tufte \
+		-m $(manifest)
+guix-profile-update:
+	./.guix/etc/update-channels.scm > $(channels)
+	$(MAKE) guix-profile

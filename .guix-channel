@@ -1,0 +1,6 @@
+;; -*-Scheme-*-
+;; This file lets us present this repo as a Guix channel.
+
+(channel
+  (version 0)
+  (directory ".guix/modules"))
